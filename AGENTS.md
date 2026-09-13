@@ -11,6 +11,9 @@ Before changing code, read these files in order:
 3. `ARCHITECTURE.md`
 4. `ROADMAP.md`
 5. `docs/DECISIONS.md`
+6. `docs/NEXT_SESSION.md`
+
+`docs/NEXT_SESSION.md` is the persistent execution handoff. If a future session begins with only the MergeEarn repository URL, do **not** ask the user to restate the product context. Read that handoff, inspect current `main`, CI, and P0 Issue #1, then continue the highest-priority incomplete work.
 
 If a task conflicts with these documents, do not silently improvise. Explain the conflict and update the relevant source-of-truth document in the same pull request.
 
