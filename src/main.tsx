@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './styles.css';
 import { fetchPublicGitHubIssue, GitHubIssue } from './integrations/github';
 import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './integrations/nimiq';
+import { sendNimFundingPayment } from './payments/nimiq';
 
 type Draft = {
   title: string;
@@ -11,6 +12,14 @@ type Draft = {
   reward: string;
   asset: 'NIM' | 'USDT';
 };
+
+type FundingState =
+  | { status: 'IDLE' }
+  | { status: 'SUBMITTING' }
+  | { status: 'SUBMITTED'; txHash: string }
+  | { status: 'FAILED'; message: string };
+
+const fundingRecipient = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 
 function createDraft(issue: GitHubIssue): Draft {
   const firstBodyLine = issue.body
@@ -38,16 +47,25 @@ function App() {
   const [wallet, setWallet] = useState<NimiqWalletSnapshot | null>(null);
   const [issueLoading, setIssueLoading] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
+  const [funding, setFunding] = useState<FundingState>({ status: 'IDLE' });
   const [error, setError] = useState<string | null>(null);
 
   const readyToFund = useMemo(
-    () => Boolean(issue && draft && wallet && Number(draft.reward) > 0),
+    () => Boolean(
+      issue
+      && draft
+      && wallet
+      && draft.asset === 'NIM'
+      && Number(draft.reward) > 0
+      && fundingRecipient,
+    ),
     [issue, draft, wallet],
   );
 
   async function importIssue(event: FormEvent) {
     event.preventDefault();
     setError(null);
+    setFunding({ status: 'IDLE' });
     setIssueLoading(true);
 
     try {
@@ -73,6 +91,25 @@ function App() {
       setError(cause instanceof Error ? cause.message : 'Could not connect to Nimiq Pay.');
     } finally {
       setWalletLoading(false);
+    }
+  }
+
+  async function fundBounty() {
+    if (!draft || !readyToFund) return;
+
+    setError(null);
+    setFunding({ status: 'SUBMITTING' });
+
+    try {
+      const txHash = await sendNimFundingPayment({
+        recipient: fundingRecipient,
+        amountNim: draft.reward,
+      });
+      setFunding({ status: 'SUBMITTED', txHash });
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : 'Funding transaction failed.';
+      setFunding({ status: 'FAILED', message });
+      setError(message);
     }
   }
 
@@ -176,7 +213,7 @@ function App() {
               <div className="criteria-block">
                 <span className="field-label">Acceptance criteria</span>
                 {draft.acceptanceCriteria.map((criterion, index) => (
-                  <div className="criterion" key={`${criterion}-${index}`}>
+                  <div className="criterion" key={index}>
                     <span>{index + 1}</span>
                     <input
                       value={criterion}
@@ -197,7 +234,10 @@ function App() {
                     id="reward"
                     inputMode="decimal"
                     value={draft.reward}
-                    onChange={(event) => setDraft({ ...draft, reward: event.target.value })}
+                    onChange={(event) => {
+                      setDraft({ ...draft, reward: event.target.value });
+                      setFunding({ status: 'IDLE' });
+                    }}
                   />
                 </div>
                 <div>
@@ -205,7 +245,10 @@ function App() {
                   <select
                     id="asset"
                     value={draft.asset}
-                    onChange={(event) => setDraft({ ...draft, asset: event.target.value as Draft['asset'] })}
+                    onChange={(event) => {
+                      setDraft({ ...draft, asset: event.target.value as Draft['asset'] });
+                      setFunding({ status: 'IDLE' });
+                    }}
                   >
                     <option value="NIM">NIM</option>
                     <option value="USDT">USDT</option>
@@ -215,14 +258,32 @@ function App() {
 
               <div className="fund-panel">
                 <div>
-                  <span className="fund-label">Funding readiness</span>
-                  <strong>{readyToFund ? 'Ready for transaction implementation' : 'Connect Nimiq Pay to continue'}</strong>
+                  <span className="fund-label">Step 3 · Fund bounty</span>
+                  <strong>
+                    {funding.status === 'SUBMITTED'
+                      ? 'Transaction submitted — awaiting verification'
+                      : !fundingRecipient
+                        ? 'Funding address needs configuration'
+                        : draft.asset === 'USDT'
+                          ? 'USDT rail is next; NIM funding is live first'
+                          : wallet
+                            ? 'Ready to request Nimiq Pay approval'
+                            : 'Connect Nimiq Pay to continue'}
+                  </strong>
                   <small>
-                    MergeEarn will only mark this bounty funded after the payment provider confirms the transaction.
+                    A submitted transaction is not treated as FUNDED yet. The backend verification step will confirm the transaction before advancing bounty state.
                   </small>
+                  {funding.status === 'SUBMITTED' ? (
+                    <code className="tx-hash">Tx: {funding.txHash}</code>
+                  ) : null}
                 </div>
-                <button className="primary" type="button" disabled={!readyToFund}>
-                  Fund {draft.reward || '0'} {draft.asset}
+                <button
+                  className="primary"
+                  type="button"
+                  onClick={fundBounty}
+                  disabled={!readyToFund || funding.status === 'SUBMITTING'}
+                >
+                  {funding.status === 'SUBMITTING' ? 'Confirm in Nimiq Pay…' : `Fund ${draft.reward || '0'} ${draft.asset}`}
                 </button>
               </div>
             </div>
@@ -243,11 +304,11 @@ function App() {
         </article>
         <article>
           <strong>Nimiq powered</strong>
-          <span>Wallet access uses the official Mini App SDK.</span>
+          <span>Wallet access and NIM transactions use the official Mini App SDK.</span>
         </article>
         <article>
           <strong>Payment safe by design</strong>
-          <span>Funding and payout state require provider confirmation.</span>
+          <span>Submitting a transaction never skips provider verification.</span>
         </article>
       </section>
     </main>
