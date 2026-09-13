@@ -38,8 +38,14 @@ export async function sendNimFundingPayment(input: {
     throw new Error('Nimiq network consensus is not established yet. Try again shortly.');
   }
 
-  return provider.sendBasicTransaction({
+  const result = await provider.sendBasicTransaction({
     recipient,
     value: nimToLuna(input.amountNim),
   });
+
+  if (typeof result !== 'string') {
+    throw new Error('Nimiq Pay did not return a transaction hash.');
+  }
+
+  return result;
 }
