@@ -16,13 +16,17 @@ function getProvider() {
 export async function connectNimiqWallet(): Promise<NimiqWalletSnapshot> {
   const provider = await getProvider();
 
-  const [accounts, consensusEstablished, blockNumber] = await Promise.all([
+  const [accountsResult, consensusEstablished, blockNumber] = await Promise.all([
     provider.listAccounts(),
     provider.isConsensusEstablished(),
     provider.getBlockNumber(),
   ]);
 
-  const address = accounts[0];
+  if (!Array.isArray(accountsResult)) {
+    throw new Error('Nimiq Pay could not return wallet accounts.');
+  }
+
+  const address = accountsResult[0];
   if (!address) {
     throw new Error('No Nimiq account is available in Nimiq Pay.');
   }
