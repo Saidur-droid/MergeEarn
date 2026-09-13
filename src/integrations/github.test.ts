@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseGitHubIssueUrl } from './github';
+import { parseGitHubIssueUrl, parseGitHubPullRequestUrl } from './github';
 
 describe('parseGitHubIssueUrl', () => {
   it('parses a standard GitHub issue URL', () => {
@@ -25,6 +25,22 @@ describe('parseGitHubIssueUrl', () => {
   it('rejects invalid issue numbers', () => {
     expect(() => parseGitHubIssueUrl('https://github.com/openai/openai/issues/not-a-number')).toThrow(
       'issue number',
+    );
+  });
+});
+
+describe('parseGitHubPullRequestUrl', () => {
+  it('parses a standard GitHub pull request URL', () => {
+    expect(parseGitHubPullRequestUrl('https://github.com/openai/openai/pull/456')).toEqual({
+      owner: 'openai',
+      repo: 'openai',
+      pullNumber: 456,
+    });
+  });
+
+  it('rejects issue URLs', () => {
+    expect(() => parseGitHubPullRequestUrl('https://github.com/openai/openai/issues/456')).toThrow(
+      'pull request URL',
     );
   });
 });
