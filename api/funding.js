@@ -27,30 +27,45 @@ export default async function handler(req, res) {
         error.statusCode = 400;
         throw error;
       }
-      const existing = await supabase('payment_transactions', { query: { idempotency_key: `eq.${idempotencyKey}`, limit: 1 } });
-      if (existing[0]?.status === 'CONFIRMED') return json(res, 200, { transaction: existing[0], alreadyConfirmed: true });
-      if (existing[0] && existing[0].provider_reference && existing[0].provider_reference !== txHash) {
+      const [existing] = await supabase('payment_transactions', { query: { idempotency_key: `eq.${idempotencyKey}`, limit: 1 } });
+      if (existing?.status === 'CONFIRMED') return json(res, 200, { transaction: existing, alreadyConfirmed: true });
+      if (existing?.status === 'PENDING' && existing.provider_reference && existing.provider_reference !== txHash) {
         const error = new Error('A different funding transaction is already pending for this bounty.');
         error.statusCode = 409;
         throw error;
       }
-      const rows = await supabase('payment_transactions', {
-        method: 'POST',
-        query: { on_conflict: 'idempotency_key' },
-        prefer: 'resolution=merge-duplicates,return=representation',
-        body: {
-          bounty_id: bounty.id,
-          type: 'FUNDING',
-          provider: 'NIMIQ',
-          asset: 'NIM',
-          amount_luna: bounty.reward_amount_luna,
-          provider_reference: txHash,
-          idempotency_key: idempotencyKey,
-          status: 'PENDING',
-          metadata: { recipient, submittedBy: session.user.id },
-          updated_at: new Date().toISOString(),
-        },
-      });
+
+      let rows;
+      if (existing) {
+        rows = await supabase('payment_transactions', {
+          method: 'PATCH',
+          query: { id: `eq.${existing.id}` },
+          prefer: 'return=representation',
+          body: {
+            provider_reference: txHash,
+            status: 'PENDING',
+            error_message: null,
+            metadata: { recipient, submittedBy: session.user.id, retry: existing.status === 'FAILED' },
+            updated_at: new Date().toISOString(),
+          },
+        });
+      } else {
+        rows = await supabase('payment_transactions', {
+          method: 'POST',
+          prefer: 'return=representation',
+          body: {
+            bounty_id: bounty.id,
+            type: 'FUNDING',
+            provider: 'NIMIQ',
+            asset: 'NIM',
+            amount_luna: bounty.reward_amount_luna,
+            provider_reference: txHash,
+            idempotency_key: idempotencyKey,
+            status: 'PENDING',
+            metadata: { recipient, submittedBy: session.user.id },
+          },
+        });
+      }
       await supabase('audit_events', { method: 'POST', body: { bounty_id: bounty.id, actor_type: 'USER', actor_id: session.user.id, event_type: 'funding.submitted', metadata: { txHash } } });
       return json(res, 200, { transaction: rows[0] });
     }
