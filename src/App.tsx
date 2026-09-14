@@ -29,6 +29,7 @@ export default function App() {
   const [bounties, setBounties] = useState<Bounty[]>([]);
   const [selectedBountyId, setSelectedBountyId] = useState<string>('');
   const [metrics, setMetrics] = useState<Metrics | null>(null);
+  const [canManageBounty, setCanManageBounty] = useState(false);
   const [wallet, setWallet] = useState<NimiqWalletSnapshot | null>(null);
   const [prUrl, setPrUrl] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
@@ -95,6 +96,14 @@ export default function App() {
       return result;
     });
   }, [selectedRepository?.id]);
+
+  useEffect(() => {
+    if (!selectedBountyId) {
+      setCanManageBounty(false);
+      return;
+    }
+    api.capabilities(selectedBountyId).then(res => setCanManageBounty(res.canManage)).catch(() => setCanManageBounty(false));
+  }, [selectedBountyId]);
 
   async function connectWallet() {
     const snapshot = await run('wallet', () => connectNimiqWallet(), 'Nimiq Pay connected.');
@@ -346,7 +355,7 @@ export default function App() {
               </div>
             </div>
             <div className="action-card">
-              {selectedBounty.status === 'READY_TO_FUND' && selectedBounty.creator_user_id === user.id ? <>
+              {selectedBounty.status === 'READY_TO_FUND' && user && selectedBounty.creator_user_id === user.id ? <>
                 <h3>Fund bounty</h3><p>Nimiq Pay will ask you to approve the exact reward amount. MergeEarn marks the bounty funded only after server-side chain verification.</p>
                 <button className="primary full" onClick={() => fundBounty(selectedBounty)} disabled={Boolean(busy)}>Fund {selectedBounty.reward_amount_nim} NIM</button>
                 {selectedBounty.payment_transactions?.some((tx) => tx.type === 'FUNDING' && tx.status === 'PENDING') ? <button className="secondary full" onClick={() => verifyFunding(selectedBounty)}>Verify funding</button> : null}
@@ -362,15 +371,15 @@ export default function App() {
                 <form onSubmit={submitPullRequest}><input type="url" required value={prUrl} onChange={(event) => setPrUrl(event.target.value)} placeholder="https://github.com/owner/repo/pull/123" /><button className="primary full" type="submit" disabled={Boolean(busy)}>Submit pull request</button></form>
               </> : null}
 
-              {selectedBounty.status === 'PR_SUBMITTED' && myActiveClaim ? <>
-                <h3>Waiting for merge</h3><p>Refresh canonical GitHub state after the maintainer merges the pull request.</p><button className="primary full" onClick={() => verifyPullRequest(selectedBounty)} disabled={Boolean(busy)}>Verify merged state</button>
+              {selectedBounty.status === 'PR_SUBMITTED' && (myActiveClaim || canManageBounty) ? <>
+                <h3>Waiting for merge</h3><p>Refresh canonical GitHub state after the pull request is merged.</p><button className="primary full" onClick={() => verifyPullRequest(selectedBounty)} disabled={Boolean(busy)}>Verify merged state</button>
               </> : null}
 
-              {selectedBounty.status === 'VERIFIED' ? <>
+              {selectedBounty.status === 'VERIFIED' && canManageBounty ? <>
                 <h3>Approve verified work</h3><p>GitHub confirms the expected pull request is merged. Server-side repository permission is checked again before approval.</p><button className="primary full" onClick={() => approveBounty(selectedBounty)} disabled={Boolean(busy)}>Approve for payout</button>
               </> : null}
 
-              {['APPROVED', 'PAYMENT_FAILED'].includes(selectedBounty.status) ? <>
+              {['APPROVED', 'PAYMENT_FAILED'].includes(selectedBounty.status) && canManageBounty ? <>
                 <h3>Release payout</h3><p>Only the configured payout wallet can send this payment. The server verifies sender, recipient, amount, confirmation, and idempotency before marking Paid.</p><button className="primary full" onClick={() => payBounty(selectedBounty)} disabled={Boolean(busy)}>Pay contributor</button>
                 {selectedBounty.payment_transactions?.some((tx) => tx.type === 'PAYOUT' && tx.status === 'PENDING') ? <button className="secondary full" onClick={() => verifyPayout(selectedBounty)}>Verify payout</button> : null}
               </> : null}
