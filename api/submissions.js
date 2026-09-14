@@ -1,3 +1,4 @@
+import { assertExpectedPullRequest } from './_lib/policy.js';
 import { getBounty, github, handleError, json, method, readJson, requireSession, supabase, transitionBounty } from './_lib/server.js';
 
 function parsePullUrl(value) {
@@ -18,11 +19,7 @@ async function fetchCanonicalPr(token, pullUrl, bounty) {
     throw error;
   }
   const { data } = await github(`/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.repo)}/pulls/${parsed.number}`, token);
-  if (data.base?.ref !== repo.default_branch) {
-    const error = new Error(`Pull request must target ${repo.default_branch}.`);
-    error.statusCode = 400;
-    throw error;
-  }
+  assertExpectedPullRequest(data, repo.full_name, repo.default_branch);
   return data;
 }
 
