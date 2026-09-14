@@ -18,45 +18,57 @@ export default async function handler(req, res) {
     }
     const sourceAddress = requireEnv('NIMIQ_PAYOUT_SOURCE_ADDRESS');
     const idempotencyKey = `payout:${bounty.id}`;
-    const existingRows = await supabase('payment_transactions', { query: { idempotency_key: `eq.${idempotencyKey}`, limit: 1 } });
-    const existing = existingRows[0];
+    let [existing] = await supabase('payment_transactions', { query: { idempotency_key: `eq.${idempotencyKey}`, limit: 1 } });
 
     if (body.action === 'prepare') {
-      if (existing?.status === 'CONFIRMED') {
-        return json(res, 200, { alreadyPaid: true, transaction: existing });
-      }
+      if (existing?.status === 'CONFIRMED') return json(res, 200, { alreadyPaid: true, transaction: existing });
       if (!['APPROVED', 'PAYMENT_FAILED'].includes(bounty.status)) {
         const error = new Error('Bounty must be approved before payout can start.');
         error.statusCode = 409;
         throw error;
       }
-      if (existing?.provider_reference) {
-        return json(res, 200, {
-          transaction: existing,
-          payout: { recipient: claim.nimiq_address, amountNim: lunaToNim(bounty.reward_amount_luna), sourceAddress },
+
+      if (existing?.status === 'FAILED') {
+        const rows = await supabase('payment_transactions', {
+          method: 'PATCH',
+          query: { id: `eq.${existing.id}` },
+          prefer: 'return=representation',
+          body: {
+            provider_reference: null,
+            status: 'PENDING',
+            error_message: null,
+            metadata: { recipient: claim.nimiq_address, sourceAddress, preparedBy: session.user.id, retry: true },
+            updated_at: new Date().toISOString(),
+          },
         });
+        existing = rows[0];
       }
-      const rows = await supabase('payment_transactions', {
-        method: 'POST',
-        query: { on_conflict: 'idempotency_key' },
-        prefer: 'resolution=merge-duplicates,return=representation',
-        body: {
-          bounty_id: bounty.id,
-          type: 'PAYOUT',
-          provider: 'NIMIQ',
-          asset: 'NIM',
-          amount_luna: bounty.reward_amount_luna,
-          idempotency_key: idempotencyKey,
-          status: 'PENDING',
-          metadata: { recipient: claim.nimiq_address, sourceAddress, preparedBy: session.user.id },
-          updated_at: new Date().toISOString(),
-        },
-      });
-      await supabase('audit_events', { method: 'POST', body: { bounty_id: bounty.id, actor_type: 'USER', actor_id: session.user.id, event_type: 'payout.started', metadata: { transactionId: rows[0].id } } });
-      return json(res, 200, {
-        transaction: rows[0],
-        payout: { recipient: claim.nimiq_address, amountNim: lunaToNim(bounty.reward_amount_luna), sourceAddress },
-      });
+
+      if (existing?.provider_reference) {
+        return json(res, 200, { transaction: existing, payout: { recipient: claim.nimiq_address, amountNim: lunaToNim(bounty.reward_amount_luna), sourceAddress } });
+      }
+
+      let transaction = existing;
+      if (!transaction) {
+        const rows = await supabase('payment_transactions', {
+          method: 'POST',
+          prefer: 'return=representation',
+          body: {
+            bounty_id: bounty.id,
+            type: 'PAYOUT',
+            provider: 'NIMIQ',
+            asset: 'NIM',
+            amount_luna: bounty.reward_amount_luna,
+            idempotency_key: idempotencyKey,
+            status: 'PENDING',
+            metadata: { recipient: claim.nimiq_address, sourceAddress, preparedBy: session.user.id },
+          },
+        });
+        transaction = rows[0];
+        await supabase('audit_events', { method: 'POST', body: { bounty_id: bounty.id, actor_type: 'USER', actor_id: session.user.id, event_type: 'payout.started', metadata: { transactionId: transaction.id } } });
+      }
+
+      return json(res, 200, { transaction, payout: { recipient: claim.nimiq_address, amountNim: lunaToNim(bounty.reward_amount_luna), sourceAddress } });
     }
 
     if (body.action === 'submit') {
@@ -72,7 +84,7 @@ export default async function handler(req, res) {
         error.statusCode = 400;
         throw error;
       }
-      if (existing.provider_reference && existing.provider_reference !== txHash) {
+      if (existing.status === 'PENDING' && existing.provider_reference && existing.provider_reference !== txHash) {
         const error = new Error('A different payout transaction is already pending; verify it before retrying.');
         error.statusCode = 409;
         throw error;
