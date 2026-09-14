@@ -355,7 +355,7 @@ export default function App() {
               </div>
             </div>
             <div className="action-card">
-              {selectedBounty.status === 'READY_TO_FUND' && canManageBounty ? <>
+              {selectedBounty.status === 'READY_TO_FUND' && user && selectedBounty.creator_user_id === user.id ? <>
                 <h3>Fund bounty</h3><p>Nimiq Pay will ask you to approve the exact reward amount. MergeEarn marks the bounty funded only after server-side chain verification.</p>
                 <button className="primary full" onClick={() => fundBounty(selectedBounty)} disabled={Boolean(busy)}>Fund {selectedBounty.reward_amount_nim} NIM</button>
                 {selectedBounty.payment_transactions?.some((tx) => tx.type === 'FUNDING' && tx.status === 'PENDING') ? <button className="secondary full" onClick={() => verifyFunding(selectedBounty)}>Verify funding</button> : null}
