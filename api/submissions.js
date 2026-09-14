@@ -1,5 +1,5 @@
 import { assertExpectedPullRequest } from './_lib/policy.js';
-import { getBounty, github, handleError, json, method, readJson, requireSession, supabase, transitionBounty } from './_lib/server.js';
+import { assertRepoMaintainer, getBounty, github, handleError, json, method, readJson, requireSession, supabase, transitionBounty } from './_lib/server.js';
 
 function parsePullUrl(value) {
   let url;
@@ -32,13 +32,13 @@ export default async function handler(req, res) {
     if (!bounty) return json(res, 404, { error: 'Bounty not found.' });
 
     const activeClaim = (bounty.claims || []).find((claim) => claim.status === 'ACTIVE');
-    if (!activeClaim || activeClaim.contributor_user_id !== session.user.id) {
-      const error = new Error('Only the active claimant can submit or verify this pull request.');
-      error.statusCode = 403;
-      throw error;
-    }
 
     if (body.action === 'submit') {
+      if (!activeClaim || activeClaim.contributor_user_id !== session.user.id) {
+        const error = new Error('Only the active claimant can submit a pull request.');
+        error.statusCode = 403;
+        throw error;
+      }
       if (bounty.status !== 'CLAIMED') {
         const error = new Error('Bounty must be CLAIMED before a pull request can be submitted.');
         error.statusCode = 409;
@@ -87,6 +87,11 @@ export default async function handler(req, res) {
     }
 
     if (body.action === 'verify') {
+      const isClaimant = activeClaim && activeClaim.contributor_user_id === session.user.id;
+      if (!isClaimant) {
+        const repo = bounty.github_repositories;
+        await assertRepoMaintainer(session.githubToken, repo.owner, repo.name);
+      }
       const submission = (bounty.submissions || [])[0];
       if (!submission) {
         const error = new Error('No pull request is linked to this bounty.');

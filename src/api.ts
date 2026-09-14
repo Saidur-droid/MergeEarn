@@ -34,6 +34,7 @@ export const api = {
   payoutSubmit: (bountyId: string, txHash: string) => request('/api/payout', { method: 'POST', body: JSON.stringify({ bountyId, action: 'submit', txHash }) }),
   payoutVerify: (bountyId: string) => request<{ confirmed: boolean; pending?: boolean; message?: string }>('/api/payout', { method: 'POST', body: JSON.stringify({ bountyId, action: 'verify' }) }),
   metrics: () => request<{ metrics: Metrics }>('/api/metrics'),
+  capabilities: (bountyId: string) => request<{ canManage: boolean }>(`/api/capabilities?bountyId=${encodeURIComponent(bountyId)}`),
 };
 
 export type CopilotDraft = {
