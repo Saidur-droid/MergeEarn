@@ -61,9 +61,9 @@ export type Bounty = {
   status: string;
   github_repositories?: { full_name: string; default_branch: string; owner?: string; name?: string };
   source_issues?: { issue_number: number; title: string; html_url: string };
-  claims?: Array<{ id: string; status: string; contributor_user_id: string; nimiq_address: string }>;
+  claims?: Array<{ id: string; status: string; contributor_user_id: string }>;
   submissions?: Array<{ id: string; verification_status: string; html_url: string; merged_at: string | null }>;
-  payment_transactions?: Array<{ id: string; type: string; status: string; provider_reference?: string }>;
+  payment_transactions?: Array<{ id: string; type: string; status: string }>;
 };
 
 export type Metrics = {
