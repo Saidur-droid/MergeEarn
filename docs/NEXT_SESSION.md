@@ -1,229 +1,159 @@
 # MergeEarn — Next Session Handoff
 
-> Persistent handoff for humans and AI agents. If a future session starts with only the repository URL, read this file before asking the user to repeat the product context.
+> Persistent handoff for humans and AI agents. The repository is the permanent source of truth.
 
 ## Resume rule
 
-If the user gives `https://github.com/Saidur-droid/MergeEarn` (or `Saidur-droid/MergeEarn`) and asks to continue/finish:
+If a future session starts with the MergeEarn repository URL and asks to continue/finish:
 
-1. Read `AGENTS.md`.
-2. Read `PROJECT_PLAN.md`.
-3. Read `ARCHITECTURE.md`.
-4. Read `ROADMAP.md`.
-5. Read `docs/DECISIONS.md`.
-6. Read this file.
-7. Inspect GitHub Issue #1, current `main`, open PRs, and latest CI.
-8. Continue the highest-priority incomplete release gate directly; do not ask the user to explain MergeEarn again.
+1. Read `AGENTS.md`, `PROJECT_PLAN.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `docs/DECISIONS.md`, and this file.
+2. Inspect current `main`, open PRs/issues, latest CI, current Vercel production deployment, and production runtime errors.
+3. Continue the highest-priority incomplete release gate directly.
+4. Do not ask the user to repeat product context already present in the repository.
+5. Never claim 100% until the deployed real Issue -> Pay flow succeeds.
 
 ## Product identity
 
 **Name:** MergeEarn  
-**Type:** responsive SaaS web app designed to work as a Nimiq Mini App/WebView experience. It is not a native Android/iOS competition app.  
-**One-line pitch:** Turn GitHub issues into paid, verified work.
+**Type:** responsive SaaS web app designed for the Nimiq Mini App/Nimiq Pay experience  
+**Pitch:** Turn GitHub issues into paid, verified work.
 
-Core user loop:
+Core loop:
 
-`Issue -> Bounty -> Fund -> Fix -> Pull Request -> Verify -> Merge -> Approve -> Pay`
+`Issue -> Bounty -> Fund -> Claim -> Pull Request -> Merge -> Verify -> Approve -> Pay`
 
-Product boundaries remain locked:
+Locked boundaries:
 
-- GitHub-first, not a generic freelancer marketplace.
-- GitHub canonical state is code-work truth.
-- Nimiq is the competition payment rail behind a provider-neutral domain boundary.
-- AI is advisory and never payment authority.
-- Important lifecycle changes use the explicit bounty state machine.
-- Never show fake `FUNDED` or `PAID` states.
+- GitHub is the canonical source of code-work state.
+- Nimiq is the canonical source of payment state.
+- AI is advisory only and never payment authority.
+- Money-sensitive states require trusted-server verification.
+- Never fake `FUNDED`, `VERIFIED`, `APPROVED`, or `PAID`.
 
-## Current engineering status — 2026-09-14
+## Current code state — 2026-09-15
 
-The original foundation was approximately 60%. The remaining P0 **code-level production vertical slice has now been implemented in PR #3** (`feature/production-vertical-slice`).
+Production hardening PR #4 was merged. The current release candidate includes:
 
-Do **not** call the overall competition release 100% complete until the operational release gates below are configured and a real deployed end-to-end transaction succeeds.
+- Vercel-compatible trusted `/api/*` backend.
+- Dedicated Supabase schema and audit/payment persistence.
+- GitHub OAuth/session encryption.
+- Server-side repository maintainer capability checks.
+- Creator-only funding UI/backend policy.
+- Claimant-or-maintainer PR verification path with canonical repository/base/merge checks.
+- Maintainer approve/pay authorization.
+- Official `@nimiq/mini-app-sdk` wallet flow.
+- Server-side Nimiq transaction verification before `FUNDED`/`PAID`.
+- Idempotent funding/payout protections.
+- Deterministic dependency versions and lockfile.
+- `npm ci` CI.
+- Supabase security/performance hardening migration.
+- Competition submission, promotion, demo, release and security documentation.
+- CI-integrated repository/history secret-pattern scanner.
 
-### Implemented in the production vertical slice
+## Infrastructure state
 
-#### Trusted backend and persistence
+### Supabase
 
-- Vercel-compatible `/api/*` trusted server layer.
-- Supabase/PostgreSQL migration at `supabase/migrations/202609140001_core.sql`.
-- Persistent users, encrypted sessions, GitHub repositories, source issues, bounties, claims, submissions, payment transactions, and audit events.
-- RLS enabled with no anonymous browser policies; browser never receives the Supabase service-role key.
-- Database trigger/function rejects invalid bounty transitions.
-- Money-sensitive transitions are audit logged.
-- Unique payment idempotency keys and one-confirmed-payout-per-bounty protection.
+Dedicated production project exists:
 
-#### GitHub authentication and authorization
+- project ref: `ppqvnxrcwsdltzpdcwat`
+- URL: `https://ppqvnxrcwsdltzpdcwat.supabase.co`
+- region: `ap-southeast-1`
 
-- GitHub OAuth start/callback/session/logout flow.
-- OAuth state validation.
-- GitHub access token encrypted at rest with AES-256-GCM; only a hash of the browser session token is stored.
-- Least-privilege competition scope for public repositories (`read:user public_repo`).
-- Authorized public repository picker.
-- Server-side maintainer/push permission enforcement.
-- Canonical repository and issue IDs persisted.
-- Canonical PR repository/base-branch/head-SHA/merge-state verification on the trusted server.
+Applied migrations:
 
-#### AI bounty copilot
+1. `supabase/migrations/202609140001_core.sql`
+2. `supabase/migrations/202609140002_security_performance_hardening.sql`
 
-- Issue -> structured editable bounty draft.
-- Title, summary, acceptance criteria, difficulty, effort guidance, suggested reward range, and ambiguity/risk flags.
-- Output validation.
-- Safe structured fallback when no AI provider is configured or AI fails.
-- AI output remains editable and never determines payment eligibility.
+Security/performance advisor findings discovered during setup were addressed by the hardening migration. Remaining RLS-no-policy informational findings are intentional because the browser does not directly access the application tables.
 
-#### Contributor workflow
+### Vercel
 
-- Funded bounty board/detail experience.
-- Authenticated contributor claim.
-- Contributor Nimiq payout address capture.
-- Single active claim protection.
-- PR submission linked to the active claimant.
-- Canonical GitHub validation before `PR_SUBMITTED`/`VERIFIED`.
+Intended project metadata reported by the local release environment:
 
-#### Nimiq funding and payout
+- team id: `team_BsJXXtOBNmww7MhlgiE7JzzO`
+- project id: `prj_4jtCSgC00hCLiLltKClnBxVXmBgh`
+- canonical target URL: `https://mergeearn-saidur-droids-projects.vercel.app`
 
-- Official `@nimiq/mini-app-sdk` wallet connection and transaction request path retained.
-- Funding transaction is recorded as pending, then verified through server-side Nimiq JSON-RPC before `FUNDED`.
-- Funding verification checks recipient, amount, execution result, and block confirmation.
-- Maintainer approval is required after verified merge.
-- Payout uses one idempotency key per bounty.
-- Payout wallet signs through Nimiq Pay; MergeEarn does not store a private key/seed.
-- Server verifies payout sender, recipient, amount, and confirmation before `PAID`.
-- Failed payout can be retried without permitting a duplicate confirmed payout.
+The active ChatGPT connector has had inconsistent read visibility for that project, so always verify against the authenticated release environment before relying on connector absence as proof the project does not exist.
 
-#### Metrics and UX
+Already reported as configured in Vercel Production by the release operator:
 
-- Responsive maintainer/contributor production UI.
-- GitHub sign-in landing, repository/issue picker, bounty builder, live bounty board, claim/PR/approval/payment actions.
-- Loading, empty, failed, pending, retry, and success states.
-- Compact metrics for created/funded/claimed/PR submitted/verified/paid/completion/contributors/value/timing.
-- Security headers in `vercel.json`.
-- Production environment contract in `.env.example`.
-- Production setup/security documentation in `README.md`.
+- `APP_URL`
+- fresh `SESSION_ENCRYPTION_KEY`
+- `AI_API_URL`
+- `AI_MODEL`
+- `NIMIQ_RPC_URL=https://rpc.nimiqwatch.com`
 
-#### Quality
-
-- Existing bounty state-machine tests remain.
-- New PR trust-boundary/payment retry policy tests added.
-- GitHub Actions PR verification runs:
-  - typecheck
-  - tests
-  - production build
-- PR #3 CI reached green during implementation. Always inspect the latest head CI again before merging/deploying.
-
-## Remaining release gates — these are why the project is not yet honestly 100%
-
-The remaining blockers require external account configuration or real-world execution rather than more mock UI work.
-
-### 1. Dedicated Supabase production project
-
-A dedicated MergeEarn database project still needs to be created/selected and the migration applied.
-
-Known connected Supabase organization from this session: `yjqwythragekbcbmbzmz`.
-
-**Important:** Before creating a Supabase project, explicitly ask the user which organization to use and confirm the reported cost. Do not silently reuse another app's database.
-
-Then configure:
+Still requiring verification/configuration before deploy:
 
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- apply `supabase/migrations/202609140001_core.sql`
-- run Supabase security/performance advisors after migration
-
-### 2. GitHub OAuth App credentials
-
-A real OAuth App must be created/configured with callback:
-
-`<APP_URL>/api/auth/github/callback`
-
-Then configure:
-
 - `GITHUB_CLIENT_ID`
 - `GITHUB_CLIENT_SECRET`
-- `SESSION_ENCRYPTION_KEY` (long random secret)
-
-Never paste these into repository source code.
-
-### 3. Nimiq production configuration
-
-Configure and verify:
-
 - `VITE_NIMIQ_FUNDING_ADDRESS`
-- `NIMIQ_FUNDING_ADDRESS` (must match the browser public funding recipient)
+- `NIMIQ_FUNDING_ADDRESS`
 - `NIMIQ_PAYOUT_SOURCE_ADDRESS`
-- `NIMIQ_RPC_URL`
+- optional `AI_API_KEY`
 
-Then test one real funding transaction and one real payout transaction. The production RPC response shape/method must be validated against the configured Nimiq endpoint before submission.
+### Nimiq RPC
 
-### 4. Vercel project/deployment
+The local release environment reported smoke tests for `https://rpc.nimiqwatch.com`, including block number, consensus and `getTransactionByHash` support. Re-verify network identity/health from the deployed environment before the real E2E.
 
-Connected Vercel team discovered in this session:
+## Competition packaging
 
-- team: `saidur-droid's projects`
-- team id: `team_BsJXXtOBNmww7MhlgiE7JzzO`
+Canonical files:
 
-No dedicated MergeEarn Vercel project existed when checked. Create/link the project to `Saidur-droid/MergeEarn`, configure all server/browser environment variables securely, deploy, and inspect build/runtime logs.
+- `docs/COMPETITION_SUBMISSION.md`
+- `docs/SUBMISSION_FORM.md`
+- `docs/PROMOTION_COPY.md`
+- `docs/DEMO_RUNBOOK.md`
+- `docs/RELEASE_CHECKLIST.md`
+- `docs/SECURITY_RELEASE_CHECKLIST.md`
+- `SECURITY.md`
+- `CONTRIBUTING.md`
 
-### 5. Real end-to-end release validation
+Current Cycle 2 prep in `docs/COMPETITION_SUBMISSION.md` records the current deadline, scorecard, positioning and portal references. Re-check the portal immediately before final submission in case fields/deadline guidance changes.
 
-On the deployed production URL, perform this exact path with a test repository/issue/PR:
+## Immediate execution order
 
-1. Sign in with GitHub.
-2. Choose an authorized public repository.
-3. Choose a real issue.
-4. Generate/review/edit bounty specification.
-5. Create/publish bounty.
-6. Fund through Nimiq.
-7. Confirm server independently moves it to `FUNDED` only after chain verification.
-8. Sign in as/with a contributor and claim the bounty.
-9. Link a real PR against the expected default branch.
-10. Merge the PR.
-11. Re-verify canonical GitHub state until `VERIFIED`.
-12. Authorized maintainer approves it.
-13. Configured payout wallet sends payout.
-14. Server verifies payout before `PAID`.
-15. Confirm transaction/audit records and metrics.
-16. Test mobile/WebView layout and runtime errors.
+1. Verify latest `main` CI is green, including secret scan.
+2. Configure/verify all required production Vercel environment variables without exposing secret values.
+3. Deploy current `main` to production.
+4. Verify production URL, `/api/auth/session`, Supabase access, GitHub OAuth, repository/issue listing and Nimiq RPC.
+5. Fix any blocking runtime/build issue and redeploy.
+6. Run the real smallest-practical-value E2E using `docs/DEMO_RUNBOOK.md`.
+7. Inspect audit/payment records and runtime logs.
+8. Complete `docs/SECURITY_RELEASE_CHECKLIST.md`.
+9. Stop for owner confirmation immediately before applying MIT and making the repository public.
+10. After approval, add MIT License, make repo public, confirm public access and branch protection/ruleset where plan allows.
+11. Capture screenshots/video, publish promotion posts, replace submission placeholders and submit.
 
-### 6. Competition packaging
+## Owner-only / human-signature gates
 
-Still needed after the deployed path works:
+Do not ask for manual work when a connected tool/browser can perform it. Stop only when genuinely required for:
 
-- repository visibility changed to public if competition rules require it
-- screenshots
-- 60–90 second demo recording
-- submission description
-- small real-user pilot
-- final accessibility/performance/WebView QA
+- account login/password/passkey/2FA/CAPTCHA;
+- billing/cost confirmation;
+- Nimiq wallet unlock or transaction signature;
+- final MIT/public-repository legal/release confirmation.
 
-## Next execution order
-
-When resuming, do this sequence unless repository state proves a step is already finished:
-
-1. Inspect latest PR #3/main CI and merge production code if green.
-2. Create/configure the dedicated Supabase project (after user organization/cost confirmation).
-3. Apply migration and run Supabase security/performance advisors.
-4. Configure GitHub OAuth credentials and `SESSION_ENCRYPTION_KEY`.
-5. Create/link MergeEarn Vercel project and add environment variables.
-6. Configure Nimiq funding/payout public addresses and trusted RPC.
-7. Deploy.
-8. Inspect Vercel build/runtime errors.
-9. Run the real Issue -> Fund -> Claim -> PR -> Merge -> Approve -> Pay path.
-10. Fix any integration mismatch found by the real transaction test.
-11. Only after that mark Issue #1 complete and report 100%.
+Never ask for or store a wallet seed phrase/private key.
 
 ## Definition of 100%
 
-Only call MergeEarn **100% competition-ready** when a real person can complete the deployed path above and:
+Only call MergeEarn **100% competition-ready** when:
 
-- GitHub permissions are enforced server-side.
-- funding is independently confirmed before `FUNDED`.
-- repository/base branch/merge state is independently verified.
-- maintainer approval is recorded.
-- payout is idempotent.
-- provider confirmation is verified before `PAID`.
-- payment/audit records are persistent.
-- latest CI is green.
-- deployed app is reachable, visually verified, and has no blocking runtime errors.
-
-If any of these are missing, report the real status instead of claiming 100%.
+- latest CI is green;
+- production deployment is READY and reachable;
+- GitHub OAuth and permission checks work live;
+- real funding is independently confirmed before `FUNDED`;
+- real expected PR merge state is independently verified;
+- authorized maintainer approval is recorded;
+- payout is signed and independently verified before `PAID`;
+- payment/audit records persist;
+- runtime logs show no blocking production errors;
+- secret/history scan passes;
+- owner-approved MIT license is present;
+- repository is public as required for submission;
+- competition submission is completed with working URLs.
