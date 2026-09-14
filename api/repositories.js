@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     const session = await requireSession(req);
     const { data } = await github('/user/repos?per_page=100&sort=updated&affiliation=owner,collaborator,organization_member', session.githubToken);
     const managed = [];
-    for (const repo of data.filter(hasMaintainerPermission)) {
+    for (const repo of data.filter((item) => !item.private && hasMaintainerPermission(item))) {
       const persisted = await persistRepository(repo);
       managed.push({
         id: persisted.id,
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         owner: repo.owner.login,
         name: repo.name,
         defaultBranch: repo.default_branch,
-        private: repo.private,
+        private: false,
         permissions: repo.permissions,
       });
     }
