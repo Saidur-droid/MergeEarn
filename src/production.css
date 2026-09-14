@@ -1,0 +1,82 @@
+.production-shell { max-width: 1240px; }
+.sticky { position: sticky; top: 0; z-index: 30; padding: 12px 0; background: rgba(9,12,17,.86); backdrop-filter: blur(18px); }
+.compact-hero { padding: 52px 0 30px; }
+.compact-hero h1 { max-width: 980px; font-size: clamp(2.4rem, 6vw, 5.2rem); }
+.github-user { color: #98a4b4; font-size: .85rem; font-weight: 700; }
+.notice { margin-bottom: 14px; padding: 14px 16px; border: 1px solid rgba(99,217,157,.24); border-radius: 14px; background: rgba(49,141,96,.12); color: #b8f4d5; }
+.alert { display: grid; gap: 4px; }
+.metrics-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 10px; margin: 0 0 18px; }
+.metric-card { padding: 16px; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; background: rgba(16,21,29,.78); }
+.metric-card span, .metric-card strong { display: block; }
+.metric-card span { color: #8290a2; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
+.metric-card strong { margin-top: 6px; font-size: 1.35rem; }
+.product-grid { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: 16px; align-items: start; }
+.create-panel, .board-panel, .detail-panel { padding-bottom: 24px; }
+.create-panel > label, .create-panel > select, .create-panel > .subtle-link, .create-panel > .primary, .create-panel > .draft-form { margin-left: 26px; margin-right: 26px; }
+.create-panel > select { width: calc(100% - 52px); margin-bottom: 16px; }
+.subtle-link { display: block; margin-top: -4px; margin-bottom: 18px; color: #aebcff; font-size: .84rem; text-decoration: none; }
+.full { width: 100%; }
+.button-link { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.draft-form { display: grid; gap: 10px; }
+.draft-form label { margin: 6px 0 0; }
+.draft-form .criterion { margin-top: 0; }
+.risk-box { display: grid; gap: 6px; padding: 14px; border: 1px solid rgba(255,197,93,.18); border-radius: 14px; background: rgba(113,73,16,.12); }
+.risk-box strong { color: #ffd992; }
+.risk-box span { color: #c9b993; font-size: .82rem; line-height: 1.45; }
+.bounty-list { display: grid; gap: 8px; padding: 0 18px; max-height: 620px; overflow: auto; }
+.bounty-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 14px; border: 1px solid rgba(255,255,255,.07); border-radius: 14px; background: #0d1219; color: inherit; text-align: left; cursor: pointer; }
+.bounty-row:hover, .bounty-row.active { border-color: rgba(145,166,255,.45); background: rgba(112,133,255,.07); }
+.bounty-row strong, .bounty-row span { display: block; }
+.bounty-row > div:first-child > span { margin-top: 5px; color: #7f8b99; font-size: .78rem; }
+.bounty-row-right { text-align: right; }
+.bounty-row-right > strong { margin-bottom: 7px; font-size: .9rem; }
+.empty-state.compact { padding: 30px 16px; }
+.detail-panel { margin-top: 16px; }
+.detail-grid { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(300px,.7fr); gap: 18px; padding: 0 26px 26px; }
+.detail-copy { color: #b3bdc9; line-height: 1.6; }
+.detail-copy > p { margin-top: 0; }
+.detail-copy ul { padding-left: 20px; }
+.detail-copy li + li { margin-top: 6px; }
+.action-card { padding: 18px; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; background: #0d1219; }
+.action-card h3 { margin: 0 0 8px; }
+.action-card p { margin: 0 0 16px; color: #8e99a8; font-size: .88rem; line-height: 1.55; }
+.action-card form { display: grid; gap: 10px; }
+.action-card .secondary { margin-top: 8px; }
+.secondary { min-height: 44px; padding: 0 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; background: rgba(255,255,255,.04); color: #e7edf6; cursor: pointer; font-weight: 750; }
+.compact-trust { margin-top: 20px; }
+.compact-trust article { padding: 14px; }
+.busy-copy { display: block; margin-top: 12px; color: #8c99aa; }
+.success-state { text-align: center; padding: 12px 4px; }
+.success-state > span { display: grid; width: 46px; height: 46px; margin: 0 auto 12px; place-items: center; border-radius: 50%; background: rgba(49,141,96,.18); color: #83e6b6; font-size: 1.4rem; font-weight: 900; }
+.product-footer { display: flex; justify-content: space-between; gap: 18px; padding: 24px 4px 0; color: #657183; font-size: .78rem; }
+.landing-shell, .splash { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.landing-card { width: min(100%, 760px); padding: clamp(28px, 6vw, 56px); border: 1px solid rgba(255,255,255,.09); border-radius: 28px; background: rgba(16,21,29,.92); box-shadow: 0 30px 100px rgba(0,0,0,.35); }
+.landing-card h1 { margin: 16px 0; font-size: clamp(2.4rem, 7vw, 5rem); line-height: .96; letter-spacing: -.055em; }
+.landing-card p { color: #aeb8c6; line-height: 1.65; }
+.landing-card .primary { margin-top: 12px; }
+.landing-card small { display: block; margin-top: 14px; color: #748091; line-height: 1.5; }
+.brand-mark.large { width: 48px; height: 48px; margin-bottom: 24px; border-radius: 14px; }
+.splash { align-content: center; gap: 8px; color: #8894a4; }
+.splash strong { color: #f4f7fb; font-size: 1.35rem; }
+.status-funded, .status-verified, .status-approved, .status-paid { border-color: rgba(99,217,157,.28); background: rgba(49,141,96,.12); color: #83e6b6; }
+.status-payment-failed, .status-disputed { border-color: rgba(255,125,125,.24); background: rgba(124,36,36,.16); color: #ffb6b6; }
+.status-claimed, .status-pr-submitted { color: #b8c4ff; border-color: rgba(145,166,255,.25); }
+
+@media (max-width: 1020px) {
+  .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+  .product-grid, .detail-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  .sticky { position: static; }
+  .github-user { display: none; }
+  .top-actions { gap: 6px; }
+  .wallet-button { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .create-panel > label, .create-panel > select, .create-panel > .subtle-link, .create-panel > .primary, .create-panel > .draft-form { margin-left: 18px; margin-right: 18px; }
+  .create-panel > select { width: calc(100% - 36px); }
+  .detail-grid { padding: 0 18px 18px; }
+  .bounty-row { grid-template-columns: 1fr; }
+  .bounty-row-right { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; }
+  .bounty-row-right > strong { margin: 0; }
+  .product-footer { flex-direction: column; }
+}
