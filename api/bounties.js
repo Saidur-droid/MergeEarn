@@ -2,9 +2,26 @@ import { assertRepoMaintainer, getBounty, handleError, json, lunaToNim, method, 
 
 function shapeBounty(row) {
   if (!row) return null;
+  const {
+    audit_events: _auditEvents,
+    ai_metadata: _aiMetadata,
+    payment_transactions: paymentTransactions,
+    claims,
+    ...safe
+  } = row;
   return {
-    ...row,
+    ...safe,
     reward_amount_nim: lunaToNim(row.reward_amount_luna),
+    claims: Array.isArray(claims) ? claims.map((claim) => ({
+      id: claim.id,
+      status: claim.status,
+      contributor_user_id: claim.contributor_user_id,
+    })) : undefined,
+    payment_transactions: Array.isArray(paymentTransactions) ? paymentTransactions.map((transaction) => ({
+      id: transaction.id,
+      type: transaction.type,
+      status: transaction.status,
+    })) : undefined,
   };
 }
 
@@ -23,7 +40,7 @@ export default async function handler(req, res) {
       }
       const rows = await supabase('bounties', {
         query: {
-          select: '*,github_repositories(full_name,default_branch),source_issues(issue_number,title,html_url),claims(id,status,contributor_user_id,nimiq_address),submissions(id,verification_status,html_url,merged_at)',
+          select: '*,github_repositories(full_name,default_branch),source_issues(issue_number,title,html_url),claims(id,status,contributor_user_id),submissions(id,verification_status,html_url,merged_at),payment_transactions(id,type,status)',
           order: 'created_at.desc',
           limit: 100,
         },
@@ -79,9 +96,9 @@ export default async function handler(req, res) {
         repository_id: repo.id,
         source_issue_id: issue.id,
         creator_user_id: session.user.id,
-        title: String(body.title).trim(),
-        description: String(body.summary).trim(),
-        acceptance_criteria: criteria,
+        title: String(body.title).trim().slice(0, 240),
+        description: String(body.summary).trim().slice(0, 5000),
+        acceptance_criteria: criteria.slice(0, 12).map((item) => item.slice(0, 1000)),
         reward_amount_luna: nimToLuna(body.rewardNim),
         reward_asset: 'NIM',
         status: 'DRAFT',
