@@ -2,11 +2,34 @@ import crypto from 'node:crypto';
 
 const jsonHeaders = { 'content-type': 'application/json; charset=utf-8' };
 const SESSION_COOKIE = 'mergeearn_session';
+const MAX_JSON_BYTES = 1_000_000;
 
 export function json(res, status, body, extraHeaders = {}) {
   res.statusCode = status;
   for (const [key, value] of Object.entries({ ...jsonHeaders, ...extraHeaders })) res.setHeader(key, value);
   res.end(JSON.stringify(body));
+}
+
+function rejectCrossSiteMutation(req, res) {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return false;
+  if (String(req.headers['sec-fetch-site'] || '').toLowerCase() === 'cross-site') {
+    json(res, 403, { error: 'Cross-site request rejected.' });
+    return true;
+  }
+  const origin = req.headers.origin;
+  const appUrl = process.env.APP_URL?.trim();
+  if (origin && appUrl) {
+    try {
+      if (new URL(origin).origin !== new URL(appUrl).origin) {
+        json(res, 403, { error: 'Request origin is not allowed.' });
+        return true;
+      }
+    } catch {
+      json(res, 403, { error: 'Request origin is invalid.' });
+      return true;
+    }
+  }
+  return false;
 }
 
 export function method(req, res, allowed) {
@@ -15,15 +38,36 @@ export function method(req, res, allowed) {
     json(res, 405, { error: 'Method not allowed' });
     return false;
   }
+  if (rejectCrossSiteMutation(req, res)) return false;
   return true;
 }
 
 export async function readJson(req) {
-  if (req.body && typeof req.body === 'object') return req.body;
+  if (req.body && typeof req.body === 'object') {
+    if (Buffer.byteLength(JSON.stringify(req.body), 'utf8') > MAX_JSON_BYTES) {
+      const error = new Error('Request body is too large.');
+      error.statusCode = 413;
+      throw error;
+    }
+    return req.body;
+  }
   let raw = '';
-  for await (const chunk of req) raw += chunk;
+  let bytes = 0;
+  for await (const chunk of req) {
+    bytes += Buffer.byteLength(chunk);
+    if (bytes > MAX_JSON_BYTES) {
+      const error = new Error('Request body is too large.');
+      error.statusCode = 413;
+      throw error;
+    }
+    raw += chunk;
+  }
   if (!raw) return {};
-  try { return JSON.parse(raw); } catch { throw new Error('Invalid JSON body.'); }
+  try { return JSON.parse(raw); } catch {
+    const error = new Error('Invalid JSON body.');
+    error.statusCode = 400;
+    throw error;
+  }
 }
 
 export function requireEnv(name) {
