@@ -33,11 +33,11 @@ export async function sendNimFundingPayment(input: {
   }
 
   const provider = await init({ timeout: 10_000 });
-  const consensus = await provider.isConsensusEstablished();
-  if (!consensus) {
-    throw new Error('Nimiq network consensus is not established yet. Try again shortly.');
-  }
 
+  // Do not hard-block a native payment on a transient consensus pre-check.
+  // Nimiq Pay owns transaction readiness and will surface a native error if
+  // the network is actually unavailable. Calling sendBasicTransaction directly
+  // also guarantees the user gets the wallet confirmation dialog when ready.
   const result = await provider.sendBasicTransaction({
     recipient,
     value: nimToLuna(input.amountNim),
