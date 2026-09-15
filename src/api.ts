@@ -33,7 +33,7 @@ export const api = {
   payoutPrepare: (bountyId: string) => request<{ payout?: { recipient: string; amountNim: string; sourceAddress: string }; alreadyPaid?: boolean }>('/api/payout', { method: 'POST', body: JSON.stringify({ bountyId, action: 'prepare' }) }),
   payoutSubmit: (bountyId: string, txHash: string) => request('/api/payout', { method: 'POST', body: JSON.stringify({ bountyId, action: 'submit', txHash }) }),
   payoutVerify: (bountyId: string) => request<{ confirmed: boolean; pending?: boolean; message?: string }>('/api/payout', { method: 'POST', body: JSON.stringify({ bountyId, action: 'verify' }) }),
-  metrics: () => request<{ metrics: Metrics }>('/api/metrics'),
+  metrics: () => request<{ publicConfig: { fundingAddress: string }; metrics: Metrics }>('/api/metrics'),
   capabilities: (bountyId: string) => request<{ canManage: boolean }>(`/api/capabilities?bountyId=${encodeURIComponent(bountyId)}`),
 };
 
