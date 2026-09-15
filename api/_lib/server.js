@@ -340,6 +340,13 @@ export async function nimiqRpc(methodName, params = []) {
   });
   const payload = await response.json();
   if (!response.ok || payload.error) throw new Error(payload.error?.message || `Nimiq RPC returned ${response.status}.`);
+
+  // Nimiq PoS JSON-RPC wraps chainstate results as
+  // result: { data, metadata }. The payment verifier needs the actual
+  // transaction object, not the wrapper.
+  if (payload.result && typeof payload.result === 'object' && Object.prototype.hasOwnProperty.call(payload.result, 'data')) {
+    return payload.result.data;
+  }
   return payload.result;
 }
 
