@@ -1,6 +1,6 @@
 # Submission Form Answers
 
-Use this file as the canonical copy source for the competition portal. Replace bracketed placeholders only after the corresponding release artifact exists.
+Use this file as the canonical copy source for the competition portal. Only promotion/video URLs remain to be filled after those assets are published.
 
 ## Project name
 
@@ -40,7 +40,7 @@ Issue → Bounty → Fund → Claim → Pull Request → Merge → Verify → Ap
 
 ## Why Nimiq is essential
 
-Nimiq Pay is not a decorative checkout layer; it is the funding and payout rail for the entire bounty lifecycle. Funding is requested in Nimiq Pay and server-verified before `FUNDED`. Payout is signed from the configured wallet and server-verified before `PAID`. MergeEarn stores no private wallet key or seed phrase.
+Nimiq Pay is the funding and payout rail for the bounty lifecycle. Funding is requested in Nimiq Pay and server-verified before `FUNDED`. Payout is signed from the configured wallet and server-verified before `PAID`. MergeEarn stores no private wallet key or seed phrase.
 
 ## Nimiq integration highlights
 
@@ -66,7 +66,7 @@ Nimiq Pay is not a decorative checkout layer; it is the funding and payout rail 
 
 ## AI usage
 
-AI is optional and advisory. It converts an issue into an editable structured bounty draft with title, summary, acceptance criteria, difficulty, effort guidance, suggested reward range and risk flags. If the AI provider is unavailable, MergeEarn uses a deterministic fallback. AI never decides whether work is valid or whether a payment may be released.
+AI is optional and advisory. It converts an issue into an editable structured bounty draft. If the AI provider is unavailable, MergeEarn uses a deterministic fallback. AI never decides whether work is valid or whether a payment may be released.
 
 ## Reliability / security highlights
 
@@ -81,27 +81,17 @@ AI is optional and advisory. It converts an issue into an editable structured bo
 - Deterministic package lock and `npm ci`
 - CI secret-pattern scan, typecheck, tests and production build
 
-## What makes it useful
-
-MergeEarn is aimed at small, real open-source tasks where the overhead of a traditional freelancing marketplace is too high. A maintainer can attach a small NIM reward directly to an existing GitHub issue and keep the complete work/payment proof tied to the repository workflow.
-
 ## Live app
 
-[LIVE_URL]
+`https://mergeearn.vercel.app`
 
-Expected production target before submission:
-
-`https://mergeearn-saidur-droids-projects.vercel.app`
-
-Do not submit the URL until it is confirmed READY and the live OAuth + payment path has been tested.
+Live OAuth, Nimiq Pay connection, funding, GitHub PR verification, and payout have been exercised in the deployed environment.
 
 ## Source code
 
-[GITHUB_URL]
-
-Expected public repository after owner release approval:
-
 `https://github.com/Saidur-droid/MergeEarn`
+
+Public repository with MIT License.
 
 ## Demo video
 
@@ -130,24 +120,28 @@ Open source, developer tools, GitHub, bounties, payments, Nimiq Pay, NIM, contri
 3. Select a repository you maintain and choose a real issue.
 4. Create or edit the bounty and set a small NIM reward.
 5. Fund through Nimiq Pay.
-6. Use a contributor account to claim the bounty and submit a real PR.
+6. Claim the bounty and submit a real PR.
 7. Merge the PR.
 8. Re-verify it in MergeEarn.
 9. Approve as an authorized maintainer.
 10. Sign the payout in Nimiq Pay and wait for server verification before `PAID`.
 
-## Recommended judging message
+## Verified release evidence
 
-The key thing to test is that MergeEarn does not trust client-reported success. Try a wrong PR, an unmerged PR, or a cancelled payment: the server should refuse to advance the corresponding state.
+- Live deployed flow reached `PAID` on 2026-09-15.
+- Funding transaction was independently confirmed before `FUNDED`.
+- PR #5 was linked and merged into `main`, then reflected in the verified bounty lifecycle.
+- Payout transaction was independently confirmed before `PAID`.
+- Latest `main` CI after documentation/cleanup changes passed secret scan, typecheck, tests and build.
 
 ## Final pre-submit fields
 
-- [ ] `[LIVE_URL]` replaced with confirmed production URL
-- [ ] `[GITHUB_URL]` replaced with public MIT repository URL
+- [x] Live production URL confirmed
+- [x] Public GitHub repository URL confirmed
+- [x] E2E reached `PAID`
+- [x] Repository CI green after cleanup
+- [x] Owner-approved public + MIT release is live
 - [ ] `[DEMO_VIDEO_URL]` added
 - [ ] `[SKOOL_POST_URL]` added
 - [ ] `[SOCIAL_POST_URL]` added
-- [ ] E2E reached `PAID`
-- [ ] Runtime logs checked after E2E
-- [ ] Repository secret scan green
-- [ ] Owner approved public + MIT release
+- [ ] Final production runtime-log review after the last deployment
