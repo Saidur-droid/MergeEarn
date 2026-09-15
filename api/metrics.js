@@ -1,4 +1,4 @@
-import { handleError, json, method, requireSession, supabase } from './_lib/server.js';
+import { handleError, json, method, requireEnv, requireSession, supabase } from './_lib/server.js';
 
 export default async function handler(req, res) {
   if (!method(req, res, ['GET'])) return;
@@ -29,6 +29,9 @@ export default async function handler(req, res) {
       : null;
 
     json(res, 200, {
+      publicConfig: {
+        fundingAddress: requireEnv('NIMIQ_FUNDING_ADDRESS'),
+      },
       metrics: {
         bountiesCreated: bounties.length,
         funded: confirmedFunding.length,
