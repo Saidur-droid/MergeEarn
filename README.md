@@ -16,39 +16,46 @@ Most bounty tools trust screenshots, manual status updates, or a maintainer-oper
 
 ## Competition release status
 
-MergeEarn is a production release candidate for the Nimiq Mini Apps Competition Cycle 2.
+MergeEarn has completed a live deployed testnet end-to-end flow through the intended Nimiq Pay Mini App experience:
 
-- Production target: `https://mergeearn-saidur-droids-projects.vercel.app`
-- Dedicated Supabase production schema: provisioned and migrated
-- Deterministic dependencies and `npm ci` CI: enabled
-- Server-derived GitHub maintainer capabilities: enabled
-- Nimiq JSON-RPC verification path: implemented
-- Final operational gates: production credentials, live deployment verification, real end-to-end Nimiq payment test, then public/MIT release
+`Issue -> Bounty -> Fund -> Claim -> Pull Request -> Merge -> Verify -> Approve -> Pay`
 
-The repository intentionally does **not** claim 100% production readiness until the deployed Issue -> Pay flow succeeds with real credentials and real chain verification.
+Observed release state on 2026-09-15:
+
+- Production app: `https://mergeearn.vercel.app`
+- Public source: `https://github.com/Saidur-droid/MergeEarn`
+- MIT License: present
+- GitHub OAuth: live and working
+- Repository and issue loading: live and working
+- Nimiq Pay connection: verified in the Mini App container
+- Funding: independently server-verified before `FUNDED`
+- Pull request: linked, merged on GitHub, and server-verified before `VERIFIED`
+- Payout: independently server-verified before `PAID`
+- Completed bounty state: `PAID`
+
+Before final competition submission, keep the latest `main` CI green, rotate any credential or wallet recovery material ever exposed outside its intended secret store, and inspect production runtime logs for new blocking errors.
 
 ## Judge / first-time user path
 
-A first-time judge should be able to understand the product in under a minute:
-
-1. Sign in with GitHub.
-2. Select a repository you are authorized to maintain and choose a real issue.
-3. Generate or edit the bounty specification and set a NIM reward.
-4. Publish and fund the bounty through Nimiq Pay.
-5. A contributor claims it and submits the real pull request.
-6. After the PR is merged, MergeEarn independently re-checks GitHub state.
-7. A repository maintainer approves the verified work.
-8. The configured payout wallet signs the NIM payout.
-9. MergeEarn verifies the payout before marking the bounty `PAID`.
+1. Open MergeEarn inside Nimiq Pay.
+2. Sign in with GitHub.
+3. Select a repository you are authorized to maintain and choose a real issue.
+4. Generate or edit the bounty specification and set a NIM reward.
+5. Publish and fund the bounty through Nimiq Pay.
+6. A contributor claims it and submits the real pull request.
+7. After the PR is merged, MergeEarn independently re-checks GitHub state.
+8. A repository maintainer approves the verified work.
+9. The configured payout wallet signs the NIM payout.
+10. MergeEarn verifies the payout before marking the bounty `PAID`.
 
 For the exact release/demo procedure, see [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md).
 
 ## Competition submission material
 
-- [`docs/COMPETITION_SUBMISSION.md`](docs/COMPETITION_SUBMISSION.md) — current Cycle 2 rules, scorecard and release state
+- [`docs/COMPETITION_SUBMISSION.md`](docs/COMPETITION_SUBMISSION.md) — Cycle 2 positioning and release state
 - [`docs/SUBMISSION_FORM.md`](docs/SUBMISSION_FORM.md) — ready-to-paste submission answers
 - [`docs/PROMOTION_COPY.md`](docs/PROMOTION_COPY.md) — Skool/social launch copy
-- [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md) — 60–90 second demo and full E2E runbook
+- [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md) — demo and E2E runbook
 - [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) — final release/submit sequence
 - [`docs/SECURITY_RELEASE_CHECKLIST.md`](docs/SECURITY_RELEASE_CHECKLIST.md) — secret and security release gates
 
@@ -140,20 +147,8 @@ GitHub Actions runs on pushes and pull requests to `main` and must pass:
 
 ## Definition of done
 
-MergeEarn is only **100% competition-ready** after a deployed user can complete the real flow and all of the following are true:
-
-- GitHub permission checks are enforced server-side.
-- funding is independently confirmed before `FUNDED`.
-- the expected repository/base branch/merged PR state is independently verified.
-- maintainer approval is recorded.
-- payout is idempotent.
-- Nimiq payout confirmation is verified before `PAID`.
-- payment and audit records are persisted.
-- CI is green.
-- the live app is verified inside the intended Nimiq Pay experience with no blocking runtime errors.
-- the competition-required public GitHub repository and MIT License have been explicitly approved by the owner and applied before submission.
+A release is competition-ready when the deployed flow reaches `PAID`, CI is green, production runtime has no blocking errors, the public MIT repository is clean, and final competition assets/links required by the current submission portal are supplied.
 
 ## Contributing
 
 Read [`AGENTS.md`](AGENTS.md) first for project operating rules, then [`CONTRIBUTING.md`](CONTRIBUTING.md). Payment-state and authorization changes require tests and must not weaken the GitHub/Nimiq trust boundaries.
-<!-- trigger deploy after hobby function fix -->
