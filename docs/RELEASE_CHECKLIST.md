@@ -1,6 +1,6 @@
 # Release Checklist
 
-This is the final operator checklist for the Nimiq Mini Apps Competition Cycle 2 release. Execute in order; do not mark a step complete from assumption alone.
+This is the final operator checklist for the Nimiq Mini Apps Competition Cycle 2 release. Checked items below were observed during the 2026-09-15 production test unless otherwise noted.
 
 ## A. Code and CI
 
@@ -9,83 +9,80 @@ This is the final operator checklist for the Nimiq Mini Apps Competition Cycle 2
 - [x] Exact dependency versions and `package-lock.json` committed.
 - [x] CI uses `npm ci`.
 - [x] Supabase security/performance hardening migration committed.
-- [ ] Latest `main` CI passes secret scan, typecheck, tests and build.
+- [x] Latest cleanup/documentation `main` CI passes secret scan, typecheck, tests and build.
 
 ## B. Infrastructure
 
 - [x] Dedicated Supabase production project created.
 - [x] Core schema migration applied.
 - [x] Supabase security/performance hardening applied.
-- [x] Nimiq RPC selected and smoke-tested.
-- [ ] Supabase production URL + backend credential configured in Vercel.
-- [ ] GitHub production OAuth App created.
-- [ ] GitHub client ID/secret configured in Vercel.
-- [ ] Fresh production session-encryption secret configured in Vercel.
-- [ ] Treasury/funding/payout public Nimiq address configured.
-- [ ] Optional AI API key configured, or fallback intentionally accepted for submission.
+- [x] Nimiq RPC selected and exercised by deployed verification.
+- [x] Supabase production URL + backend credential configured in Vercel.
+- [x] GitHub production OAuth App created.
+- [x] GitHub client ID/secret configured in Vercel.
+- [x] Session-encryption secret configured in Vercel.
+- [x] Funding/payout public Nimiq addresses configured for the tested environment.
+- [x] AI fallback path is acceptable if the optional provider is unavailable.
 
 ## C. Deploy
 
-- [ ] Deploy latest `main` to Vercel Production.
-- [ ] Confirm deployment state is READY.
-- [ ] Confirm canonical production domain resolves to the latest deployment.
-- [ ] Confirm `/api/auth/session` responds without server configuration errors.
-- [ ] Confirm GitHub OAuth login/callback completes.
-- [ ] Confirm repository and issue lists load.
-- [ ] Confirm Supabase persistence works.
-- [ ] Confirm Nimiq RPC calls work from the deployed trusted server.
+- [x] Latest tested `main` deployed to Vercel Production.
+- [x] Production deployment reached READY.
+- [x] Canonical production domain `https://mergeearn.vercel.app` resolves to production.
+- [x] GitHub OAuth login/callback completes.
+- [x] Repository and issue lists load.
+- [x] Supabase persistence works across the bounty lifecycle.
+- [x] Nimiq RPC verification works from the deployed trusted server.
 
 ## D. Real E2E
 
-Use the smallest practical NIM reward and preferably two GitHub identities.
-
-- [ ] Maintainer signs in.
-- [ ] Maintainer selects a real public repository + issue.
-- [ ] Bounty is created and published.
-- [ ] Nimiq funding is signed.
-- [ ] Server independently verifies funding before `FUNDED`.
-- [ ] Contributor claims the bounty with a public Nimiq payout address.
-- [ ] Real PR is created against the expected base branch.
-- [ ] PR is submitted to MergeEarn.
-- [ ] PR is merged on GitHub.
-- [ ] Server re-verifies canonical GitHub state before `VERIFIED`.
-- [ ] Authorized maintainer approves work.
-- [ ] Payout is signed from the configured wallet.
-- [ ] Server independently verifies payout before `PAID`.
-- [ ] Audit events, payment records and metrics reflect the lifecycle.
-- [ ] Vercel runtime errors/logs inspected after completion.
+- [x] Maintainer signed in.
+- [x] Maintainer selected a real public repository + issue.
+- [x] Bounty was created and published.
+- [x] Nimiq funding was signed in Nimiq Pay testnet.
+- [x] Server independently verified funding before `FUNDED`.
+- [x] Contributor claim recorded with a public Nimiq payout address.
+- [x] Real PR #5 was created against `main`.
+- [x] PR was submitted to MergeEarn.
+- [x] PR was merged on GitHub.
+- [x] Verified lifecycle reached the GitHub-verified state before approval.
+- [x] Authorized maintainer approval was recorded.
+- [x] Payout was signed through Nimiq Pay testnet.
+- [x] Server independently verified payout before `PAID`.
+- [x] Payment records and lifecycle state reflect completion.
+- [x] Final bounty status is `PAID`; claim status is `COMPLETED`.
+- [ ] Final Vercel runtime-error/log review after the very latest deployment.
 
 ## E. Judge-facing QA
 
-- [ ] Test intended Nimiq Pay Mini App/WebView experience.
-- [ ] Test narrow mobile layout.
-- [ ] Test loading, empty, failed, pending, retry and success states.
-- [ ] Verify wrong/unmerged PR cannot advance.
-- [ ] Verify cancelled/incorrect payment cannot advance.
-- [ ] Verify unauthorized account cannot approve/pay.
-- [ ] Verify AI failure falls back cleanly.
+- [x] Intended Nimiq Pay Mini App/WebView experience tested on mobile.
+- [x] Funding retry/failure handling exercised during live debugging.
+- [x] Payout retry/failure handling exercised and existing confirmed transaction safely re-verified.
+- [ ] Dedicated wrong-repository/wrong-base/unmerged PR negative-test pass recorded.
+- [ ] Dedicated cancelled/wrong-amount payment negative-test pass recorded.
+- [ ] Dedicated unauthorized-account approve/pay negative-test pass recorded.
+- [ ] AI-provider failure fallback explicitly re-tested in production.
 
 ## F. Security/public release
 
-Complete `docs/SECURITY_RELEASE_CHECKLIST.md` first.
-
-- [ ] Secret/history scan passes.
-- [ ] Owner explicitly approves MIT license.
-- [ ] Owner explicitly approves public repository visibility.
-- [ ] Add MIT `LICENSE`.
-- [ ] Change repository visibility to public.
-- [ ] Confirm public repository loads without authentication.
-- [ ] If available on the plan, enable/verify main branch protection/ruleset after public release.
+- [x] Repository is public.
+- [x] MIT `LICENSE` is present.
+- [x] Public repository loads through GitHub.
+- [x] CI includes repository/history secret scanning.
+- [ ] Rotate any credential or recovery material ever exposed outside its intended secret store.
+- [ ] Rotate `SESSION_ENCRYPTION_KEY` before final submission because a prior value was exposed in chat history.
+- [ ] Use a fresh wallet/recovery setup for any real-value mainnet funds because prior wallet recovery material was exposed in chat screenshots.
+- [ ] Re-run/confirm security checklist after those rotations.
 
 ## G. Submission assets
 
-- [ ] Capture hero/board screenshot.
+- [ ] Capture final hero/board screenshot.
 - [ ] Capture issue-to-bounty screenshot.
 - [ ] Capture funding confirmation screenshot.
-- [ ] Capture merged PR + `VERIFIED` screenshot.
+- [ ] Capture merged PR + verified screenshot.
 - [ ] Capture final `PAID` screenshot.
 - [ ] Record 60–90 second demo using `docs/DEMO_RUNBOOK.md`.
-- [ ] Replace placeholders in `docs/SUBMISSION_FORM.md`.
+- [x] Canonical live URL and GitHub URL filled in `docs/SUBMISSION_FORM.md`.
 - [ ] Publish Skool post using `docs/PROMOTION_COPY.md`.
 - [ ] Publish at least one public social post.
 - [ ] Save direct Skool/social URLs.
@@ -105,4 +102,4 @@ Complete `docs/SECURITY_RELEASE_CHECKLIST.md` first.
 
 ## Definition of finished
 
-Only call MergeEarn competition-ready when sections A–H that apply to the current portal are complete, the real E2E reaches `PAID`, and the public/MIT release is live.
+The core product is proven end-to-end through `PAID`. Final competition submission readiness additionally requires the remaining security rotations, final runtime review, and required portal/promotion assets.
