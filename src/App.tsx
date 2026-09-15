@@ -4,6 +4,8 @@ import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './in
 import { sendNimFundingPayment } from './payments/nimiq';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
+const canonicalAppUrl = 'https://mergeearn.vercel.app';
+const nimiqPayDeepLink = `nimiqpay://miniapp?url=${encodeURIComponent(canonicalAppUrl)}`;
 
 function normalizeAddress(value: string) {
   return value.replace(/\s+/g, '').toUpperCase();
@@ -31,6 +33,7 @@ export default function App() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [canManageBounty, setCanManageBounty] = useState(false);
   const [wallet, setWallet] = useState<NimiqWalletSnapshot | null>(null);
+  const [walletHelp, setWalletHelp] = useState(false);
   const [prUrl, setPrUrl] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +110,12 @@ export default function App() {
 
   async function connectWallet() {
     const snapshot = await run('wallet', () => connectNimiqWallet(), 'Nimiq Pay connected.');
-    if (snapshot) setWallet(snapshot);
+    if (snapshot) {
+      setWallet(snapshot);
+      setWalletHelp(false);
+    } else {
+      setWalletHelp(true);
+    }
   }
 
   async function generateDraft() {
@@ -147,7 +155,8 @@ export default function App() {
   async function fundBounty(bounty: Bounty) {
     if (!publicFundingAddress) return setError('VITE_NIMIQ_FUNDING_ADDRESS is not configured for this deployment.');
     if (!wallet) {
-      setError('Connect Nimiq Pay before funding.');
+      setWalletHelp(true);
+      setError('Connect Nimiq Pay before funding. On a phone, use Open in Nimiq Pay.');
       return;
     }
     const txHash = await run('fund', () => sendNimFundingPayment({ recipient: publicFundingAddress, amountNim: bounty.reward_amount_nim }));
@@ -168,7 +177,10 @@ export default function App() {
   }
 
   async function claimBounty(bounty: Bounty) {
-    if (!wallet) return setError('Connect Nimiq Pay so MergeEarn can record your payout address.');
+    if (!wallet) {
+      setWalletHelp(true);
+      return setError('Connect Nimiq Pay so MergeEarn can record your payout address.');
+    }
     const result = await run('claim', () => api.claim(bounty.id, wallet.address), 'Bounty claimed. Start work and link your pull request when ready.');
     if (result) await refreshProduct();
   }
@@ -196,7 +208,10 @@ export default function App() {
   }
 
   async function payBounty(bounty: Bounty) {
-    if (!wallet) return setError('Connect the configured Nimiq payout wallet before paying.');
+    if (!wallet) {
+      setWalletHelp(true);
+      return setError('Connect the configured Nimiq payout wallet before paying.');
+    }
     const prepared = await run('payout-prepare', () => api.payoutPrepare(bounty.id));
     if (!prepared) return;
     if (prepared.alreadyPaid) {
@@ -255,7 +270,7 @@ export default function App() {
         <a className="brand" href="#top"><span className="brand-mark">M</span><span>MergeEarn</span></a>
         <div className="top-actions">
           <span className="github-user">@{user.login}</span>
-          <button className="wallet-button" onClick={connectWallet} disabled={busy === 'wallet'}>{wallet ? shortNimiqAddress(wallet.address) : 'Connect Nimiq Pay'}</button>
+          <button className="wallet-button" onClick={connectWallet} disabled={busy === 'wallet'}>{wallet ? shortNimiqAddress(wallet.address) : busy === 'wallet' ? 'Connecting…' : 'Connect Nimiq Pay'}</button>
           <button className="text-button" onClick={logout}>Sign out</button>
         </div>
       </header>
@@ -265,6 +280,21 @@ export default function App() {
         <h1>Real bounties. Objective verification. Safe payouts.</h1>
         <p className="hero-copy">Create a bounty from an authorized GitHub repository, verify the merged pull request on the server, then release payment through Nimiq.</p>
       </section>
+
+      {!wallet ? (
+        <section className={`nimiq-connect-card ${walletHelp ? 'attention' : ''}`} aria-label="Nimiq Pay connection">
+          <div>
+            <strong>Nimiq Pay is required for funding and payout</strong>
+            <span>Inside Nimiq Pay, Connect reads your public wallet address and native payment requests stay user-approved.</span>
+          </div>
+          <div className="nimiq-connect-actions">
+            <button className="secondary" onClick={connectWallet} disabled={busy === 'wallet'}>{busy === 'wallet' ? 'Connecting…' : 'Try connect'}</button>
+            <a className="primary button-link" href={nimiqPayDeepLink}>Open in Nimiq Pay</a>
+          </div>
+        </section>
+      ) : (
+        <div className="notice wallet-ready" role="status">Nimiq Pay connected: <strong>{shortNimiqAddress(wallet.address)}</strong></div>
+      )}
 
       {error ? <div className="alert" role="alert"><strong>Action failed</strong><span>{error}</span></div> : null}
       {notice ? <div className="notice" role="status">{notice}</div> : null}
