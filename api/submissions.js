@@ -92,12 +92,24 @@ export default async function handler(req, res) {
         const repo = bounty.github_repositories;
         await assertRepoMaintainer(session.githubToken, repo.owner, repo.name);
       }
-      const submission = (bounty.submissions || [])[0];
+
+      // Load the submission directly instead of relying on the embedded relation.
+      // This avoids stale/missing relation embeds while preserving the canonical
+      // database link through bounty_id.
+      const submissions = await supabase('submissions', {
+        query: {
+          bounty_id: `eq.${bounty.id}`,
+          order: 'created_at.desc',
+          limit: 1,
+        },
+      });
+      const submission = submissions?.[0];
       if (!submission) {
         const error = new Error('No pull request is linked to this bounty.');
         error.statusCode = 409;
         throw error;
       }
+
       const pr = await fetchCanonicalPr(session.githubToken, submission.html_url, bounty);
       await supabase('submissions', {
         method: 'PATCH',
