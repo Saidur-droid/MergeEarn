@@ -156,4 +156,4 @@ MergeEarn is only **100% competition-ready** after a deployed user can complete 
 ## Contributing
 
 Read [`AGENTS.md`](AGENTS.md) first for project operating rules, then [`CONTRIBUTING.md`](CONTRIBUTING.md). Payment-state and authorization changes require tests and must not weaken the GitHub/Nimiq trust boundaries.
-<!-- trigger production deployment -->
+<!-- trigger deploy after hobby function fix -->
