@@ -21,6 +21,10 @@ jobs:
           node-version: 22
           cache: 'npm'
 
+      - name: Inspect failed Nimiq testnet payout transaction
+        run: |
+          curl -fsS 'https://v2.test.nimiqwatch.com/api/v1/transaction/7dd3034da59c8d28a3ecb14fed4d88325cd20d2795ca218cae4aa6b113437f86'
+
       - name: Scan repository and history for secret patterns
         run: npm run scan:secrets
 
