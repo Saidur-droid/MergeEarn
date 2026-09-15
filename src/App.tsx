@@ -4,8 +4,7 @@ import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './in
 import { sendNimFundingPayment } from './payments/nimiq';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
-const canonicalAppUrl = 'https://mergeearn.vercel.app';
-const nimiqPayDeepLink = `nimiqpay://miniapp?url=${encodeURIComponent(canonicalAppUrl)}`;
+const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
 
 function normalizeAddress(value: string) {
   return value.replace(/\s+/g, '').toUpperCase();
