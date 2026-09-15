@@ -14,9 +14,26 @@ import {
   upsertUser,
 } from './_lib/server.js';
 
+function firstHeaderValue(value) {
+  return String(value || '').split(',')[0].trim();
+}
+
+function requestOrigin(req) {
+  const proto = firstHeaderValue(req.headers['x-forwarded-proto']) || 'https';
+  const host = firstHeaderValue(req.headers['x-forwarded-host']) || firstHeaderValue(req.headers.host);
+  return host ? `${proto}://${host}` : '';
+}
+
+function queryValue(req, url, name) {
+  const value = req.query?.[name];
+  if (Array.isArray(value)) return value[0] ?? null;
+  if (value !== undefined && value !== null && value !== '') return String(value);
+  return url.searchParams.get(name);
+}
+
 function resolveAction(req) {
   const url = new URL(req.url, requireEnv('APP_URL'));
-  const explicit = url.searchParams.get('action');
+  const explicit = queryValue(req, url, 'action');
   if (explicit) return { action: explicit, url };
 
   const pathname = url.pathname.replace(/\/+$/, '');
@@ -30,15 +47,24 @@ function resolveAction(req) {
 async function startGitHubOAuth(req, res) {
   if (!method(req, res, ['GET'])) return;
 
+  const appUrl = new URL(requireEnv('APP_URL'));
+  const origin = requestOrigin(req);
+  if (origin && origin !== appUrl.origin) {
+    res.statusCode = 302;
+    res.setHeader('location', new URL('/api/auth/github', appUrl).toString());
+    res.end();
+    return;
+  }
+
   const state = randomToken(24);
-  const redirectUri = new URL('/api/auth/github/callback', requireEnv('APP_URL')).toString();
+  const redirectUri = new URL('/api/auth/github/callback', appUrl).toString();
   const authorize = new URL('https://github.com/login/oauth/authorize');
   authorize.searchParams.set('client_id', requireEnv('GITHUB_CLIENT_ID'));
   authorize.searchParams.set('redirect_uri', redirectUri);
   authorize.searchParams.set('scope', 'read:user public_repo');
   authorize.searchParams.set('state', state);
   res.statusCode = 302;
-  res.setHeader('set-cookie', `mergeearn_oauth_state=${state}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`);
+  res.setHeader('set-cookie', `mergeearn_oauth_state=${state}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600${appUrl.protocol === 'https:' ? '; Secure' : ''}`);
   res.setHeader('location', authorize.toString());
   res.end();
 }
@@ -50,15 +76,32 @@ async function completeGitHubOAuth(req, res, url) {
     return;
   }
 
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
+  const code = queryValue(req, url, 'code');
+  const state = queryValue(req, url, 'state');
   const expectedState = parseCookies(req).mergeearn_oauth_state;
-  if (!code || !state || !expectedState || state !== expectedState) {
-    const error = new Error('GitHub OAuth state validation failed.');
+
+  if (!code) {
+    const error = new Error('GitHub OAuth callback did not include an authorization code.');
+    error.statusCode = 400;
+    throw error;
+  }
+  if (!state) {
+    const error = new Error('GitHub OAuth callback did not include state.');
+    error.statusCode = 400;
+    throw error;
+  }
+  if (!expectedState) {
+    const error = new Error('GitHub OAuth state cookie is missing. Start sign-in again from the production app URL.');
+    error.statusCode = 400;
+    throw error;
+  }
+  if (state !== expectedState) {
+    const error = new Error('GitHub OAuth state validation failed. Start sign-in again.');
     error.statusCode = 400;
     throw error;
   }
 
+  const appUrl = new URL(requireEnv('APP_URL'));
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
     headers: { accept: 'application/json', 'content-type': 'application/json', 'user-agent': 'MergeEarn' },
@@ -66,8 +109,7 @@ async function completeGitHubOAuth(req, res, url) {
       client_id: requireEnv('GITHUB_CLIENT_ID'),
       client_secret: requireEnv('GITHUB_CLIENT_SECRET'),
       code,
-      redirect_uri: new URL('/api/auth/github/callback', requireEnv('APP_URL')).toString(),
-      state,
+      redirect_uri: new URL('/api/auth/github/callback', appUrl).toString(),
     }),
   });
   const tokenPayload = await tokenResponse.json();
@@ -79,13 +121,13 @@ async function completeGitHubOAuth(req, res, url) {
   const user = await upsertUser(profile);
   const sessionToken = await createSession(user.id, tokenPayload.access_token);
 
-  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  const secure = appUrl.protocol === 'https:' ? '; Secure' : '';
   res.statusCode = 302;
   res.setHeader('set-cookie', [
     sessionCookie(sessionToken),
     `mergeearn_oauth_state=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
   ]);
-  res.setHeader('location', new URL('/', requireEnv('APP_URL')).toString());
+  res.setHeader('location', new URL('/', appUrl).toString());
   res.end();
 }
 
