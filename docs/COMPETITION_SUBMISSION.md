@@ -16,12 +16,6 @@ Current 100-point scorecard:
 
 Current submission portal: `https://miniappscompetition.com/submissions/cycle2`
 
-References:
-
-- `https://www.skool.com/miniappscompetition/cycle-2-scoring-everything-you-need-to-know`
-- `https://www.skool.com/miniappscompetition/end-of-week-1-is-your-idea-locked-in`
-- `https://www.nimiq.com/blog/the-nimiq-mini-apps-competition-registration-is-open/`
-
 ## MergeEarn positioning
 
 ### One-line pitch
@@ -56,6 +50,27 @@ GitHub is the work source of truth. The server checks repository permissions and
 - RLS enabled; browser does not talk directly to Supabase
 - Deterministic lockfile + `npm ci` CI
 
+## Verified live release state
+
+On 2026-09-15 the deployed production app completed the real Nimiq testnet lifecycle through Nimiq Pay:
+
+`Issue → Bounty → Fund → Claim → Pull Request → Merge → Verify → Approve → Pay`
+
+Verified evidence:
+
+- Canonical production URL: `https://mergeearn.vercel.app`
+- Public repository: `https://github.com/Saidur-droid/MergeEarn`
+- MIT License present
+- GitHub OAuth completed successfully
+- Authorized repository and issue loading completed successfully
+- Nimiq Pay Mini App wallet connection completed successfully
+- Funding transaction independently verified before bounty reached `FUNDED`
+- Real GitHub PR #5 linked and merged into `main`
+- Bounty advanced through verified/approved states
+- Payout transaction independently verified before bounty reached `PAID`
+- Claim completed
+- Latest cleanup/documentation CI passed secret scan, typecheck, tests and build
+
 ## Submission copy draft
 
 ### Title
@@ -78,30 +93,25 @@ The result is a compact, mobile-first bounty workflow that makes small open-sour
 - [x] PR authorization hardening implemented
 - [x] Deterministic dependency versions + lockfile
 - [x] `npm ci` CI pipeline
-- [x] Main CI green after production-hardening merge
-- [x] Dedicated Supabase production project created
-- [x] Core schema migration applied
-- [x] Supabase security/performance hardening migration applied
-- [x] Nimiq RPC URL chosen and smoke-tested by the release agent
-- [ ] Vercel production project/environment fully reachable from the active operator session
-- [ ] `SUPABASE_URL` in Vercel Production
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` in Vercel Production
-- [ ] GitHub production OAuth App created
-- [ ] `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` in Vercel Production
-- [ ] Treasury public Nimiq address configured for funding + payout
-- [ ] Production deployment READY
-- [ ] GitHub OAuth login verified live
-- [ ] Real Issue → Fund → Claim → PR → Merge → Approve → Pay E2E passed
-- [ ] Runtime logs checked after E2E
-- [ ] Secret/history scan passed
-- [ ] Owner explicitly approved MIT License + public repository
-- [ ] MIT License added
-- [ ] Repository made public
-- [ ] README updated with live URL and test instructions
-- [ ] Mini App submitted via Cycle 2 portal
+- [x] Dedicated Supabase production project created and migrations applied
+- [x] Nimiq RPC selected and exercised in deployed verification
+- [x] Vercel production environment configured sufficiently for live E2E
+- [x] GitHub production OAuth live
+- [x] Treasury/funding/payout public addresses configured for the tested environment
+- [x] Production deployment READY
+- [x] GitHub OAuth login verified live
+- [x] Real Issue → Fund → Claim → PR → Merge → Approve → Pay E2E reached `PAID`
+- [x] Public GitHub repository live
+- [x] MIT License live
+- [x] README updated with canonical live URL and tested state
+- [x] Latest cleanup CI green
+- [ ] Rotate any credential/recovery material ever exposed outside its intended secret store
+- [ ] Final production runtime-log review after the last deployment
+- [ ] Demo video published
 - [ ] Skool promotion post published
 - [ ] Public social post published
+- [ ] Cycle 2 portal submission completed
 
 ## Definition of done
 
-Do not describe MergeEarn as fully production-ready until the deployed, live environment completes the real end-to-end flow and the server independently confirms both funding and payout transactions.
+The core product flow is proven end-to-end. Final competition submission readiness additionally requires the remaining security-rotation and submission-asset items above to be completed.
