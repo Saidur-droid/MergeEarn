@@ -1,6 +1,6 @@
 # Submission Form Answers
 
-Use this file as the canonical copy source for the competition portal. Only promotion/video URLs remain to be filled after those assets are published.
+Use this file as the canonical copy source for the competition portal. The demo video is published; only the promotion URLs remain to be filled after those posts are published.
 
 ## Project name
 
@@ -95,7 +95,7 @@ Public repository with MIT License.
 
 ## Demo video
 
-[DEMO_VIDEO_URL]
+`https://youtube.com/shorts/xf0TRhqKeUE`
 
 ## Skool promotion post
 
@@ -141,7 +141,7 @@ Open source, developer tools, GitHub, bounties, payments, Nimiq Pay, NIM, contri
 - [x] E2E reached `PAID`
 - [x] Repository CI green after cleanup
 - [x] Owner-approved public + MIT release is live
-- [ ] `[DEMO_VIDEO_URL]` added
+- [x] Demo video URL added: `https://youtube.com/shorts/xf0TRhqKeUE`
 - [ ] `[SKOOL_POST_URL]` added
 - [ ] `[SOCIAL_POST_URL]` added
 - [ ] Final production runtime-log review after the last deployment
