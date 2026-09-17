@@ -14,7 +14,7 @@ Current 100-point scorecard:
 - **10 pts — Design & UX**
 - **5 pts — Builder promotion** (Skool + public social post)
 
-Current submission portal: `https://miniappscompetition.com/submissions/cycle2`
+Current submission portal: `https://miniappscompetition.com/submit`
 
 ## MergeEarn positioning
 
