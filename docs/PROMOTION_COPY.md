@@ -1,6 +1,6 @@
 # Promotion Copy
 
-Use these drafts after the live URL and public repository are ready. Replace bracketed placeholders before posting. The competition scorecard asks for a Skool post and at least one public social post, with direct links supplied at submission.
+Use these drafts after the demo video is uploaded. The live app and public repository links are already filled in. Replace only `[DEMO_VIDEO_URL]` before posting, then save the direct Skool/social URLs in `docs/SUBMISSION_FORM.md`.
 
 ## Core positioning
 
@@ -29,9 +29,9 @@ The flow is simple:
 
 The maintainer selects a real GitHub issue and funds a NIM reward. A contributor claims it, submits the actual PR, and only becomes payable after that PR is merged and verified. The payout then goes to the contributor through Nimiq.
 
-Live Mini App: [LIVE_URL]
+Live Mini App: https://mergeearn.vercel.app
 
-Open-source repo: [GITHUB_URL]
+Open-source repo: https://github.com/Saidur-droid/MergeEarn
 
 Demo: [DEMO_VIDEO_URL]
 
@@ -47,8 +47,9 @@ Real GitHub issue → funded NIM bounty → real PR → merged verification → 
 
 GitHub proves the work. Nimiq proves the money.
 
-Live: [LIVE_URL]
-Code: [GITHUB_URL]
+Live: https://mergeearn.vercel.app
+Code: https://github.com/Saidur-droid/MergeEarn
+Demo: [DEMO_VIDEO_URL]
 
 #Nimiq #MiniApps #OpenSource
 
@@ -67,7 +68,9 @@ Open-source bounties shouldn’t depend on screenshots or payout spreadsheets.
 
 Built for the Nimiq Mini Apps Competition.
 
-[LIVE_URL]
+https://mergeearn.vercel.app
+
+Demo: [DEMO_VIDEO_URL]
 
 ## LinkedIn post
 
@@ -79,8 +82,8 @@ MergeEarn treats **GitHub as the source of truth for work** and **Nimiq as the s
 
 Core flow: **Issue → Fund → Claim → PR → Merge → Verify → Approve → Pay**
 
-Live: [LIVE_URL]
-Open source: [GITHUB_URL]
+Live: https://mergeearn.vercel.app
+Open source: https://github.com/Saidur-droid/MergeEarn
 Demo: [DEMO_VIDEO_URL]
 
 Built for the Nimiq Mini Apps Competition Cycle 2.
@@ -106,10 +109,10 @@ Use this order for a promotion carousel or short video:
 
 ## Posting checklist
 
-- [ ] Replace every `[LIVE_URL]`, `[GITHUB_URL]`, `[DEMO_VIDEO_URL]` placeholder.
-- [ ] Confirm production app is reachable before posting.
-- [ ] Confirm repository is public and MIT-licensed before linking it.
+- [ ] Replace `[DEMO_VIDEO_URL]` after upload.
+- [x] Production app is reachable at `https://mergeearn.vercel.app` (independently fetched on 2026-09-17).
+- [x] Repository is public and MIT-licensed.
 - [ ] Publish one post in the competition Skool community.
 - [ ] Publish at least one public social post.
-- [ ] Save direct URLs for both posts in `docs/SUBMISSION_FORM.md` or the release record.
+- [ ] Save direct URLs for both posts in `docs/SUBMISSION_FORM.md`.
 - [ ] Do not post screenshots containing OAuth secrets, service-role keys, session secrets, wallet seed phrases, private keys or sensitive browser devtools output.
