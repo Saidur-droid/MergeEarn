@@ -1,6 +1,6 @@
 # Submission Form Answers
 
-Use this file as the canonical copy source for the competition portal. The demo video is published; only the promotion URLs remain to be filled after those posts are published.
+Use this file as the canonical copy source for the competition portal. Demo and promotion URLs are now published and recorded below.
 
 ## Project name
 
@@ -99,11 +99,13 @@ Public repository with MIT License.
 
 ## Skool promotion post
 
-[SKOOL_POST_URL]
+`https://www.skool.com/@rifat-rahman-3006?g=miniappscompetition`
+
+The competition-community profile above contains the published `Promote Your Work` post titled `Built MergeEarn — GitHub issue bounties paid with NIM`.
 
 ## Public social post
 
-[SOCIAL_POST_URL]
+`https://x.com/Rifatncr7/status/2100430329886745073`
 
 ## Builder / GitHub profile
 
@@ -142,6 +144,7 @@ Open source, developer tools, GitHub, bounties, payments, Nimiq Pay, NIM, contri
 - [x] Repository CI green after cleanup
 - [x] Owner-approved public + MIT release is live
 - [x] Demo video URL added: `https://youtube.com/shorts/xf0TRhqKeUE`
-- [ ] `[SKOOL_POST_URL]` added
-- [ ] `[SOCIAL_POST_URL]` added
+- [x] Skool promotion evidence added: `https://www.skool.com/@rifat-rahman-3006?g=miniappscompetition`
+- [x] Public social post URL added: `https://x.com/Rifatncr7/status/2100430329886745073`
 - [ ] Final production runtime-log review after the last deployment
+- [ ] Cycle 2 portal submission completed
