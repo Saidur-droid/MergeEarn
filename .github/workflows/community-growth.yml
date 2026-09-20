@@ -77,43 +77,43 @@ jobs:
           checked="$(date -u +'%Y-%m-%d %H:%M UTC')"
 
           cat > /tmp/board.md <<EOF
-# MergeEarn live community bounty board
-
-This is the public, automatically maintained entry point for contributor-friendly MergeEarn work.
-
-**Live app:** https://mergeearn.vercel.app  
-**GitHub Contribute page:** https://github.com/Saidur-droid/MergeEarn/contribute
-
-A task is paid only when MergeEarn shows it as \`FUNDED\`. Nimiq is authoritative for funding/payout and GitHub is authoritative for the work.
-
-<!-- MERGEEARN_LIVE_BOARD_START -->
-
-## Verified product evidence
-
-- **$funded** verified funding transaction(s)
-- **$merged** GitHub-verified merge(s)
-- **$paid** verified paid bounty/bounties
-- **$wallets** deduplicated verified wallet(s)
-- **$contributors** contributor(s)
-
-## Current community queue
-
-| Issue | Task | Live state | Next action |
-| --- | --- | --- | --- |
-$rows
-
-### Contributor path
-
-1. Open a task above.
-2. Confirm the live MergeEarn bounty says \`FUNDED\`.
-3. Claim it in MergeEarn with your Nimiq payout address.
-4. Implement the GitHub issue and open a PR against the expected branch.
-5. MergeEarn verifies the PR after merge.
-6. The payout completes only after maintainer approval and Nimiq confirmation.
-
-_Last synchronized: $checked._
-
-<!-- MERGEEARN_LIVE_BOARD_END -->
-EOF
+          # MergeEarn live community bounty board
+          
+          This is the public, automatically maintained entry point for contributor-friendly MergeEarn work.
+          
+          **Live app:** https://mergeearn.vercel.app  
+          **GitHub Contribute page:** https://github.com/Saidur-droid/MergeEarn/contribute
+          
+          A task is paid only when MergeEarn shows it as \`FUNDED\`. Nimiq is authoritative for funding/payout and GitHub is authoritative for the work.
+          
+          <!-- MERGEEARN_LIVE_BOARD_START -->
+          
+          ## Verified product evidence
+          
+          - **$funded** verified funding transaction(s)
+          - **$merged** GitHub-verified merge(s)
+          - **$paid** verified paid bounty/bounties
+          - **$wallets** deduplicated verified wallet(s)
+          - **$contributors** contributor(s)
+          
+          ## Current community queue
+          
+          | Issue | Task | Live state | Next action |
+          | --- | --- | --- | --- |
+          $rows
+          
+          ### Contributor path
+          
+          1. Open a task above.
+          2. Confirm the live MergeEarn bounty says \`FUNDED\`.
+          3. Claim it in MergeEarn with your Nimiq payout address.
+          4. Implement the GitHub issue and open a PR against the expected branch.
+          5. MergeEarn verifies the PR after merge.
+          6. The payout completes only after maintainer approval and Nimiq confirmation.
+          
+          _Last synchronized: $checked._
+          
+          <!-- MERGEEARN_LIVE_BOARD_END -->
+          EOF
 
           gh issue edit 33 --body-file /tmp/board.md
