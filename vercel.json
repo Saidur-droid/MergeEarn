@@ -18,6 +18,10 @@
     {
       "source": "/api/auth/session",
       "destination": "/api/auth?action=session"
+    },
+    {
+      "source": "/api/community",
+      "destination": "/api/metrics?action=community"
     }
   ],
   "headers": [
