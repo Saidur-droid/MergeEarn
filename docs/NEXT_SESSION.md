@@ -176,7 +176,9 @@ Prepared files:
 4. Use the fresh contributor-friendly issues (#26–#28 and #31) for genuine community-sponsored lifecycles through the product whenever genuine contributors participate.
 5. Rotate `SESSION_ENCRYPTION_KEY`; redeploy; verify GitHub login still works.
 6. For any mainnet/real-value use, create a fresh Nimiq wallet and update public address config.
-7. Inspect production runtime errors/logs and keep latest `main` CI green throughout judging.
+7. Inspect production runtime errors/logs when Vercel project log access is available and keep latest `main` CI green throughout judging.
+8. Keep issue #33 and the 15-minute community-growth workflow healthy; it is the canonical self-updating contributor/sponsor board.
+9. Keep the hourly `MergeEarn Judge Ops` automation enabled during judging.
 
 ## Definition of 100%
 

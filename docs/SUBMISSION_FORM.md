@@ -117,6 +117,14 @@ Open source, developer tools, GitHub, bounties, payments, Nimiq Pay, NIM, contri
 
 ## Judge test instructions
 
+For a zero-login review, start with the public 60-second evidence dossier:
+
+`https://github.com/Saidur-droid/MergeEarn/blob/main/docs/JUDGE_PROOF.md`
+
+Then inspect the live public bounty board and verified GitHub/Nimiq evidence. Authentication is only required for maintainer/contributor actions.
+
+For a full active flow:
+
 1. Open MergeEarn from the intended Nimiq Pay Mini App environment.
 2. Sign in with GitHub.
 3. Select a repository you maintain and choose a real issue.
@@ -146,5 +154,5 @@ Open source, developer tools, GitHub, bounties, payments, Nimiq Pay, NIM, contri
 - [x] Demo video URL added: `https://youtube.com/shorts/xf0TRhqKeUE`
 - [x] Skool promotion evidence added: `https://www.skool.com/@rifat-rahman-3006?g=miniappscompetition`
 - [x] Public social post URL added: `https://x.com/Rifatncr7/status/2100430329886745073`
-- [ ] Final production runtime-log review after the last deployment
+- [ ] Final production runtime-log review after the last deployment (requires Vercel project log access not exposed by the currently connected account)
 - [x] Cycle 2 portal submission completed; project is in the public Cycle 2 showcase
