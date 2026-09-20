@@ -1,4 +1,4 @@
-import { assertExpectedPullRequest } from './_lib/policy.js';
+import { assertExpectedPullRequest, pullRequestVerificationStatus } from './_lib/policy.js';
 import { assertRepoMaintainer, getBounty, github, handleError, json, method, readJson, requireSession, supabase, transitionBounty } from './_lib/server.js';
 
 function parsePullUrl(value) {
@@ -59,7 +59,7 @@ export default async function handler(req, res) {
           base_branch: pr.base.ref,
           pr_author_login: pr.user?.login || null,
           merged_at: pr.merged_at,
-          verification_status: pr.merged ? 'VERIFIED' : 'PENDING',
+          verification_status: pullRequestVerificationStatus(pr),
           updated_at: new Date().toISOString(),
         },
       });
@@ -120,7 +120,7 @@ export default async function handler(req, res) {
           base_branch: pr.base.ref,
           pr_author_login: pr.user?.login || null,
           merged_at: pr.merged_at,
-          verification_status: pr.merged ? 'VERIFIED' : 'PENDING',
+          verification_status: pullRequestVerificationStatus(pr),
           updated_at: new Date().toISOString(),
         },
       });
