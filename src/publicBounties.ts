@@ -48,3 +48,35 @@ export function publicLifecycleProgress(status: string) {
 export function publicBountyShareUrl(id: string, origin: string) {
   return `${origin.replace(/\/$/, '')}/?bounty=${encodeURIComponent(id)}#live-bounties`;
 }
+
+export interface ProofGlossaryItem {
+  status: 'FUNDED' | 'MERGED/VERIFIED' | 'PAID';
+  title: string;
+  description: string;
+  authority: 'Nimiq' | 'GitHub';
+  authorityNote: string;
+}
+
+export const PROOF_GLOSSARY: ProofGlossaryItem[] = [
+  {
+    status: 'FUNDED',
+    title: 'Locked on-chain',
+    description: 'Bounty reward is pre-funded and held on the Nimiq blockchain before work starts.',
+    authority: 'Nimiq',
+    authorityNote: 'Verified via Nimiq blockchain transaction',
+  },
+  {
+    status: 'MERGED/VERIFIED',
+    title: 'Merged to main branch',
+    description: 'Pull request has been reviewed, accepted, and merged into the primary repository.',
+    authority: 'GitHub',
+    authorityNote: 'Verified via GitHub repository events',
+  },
+  {
+    status: 'PAID',
+    title: 'Settled to contributor',
+    description: 'Payout transaction confirmed on the Nimiq ledger directly to the contributor wallet.',
+    authority: 'Nimiq',
+    authorityNote: 'Verified via Nimiq blockchain payout receipt',
+  },
+];

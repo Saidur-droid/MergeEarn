@@ -2,7 +2,7 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import { api, Bounty, CopilotDraft, Metrics, SessionUser } from './api';
 import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './integrations/nimiq';
 import { sendNimFundingPayment } from './payments/nimiq';
-import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
+import { filterPublicBounties, PROOF_GLOSSARY, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
@@ -547,6 +547,24 @@ export default function App() {
               <a href={`/?bounty=${encodeURIComponent(selectedBounty.id)}#live-bounties`}>Shareable bounty URL ↗</a>
             </div>
           ) : null}
+
+          <div className="public-proof-glossary" aria-label="Bounty proof glossary">
+            <div className="proof-glossary-header">
+              <span className="proof-overline">Proof glossary</span>
+              <h4>Plain-language proof terms</h4>
+              <p>Understand MergeEarn evidence without reading documentation. Every status links to verifiable cryptographic or Git records.</p>
+            </div>
+            <div className="proof-glossary-grid">
+              {PROOF_GLOSSARY.map((item) => (
+                <article className="proof-glossary-card" key={item.status}>
+                  <div className="proof-glossary-badge">{item.status}</div>
+                  <strong>{item.title}</strong>
+                  <p>{item.description}</p>
+                  <span className="proof-glossary-source">Authoritative source: <strong>{item.authority}</strong> ({item.authorityNote})</span>
+                </article>
+              ))}
+            </div>
+          </div>
         </section>
 
 

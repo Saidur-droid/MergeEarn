@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterPublicBounties, prioritizePublicBounties, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
+import { filterPublicBounties, prioritizePublicBounties, PROOF_GLOSSARY, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
 import type { Bounty } from './api';
 
 function bounty(status: string): Bounty {
@@ -46,5 +46,16 @@ describe('public bounty helpers', () => {
   it('creates a canonical share URL', () => {
     expect(publicBountyShareUrl('abc 123', 'https://mergeearn.vercel.app/'))
       .toBe('https://mergeearn.vercel.app/?bounty=abc%20123#live-bounties');
+  });
+
+  it('provides compact proof glossary covering funded, merged/verified, and paid states', () => {
+    const statuses = PROOF_GLOSSARY.map((entry) => entry.status);
+    expect(statuses).toEqual(['FUNDED', 'MERGED/VERIFIED', 'PAID']);
+    for (const entry of PROOF_GLOSSARY) {
+      expect(entry.title).toBeTruthy();
+      expect(entry.description).toBeTruthy();
+      expect(['Nimiq', 'GitHub']).toContain(entry.authority);
+      expect(entry.authorityNote).toBeTruthy();
+    }
   });
 });

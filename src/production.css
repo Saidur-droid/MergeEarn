@@ -835,6 +835,19 @@
   outline:2px solid #aeb8ff;
   outline-offset:3px;
 }
+.public-proof-glossary { margin-top: 32px; padding: 24px; border: 1px solid rgba(255,255,255,.08); border-radius: 20px; background: rgba(14,18,26,.7); }
+.proof-glossary-header h4 { margin: 6px 0 4px; color: #edf1f6; font-size: 1.12rem; letter-spacing: -.02em; }
+.proof-glossary-header p { margin: 0 0 18px; color: #7b8898; font-size: .8rem; line-height: 1.5; }
+.proof-glossary-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+.proof-glossary-card { display: flex; flex-direction: column; padding: 16px; border: 1px solid rgba(255,255,255,.06); border-radius: 14px; background: #090d12; }
+.proof-glossary-badge { display: inline-block; align-self: flex-start; padding: 2px 7px; border-radius: 6px; background: rgba(142,156,255,.12); border: 1px solid rgba(142,156,255,.24); color: #aeb8ff; font-size: .68rem; font-weight: 750; letter-spacing: .04em; margin-bottom: 10px; }
+.proof-glossary-card strong { color: #dfe6f0; font-size: .88rem; margin-bottom: 6px; }
+.proof-glossary-card p { margin: 0; color: #7c899a; font-size: .76rem; line-height: 1.5; flex: 1; }
+.proof-glossary-source { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.05); color: #637081; font-size: .67rem; }
+.proof-glossary-source strong { color: #8c9bb0; font-size: .67rem; }
+@media (max-width: 860px) {
+  .proof-glossary-grid { grid-template-columns: 1fr; }
+}
 @media(max-width:680px){
   .judge-strip{align-items:flex-start;flex-direction:column}
   .judge-strip-metrics{justify-content:flex-start}
