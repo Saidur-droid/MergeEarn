@@ -42,7 +42,7 @@ export default function App() {
   const [publicFilter, setPublicFilter] = useState<PublicBountyFilter>('all');
   const [copiedBountyId, setCopiedBountyId] = useState<string | null>(null);
   const sponsorTarget = Number(new URLSearchParams(window.location.search).get('sponsor') || '0');
-  const sponsorIssues = [25, 26, 27, 28];
+  const sponsorIssues = [26, 27, 28, 31];
 
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
   const selectedIssueData = issues.find((issue) => issue.id === selectedIssue) || null;
