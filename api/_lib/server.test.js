@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { verifyNimiqTransaction } from './server.js';
+import { assertRepoMaintainer, verifyNimiqTransaction } from './server.js';
 
 const FUNDING_ADDRESS = 'NQ80 F58K 8EKP SN7A L3GB R4SX J85K EC03 8P5Y';
 
@@ -58,5 +58,66 @@ describe('verifyNimiqTransaction', () => {
     expect(result.confirmed).toBe(false);
     expect(result.rejected).toBe(true);
     expect(result.reason).toBe('Transaction recipient does not match the bounty payment address.');
+  });
+
+  it('rejects a confirmed transaction with the wrong amount', async () => {
+    process.env.NIMIQ_RPC_URL = 'https://rpc.test.invalid';
+    mockRpcTransaction({ value: 499_999 });
+
+    const result = await verifyNimiqTransaction({
+      hash: 'wrong-amount',
+      expectedRecipient: FUNDING_ADDRESS,
+      expectedAmountLuna: 500_000,
+    });
+
+    expect(result.confirmed).toBe(false);
+    expect(result.rejected).toBe(true);
+    expect(result.reason).toBe('Transaction amount does not match the bounty amount.');
+  });
+
+  it('rejects a payout from the wrong sender', async () => {
+    process.env.NIMIQ_RPC_URL = 'https://rpc.test.invalid';
+    mockRpcTransaction({ from: 'NQ00 0000 0000 0000 0000 0000 0000 0000 0000' });
+
+    const result = await verifyNimiqTransaction({
+      hash: 'wrong-sender',
+      expectedRecipient: FUNDING_ADDRESS,
+      expectedAmountLuna: 500_000,
+      expectedSender: 'NQ48 P4KM 6PUB GNRM 1VQ9 HLTH L5UV CDK5 BYKF',
+    });
+
+    expect(result.confirmed).toBe(false);
+    expect(result.rejected).toBe(true);
+    expect(result.reason).toBe('Transaction sender does not match the expected payout wallet.');
+  });
+
+  it('does not confirm a transaction before block inclusion', async () => {
+    process.env.NIMIQ_RPC_URL = 'https://rpc.test.invalid';
+    mockRpcTransaction({ blockNumber: null });
+
+    const result = await verifyNimiqTransaction({
+      hash: 'pending',
+      expectedRecipient: FUNDING_ADDRESS,
+      expectedAmountLuna: 500_000,
+    });
+
+    expect(result.confirmed).toBe(false);
+    expect(result.rejected).toBeUndefined();
+    expect(result.reason).toBe('Transaction is pending confirmation.');
+  });
+});
+
+describe('repository authorization', () => {
+  it('rejects an authenticated GitHub user without maintainer permission', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ permissions: { pull: true, push: false, maintain: false, admin: false } }),
+      headers: new Headers(),
+    })));
+
+    await expect(assertRepoMaintainer('token', 'acme', 'project')).rejects.toMatchObject({
+      message: 'Maintainer or push permission is required for this repository.',
+      statusCode: 403,
+    });
   });
 });
