@@ -31,19 +31,19 @@ jobs:
           fi
 
           cat > /tmp/comment.md <<'EOF'
-<!-- mergeearn-community-concierge -->
-Thanks for contributing to MergeEarn.
-
-**Before treating this as paid bounty work:** confirm the linked task is `FUNDED` in the live app. GitHub comments or screenshots are not payment proof.
-
-- Live bounty board: https://github.com/Saidur-droid/MergeEarn/issues/33
-- Live app: https://mergeearn.vercel.app
-- Contribution rules: https://github.com/Saidur-droid/MergeEarn/blob/main/CONTRIBUTING.md
-
-For bounty-eligible work, the expected lifecycle is:
-
-`FUNDED -> claim -> PR -> merge -> GitHub verification -> maintainer approval -> Nimiq payout verification -> PAID`
-
-Please keep CI green and do not weaken GitHub repository/base/merge verification or Nimiq recipient/amount/sender/inclusion checks.
-EOF
+          <!-- mergeearn-community-concierge -->
+          Thanks for contributing to MergeEarn.
+          
+          **Before treating this as paid bounty work:** confirm the linked task is `FUNDED` in the live app. GitHub comments or screenshots are not payment proof.
+          
+          - Live bounty board: https://github.com/Saidur-droid/MergeEarn/issues/33
+          - Live app: https://mergeearn.vercel.app
+          - Contribution rules: https://github.com/Saidur-droid/MergeEarn/blob/main/CONTRIBUTING.md
+          
+          For bounty-eligible work, the expected lifecycle is:
+          
+          `FUNDED -> claim -> PR -> merge -> GitHub verification -> maintainer approval -> Nimiq payout verification -> PAID`
+          
+          Please keep CI green and do not weaken GitHub repository/base/merge verification or Nimiq recipient/amount/sender/inclusion checks.
+          EOF
           gh pr comment "$PR_NUMBER" --body-file /tmp/comment.md
