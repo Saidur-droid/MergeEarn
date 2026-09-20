@@ -2,7 +2,7 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import { api, Bounty, CopilotDraft, Metrics, SessionUser } from './api';
 import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './integrations/nimiq';
 import { sendNimFundingPayment } from './payments/nimiq';
-import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
+import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress, publicProofGlossary } from './publicBounties';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
@@ -245,7 +245,7 @@ export default function App() {
   async function payBounty(bounty: Bounty) {
     if (!wallet) {
       setWalletHelp(true);
-      return setError('Connect the configured Nimiq payout wallet before paying.');
+      return setError('Connect the configured payout wallet before paying.');
     }
     const prepared = await run('payout-prepare', () => api.payoutPrepare(bounty.id));
     if (!prepared) return;
@@ -288,7 +288,7 @@ export default function App() {
 
   async function shareBounty(bounty: Bounty) {
     const url = publicBountyShareUrl(bounty.id, window.location.origin);
-    const text = `${bounty.title} · ${bounty.reward_amount_nim} NIM bounty on MergeEarn`;
+    const text = `${bounty.title} Â· ${bounty.reward_amount_nim} NIM bounty on MergeEarn`;
     if (navigator.share) {
       try {
         await navigator.share({ title: bounty.title, text, url });
@@ -326,7 +326,7 @@ export default function App() {
 
   const myActiveClaim = useMemo(() => selectedBounty?.claims?.find((claim) => claim.status === 'ACTIVE' && claim.contributor_user_id === user?.id), [selectedBounty, user]);
 
-  if (booting) return <main className="splash"><strong>MergeEarn</strong><span>Loading secure workspace…</span></main>;
+  if (booting) return <main className="splash"><strong>MergeEarn</strong><span>Loading secure workspaceâ¦</span></main>;
 
   if (!user) {
     return (
@@ -337,8 +337,8 @@ export default function App() {
             <span>MergeEarn</span>
           </a>
           <div className="landing-nav-meta">
-            <span className="landing-live"><i aria-hidden="true" /> Live · verified E2E</span>
-            <a className="landing-nav-link" href="https://github.com/Saidur-droid/MergeEarn" target="_blank" rel="noreferrer">Source ↗</a>
+            <span className="landing-live"><i aria-hidden="true" /> Live Â· verified E2E</span>
+            <a className="landing-nav-link" href="https://github.com/Saidur-droid/MergeEarn" target="_blank" rel="noreferrer">Source â</a>
           </div>
         </nav>
 
@@ -346,7 +346,7 @@ export default function App() {
           <div className="landing-copy">
             <div className="landing-kicker">
               <span className="kicker-mark" aria-hidden="true">M</span>
-              <span>For open-source maintainers & contributors · Nimiq powered</span>
+              <span>For open-source maintainers & contributors Â· Nimiq powered</span>
             </div>
             <h1>Funded before work.<span>Verified before payout.</span></h1>
             <p className="landing-lede">
@@ -354,20 +354,20 @@ export default function App() {
             </p>
             <div className="landing-actions">
               <a className="landing-primary" href={judgeProofBounty ? `/?bounty=${encodeURIComponent(judgeProofBounty.id)}#live-bounties` : '#live-bounties'}>
-                Inspect verified proof <span aria-hidden="true">→</span>
+                Inspect verified proof <span aria-hidden="true">â</span>
               </a>
               <a className="landing-secondary" href="#sponsor-bounties">
-                Sponsor a real issue <span aria-hidden="true">↓</span>
+                Sponsor a real issue <span aria-hidden="true">â</span>
               </a>
             </div>
             <div className="landing-microcopy">
-              <span className="micro-check" aria-hidden="true">✓</span>
+              <span className="micro-check" aria-hidden="true">â</span>
               <span>No screenshot approvals. No browser-trusted <code>FUNDED</code> or <code>PAID</code> state.</span>
             </div>
             <div className="landing-utility-links">
-              <a href="/api/auth/github">Continue with GitHub <span aria-hidden="true">→</span></a>
-              <a href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">Watch 60s demo <span aria-hidden="true">↗</span></a>
-              <a href={nimiqPayDeepLink}>Open in Nimiq Pay <span aria-hidden="true">↗</span></a>
+              <a href="/api/auth/github">Continue with GitHub <span aria-hidden="true">â</span></a>
+              <a href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">Watch 60s demo <span aria-hidden="true">â</span></a>
+              <a href={nimiqPayDeepLink}>Open in Nimiq Pay <span aria-hidden="true">â</span></a>
             </div>
           </div>
 
@@ -381,34 +381,34 @@ export default function App() {
               <div className="proof-title-row">
                 <div>
                   <span className="proof-overline">Release evidence</span>
-                  <h2>Issue → merge → verified payout</h2>
+                  <h2>Issue â merge â verified payout</h2>
                 </div>
                 <span className="proof-amount">NIM</span>
               </div>
 
               <div className="proof-timeline">
                 <div className="proof-step">
-                  <span className="proof-check">✓</span>
+                  <span className="proof-check">â</span>
                   <div><strong>Funding confirmed</strong><small>Nimiq transaction re-checked server-side</small></div>
                   <span className="proof-source">NIMIQ</span>
                 </div>
                 <div className="proof-step">
-                  <span className="proof-check">✓</span>
+                  <span className="proof-check">â</span>
                   <div><strong>Contributor claimed</strong><small>GitHub identity + payout address recorded</small></div>
                   <span className="proof-source">CLAIM</span>
                 </div>
                 <div className="proof-step">
-                  <span className="proof-check">✓</span>
+                  <span className="proof-check">â</span>
                   <div><strong>Pull request merged</strong><small>Expected repository and base branch verified</small></div>
-                  <a className="proof-source proof-link" href="https://github.com/Saidur-droid/MergeEarn/pull/5" target="_blank" rel="noreferrer">PR #5 ↗</a>
+                  <a className="proof-source proof-link" href="https://github.com/Saidur-droid/MergeEarn/pull/5" target="_blank" rel="noreferrer">PR #5 â</a>
                 </div>
                 <div className="proof-step">
-                  <span className="proof-check">✓</span>
+                  <span className="proof-check">â</span>
                   <div><strong>Maintainer approved</strong><small>Repository permission checked again</small></div>
                   <span className="proof-source">GITHUB</span>
                 </div>
                 <div className="proof-step final">
-                  <span className="proof-check">✓</span>
+                  <span className="proof-check">â</span>
                   <div><strong>Payout confirmed</strong><small>Sender, recipient, amount and inclusion verified</small></div>
                   <span className="proof-source">NIMIQ</span>
                 </div>
@@ -426,7 +426,7 @@ export default function App() {
         <section className="judge-strip" aria-label="Judge quick proof">
           <div>
             <span className="proof-overline">Judge in under 60 seconds</span>
-            <strong>Open a real bounty → inspect GitHub merge → inspect confirmed Nimiq proof.</strong>
+            <strong>Open a real bounty â inspect GitHub merge â inspect confirmed Nimiq proof.</strong>
           </div>
           <div className="judge-strip-metrics" aria-label="Live product totals">
             {metrics ? <>
@@ -435,14 +435,14 @@ export default function App() {
               <span><b>{metrics.paid}</b> paid</span>
               <span><b>{metrics.verifiedWallets}</b> verified wallets</span>
               <span><b>{metrics.activeContributors}</b> contributors</span>
-            </> : <span>Live metrics loading…</span>}
+            </> : <span>Live metrics loadingâ¦</span>}
           </div>
         </section>
 
         <section className="public-market" id="live-bounties" aria-labelledby="live-bounties-title">
           <div className="public-market-heading">
             <div>
-              <p className="process-eyebrow">Live product · no login required</p>
+              <p className="process-eyebrow">Live product Â· no login required</p>
               <h2 id="live-bounties-title">Browse real bounty state before you connect anything.</h2>
             </div>
             <span className="public-market-note">GitHub work + Nimiq payment state, independently verified</span>
@@ -483,13 +483,13 @@ export default function App() {
                   <article className={`public-bounty-card ${selectedBountyId === bounty.id ? 'featured' : ''}`} id={`bounty-${bounty.id}`} key={bounty.id}>
                     <div className="public-bounty-topline">
                       <Status value={bounty.status} />
-                      <strong>{bounty.reward_amount_nim} NIM</strong>
+                      <strong>{bounty.teward_amount_nim} NIM</strong>
                     </div>
                     <h3>{bounty.title}</h3>
                     <p>{publicBountySummary(bounty.description)}</p>
                     <div className="public-bounty-meta">
                       <span>{bounty.github_repositories?.full_name || 'GitHub repository'}</span>
-                      <span>Issue #{bounty.source_issues?.issue_number || '—'}</span>
+                      <span>Issue #{bounty.source_issues?.issue_number || 'â'}</span>
                     </div>
                     <div className="public-progress" aria-label={`Lifecycle progress: ${progress.label}`}>
                       <div className="public-progress-copy">
@@ -501,19 +501,19 @@ export default function App() {
                       </div>
                     </div>
                     <div className="public-proof-links">
-                      {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer">Issue ↗</a> : null}
-                      {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer">Pull request ↗</a> : null}
-                      {funding?.providerReference ? <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer">Funding tx ↗</a> : null}
-                      {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer">Payout tx ↗</a> : null}
+                      {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer">Issue â</a> : null}
+                      {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer">Pull request â</a> : null}
+                      {funding?.providerReference ? <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer">Funding tx â</a> : null}
+                      {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer">Payout tx â</a> : null}
                     </div>
                     <div className="public-bounty-actions">
                       <div className="public-share-actions">
-                        <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`}>Open proof <span aria-hidden="true">→</span></a>
+                        <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`}>Open proof <span aria-hidden="true">â</span></a>
                         <button className="public-copy-link" type="button" onClick={() => shareBounty(bounty)}>
                           Share
                         </button>
                         <button className="public-copy-link" type="button" onClick={() => copyBountyLink(bounty.id)}>
-                          {copiedBountyId === bounty.id ? 'Copied ✓' : 'Copy link'}
+                          {copiedBountyId === bounty.id ? 'Copied â' : 'Copy link'}
                         </button>
                       </div>
                       {bounty.status === 'FUNDED' ? (
@@ -544,16 +544,41 @@ export default function App() {
                 <span className="proof-overline">Selected evidence</span>
                 <strong>{selectedBounty.title}</strong>
               </div>
-              <a href={`/?bounty=${encodeURIComponent(selectedBounty.id)}#live-bounties`}>Shareable bounty URL ↗</a>
+              <a href={`/?bounty=${encodeURIComponent(selectedBounty.id)}#live-bounties`}>Shareable bounty URL â</a>
             </div>
           ) : null}
         </section>
 
+        <section className="proof-glossary-section" id="proof-glossary" aria-labelledby="proof-glossary-title">
+          <div className="public-market-heading">
+            <div>
+              <p className="process-eyebrow">Proof Glossary Â· Plain language</p>
+              <h2 id="proof-glossary-title">Understand verified bounty states at a glance.</h2>
+            </div>
+            <span className="public-market-note">Independent authoritative sources verify each state without manual trust</span>
+          </div>
+          <div className="proof-glossary-grid" role="list" aria-label="Bounty proof status glossary">
+            {publicProofGlossary().map((entry) => (
+              <article className="proof-glossary-card" key={entry.term} role="listitem">
+                <div className="proof-glossary-header">
+                  <span className={`status-pill status-${entry.term.toLowerCase().replaceAll('_', '-')}`}>{entry.badge}</span>
+                  <span className="proof-glossary-source">{entry.source}</span>
+                </div>
+                <h3>{entry.title}</h3>
+                <p>{entry.description}</p>
+                <div className="proof-glossary-authority">
+                  <span className="proof-glossary-check" aria-hidden="true">â</span>
+                  <span>{entry.authority}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
         <section className="sponsor-market" id="sponsor-bounties" aria-labelledby="sponsor-market-title">
           <div className="public-market-heading">
             <div>
-              <p className="process-eyebrow">Community funded · zero maintainer spend</p>
+              <p className="process-eyebrow">Community funded Â· zero maintainer spend</p>
               <h2 id="sponsor-market-title">Sponsor the next MergeEarn bounty.</h2>
             </div>
             <span className="public-market-note">Each approved task becomes a real 5 NIM bounty only after Nimiq confirms the sponsor payment.</span>
@@ -565,9 +590,9 @@ export default function App() {
                 <h3>{issueNumber === 26 ? 'Add contributor onboarding' : issueNumber === 27 ? 'Copy confirmed proof links' : issueNumber === 28 ? 'Improve accessibility labels' : 'Add proof glossary'}</h3>
                 <p>Small, contributor-friendly MergeEarn task. Server-created bounty, fixed 5 NIM reward, chain-verified funding.</p>
                 <div className="sponsor-actions">
-                  <a href={`https://github.com/Saidur-droid/MergeEarn/issues/${issueNumber}`} target="_blank" rel="noreferrer">View issue ↗</a>
+                  <a href={`https://github.com/Saidur-droid/MergeEarn/issues/${issueNumber}`} target="_blank" rel="noreferrer">View issue â</a>
                   <button className="sponsor-share" type="button" onClick={() => shareSponsorIssue(issueNumber)}>Share</button>
-                  <button onClick={() => sponsorIssue(issueNumber)} disabled={Boolean(busy)}>{busy?.startsWith('sponsor') ? 'Working…' : 'Sponsor 5 NIM'}</button>
+                  <button onClick={() => sponsorIssue(issueNumberi} disabled={Boolean(busy)}>{busy?.startsWith('sponsor') ? 'Workingâ¦' : 'Sponsor 5 NIM'}</button>
                 </div>
               </article>
             ))}
@@ -593,7 +618,7 @@ export default function App() {
             <article>
               <span>02</span>
               <h3>Ship the fix</h3>
-              <p>A contributor claims the bounty and links the real pull request—nothing is self-reported as complete.</p>
+              <p>A contributor claims the bounty and links the real pull requestânothing is self-reported as complete.</p>
             </article>
             <article>
               <span>03</span>
@@ -620,10 +645,10 @@ export default function App() {
         </section>
 
         <footer className="landing-footer">
-          <span>MergeEarn · Fund issues. Reward merges.</span>
+          <span>MergeEarn Â· Fund issues. Reward merges.</span>
           <div>
-            <a href="https://github.com/Saidur-droid/MergeEarn" target="_blank" rel="noreferrer">Open source ↗</a>
-            <a href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">Demo ↗</a>
+            <a href="https://github.com/Saidur-droid/MergeEarn" target="_blank" rel="noreferrer">Open source â</a>
+            <a href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">Demo â</a>
           </div>
         </footer>
       </main>
@@ -636,13 +661,13 @@ export default function App() {
         <a className="brand" href="#top"><span className="brand-mark">M</span><span>MergeEarn</span></a>
         <div className="top-actions">
           <span className="github-user">@{user.login}</span>
-          <button className="wallet-button" onClick={connectWallet} disabled={busy === 'wallet'}>{wallet ? shortNimiqAddress(wallet.address) : busy === 'wallet' ? 'Connecting…' : 'Connect Nimiq Pay'}</button>
+          <button className="wallet-button" onClick={connectWallet} disabled={busy === 'wallet'}>{wallet ? shortNimiqAddress(wallet.address) : busy === 'wallet' ? 'Connectingâ¦' : 'Connect Nimiq Pay'}</button>
           <button className="text-button" onClick={logout}>Sign out</button>
         </div>
       </header>
 
       <section className="hero compact-hero" id="top">
-        <p className="eyebrow">Issue → Fund → Fix → PR → Verify → Pay</p>
+        <p className="eyebrow">Issue â Fund â Fix â PR â Verify â Pay</p>
         <h1>Real bounties. Objective verification. Safe payouts.</h1>
         <p className="hero-copy">Create a bounty from an authorized GitHub repository, verify the merged pull request on the server, then release payment through Nimiq.</p>
       </section>
@@ -654,7 +679,7 @@ export default function App() {
             <span>Inside Nimiq Pay, Connect reads your public wallet address and native payment requests stay user-approved.</span>
           </div>
           <div className="nimiq-connect-actions">
-            <button className="secondary" onClick={connectWallet} disabled={busy === 'wallet'}>{busy === 'wallet' ? 'Connecting…' : 'Try connect'}</button>
+            <button className="secondary" onClick={connectWallet} disabled={busy === 'wallet'}>{busy === 'wallet' ? 'Connectingâ¦' : 'Try connect'}</button>
             <a className="primary button-link" href={nimiqPayDeepLink}>Open in Nimiq Pay</a>
           </div>
         </section>
@@ -685,18 +710,18 @@ export default function App() {
 
           <label htmlFor="repo">Authorized repository</label>
           <select id="repo" value={selectedRepo} onChange={(event) => setSelectedRepo(event.target.value)}>
-            {repositories.map((repo) => <option value={repo.id} key={repo.id}>{repo.fullName}{repo.private ? ' · private' : ''}</option>)}
+            {repositories.map((repo) => <option value={repo.id} key={repo.id}>{repo.fullName}{repo.private ? ' Â· private' : ''}</option>)}
           </select>
 
           <label htmlFor="issue">Open issue</label>
           <select id="issue" value={selectedIssue} onChange={(event) => { setSelectedIssue(event.target.value); setDraft(null); }}>
-            {issues.map((issue) => <option value={issue.id} key={issue.id}>#{issue.number} · {issue.title}</option>)}
+            {issues.map((issue) => <option value={issue.id} key={issue.id}>#{issue.number} Â· {issue.title}</option>)}
           </select>
 
-          {selectedIssueData ? <a className="subtle-link" href={selectedIssueData.htmlUrl} target="_blank" rel="noreferrer">Open selected issue on GitHub ↗</a> : null}
+          {selectedIssueData ? <a className="subtle-link" href={selectedIssueData.htmlUrl} target="_blank" rel="noreferrer">Open selected issue on GitHub â</a> : null}
 
           {!draft ? (
-            <button className="primary full" onClick={generateDraft} disabled={!selectedIssueData || busy === 'copilot'}>{busy === 'copilot' ? 'Structuring issue…' : 'Generate bounty draft'}</button>
+            <button className="primary full" onClick={generateDraft} disabled={!selectedIssueData || busy === 'copilot'}>{busy === 'copilot' ? 'Structuring issueâ¦' : 'Generate bounty draft'}</button>
           ) : (
             <form className="draft-form" onSubmit={createBounty}>
               <label htmlFor="title">Title</label>
@@ -713,7 +738,7 @@ export default function App() {
               ))}
               <div className="reward-grid"><div><label htmlFor="reward">Reward (NIM)</label><input id="reward" value={rewardNim} inputMode="decimal" onChange={(event) => setRewardNim(event.target.value)} /></div><div><label>Difficulty</label><input value={draft.difficulty} readOnly /></div></div>
               {draft.risks.length ? <div className="risk-box"><strong>Scope checks</strong>{draft.risks.map((risk) => <span key={risk}>{risk}</span>)}</div> : null}
-              <button className="primary full" type="submit" disabled={busy === 'create' || busy === 'publish'}>{busy === 'create' || busy === 'publish' ? 'Saving bounty…' : 'Create & publish bounty'}</button>
+              <button className="primary full" type="submit" disabled={busy === 'create' || busy === 'publish'}>{busy === 'create' || busy === 'publish' ? 'Saving bountyâ¦' : 'Create & publish bounty'}</button>
             </form>
           )}
         </section>
@@ -726,7 +751,7 @@ export default function App() {
           <div className="bounty-list">
             {bounties.length ? bounties.map((bounty) => (
               <button className={`bounty-row ${selectedBountyId === bounty.id ? 'active' : ''}`} key={bounty.id} onClick={() => setSelectedBountyId(bounty.id)}>
-                <div><strong>{bounty.title}</strong><span>{bounty.github_repositories?.full_name || 'Repository'} · #{bounty.source_issues?.issue_number || '?'}</span></div>
+                <div><strong>{bounty.title}</strong><span>{bounty.github_repositories?.full_name || 'Repository'} Â· #{bounty.source_issues?.issue_number || '?'}</span></div>
                 <div className="bounty-row-right"><strong>{bounty.reward_amount_nim} NIM</strong><Status value={bounty.status} /></div>
               </button>
             )) : <div className="empty-state compact"><h3>No bounties yet</h3><p>Create the first bounty from an authorized GitHub issue.</p></div>}
@@ -746,7 +771,7 @@ export default function App() {
               <ul>{selectedBounty.acceptance_criteria.map((item) => <li key={item}>{item}</li>)}</ul>
               <div className="trust-row compact-trust">
                 <article><strong>{selectedBounty.reward_amount_nim} NIM</strong><span>Reward</span></article>
-                <article><strong>{selectedBounty.github_repositories?.default_branch || '—'}</strong><span>Required base branch</span></article>
+                <article><strong>{selectedBounty.github_repositories?.default_branch || 'â'}</strong><span>Required base branch</span></article>
                 <article><strong>{selectedBounty.submissions?.[0]?.verification_status || 'Not submitted'}</strong><span>GitHub verification</span></article>
               </div>
             </div>
@@ -780,16 +805,16 @@ export default function App() {
                 {selectedBounty.payment_transactions?.some((tx) => tx.type === 'PAYOUT' && tx.status === 'PENDING') ? <button className="secondary full" onClick={() => verifyPayout(selectedBounty)}>Verify payout</button> : null}
               </> : null}
 
-              {selectedBounty.status === 'PAID' ? <div className="success-state"><span>✓</span><h3>Paid and complete</h3><p>GitHub merge and Nimiq payout were both independently verified.</p></div> : null}
+              {selectedBounty.status === 'PAID' ? <div className="success-state"><span>â</span><h3>Paid and complete</h3><p>GitHub merge and Nimiq payout were both independently verified.</p></div> : null}
 
               {!['READY_TO_FUND','FUNDED','CLAIMED','PR_SUBMITTED','VERIFIED','APPROVED','PAYMENT_FAILED','PAID'].includes(selectedBounty.status) ? <p>No action is currently available for this bounty state.</p> : null}
-              {busy ? <small className="busy-copy">Working: {busy.replaceAll('-', ' ')}…</small> : null}
+              {busy ? <small className="busy-copy">Working: {busy.replaceAll('-', ' ')}â¦</small> : null}
             </div>
           </div>
         </section>
       ) : null}
 
-      <footer className="product-footer"><span>MergeEarn</span><span>GitHub is code truth · Nimiq is payment truth · AI is advisory</span></footer>
+      <footer className="product-footer"><span>MergeEarn</span><span>GitHub is code truth Â· Nimiq is payment truth Â· AI is advisory</span></footer>
     </main>
   );
 }
