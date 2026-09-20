@@ -990,3 +990,19 @@
   .contributor-pool-actions{width:100%;flex-direction:column;align-items:stretch}
   .contributor-pool-actions button{width:100%}
 }
+
+.landing-share-button{
+  margin-top:14px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#9aa8ff;
+  font-size:.76rem;
+  font-weight:780;
+  cursor:pointer;
+}
+.landing-share-button:hover,.landing-share-button:focus-visible{
+  color:#c7ceff;
+  text-decoration:underline;
+  outline:none;
+}
