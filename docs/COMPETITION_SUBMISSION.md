@@ -6,13 +6,15 @@ _Last verified: 2026-09-15._
 
 Cycle 2 submissions close **2026-09-18 at 23:59 UTC**. The competition states that the deadline is not a code freeze, so the Mini App may continue improving afterward, but it may be evaluated at any time after submission.
 
-Current 100-point scorecard:
+Current live scorecard (updated 2026-09-20) shows **105 points**:
 
-- **45 pts — Functionality, reliability & usefulness**
-- **25 pts — Nimiq Pay & Nimiq integration**
-- **15 pts — Real usage** based on unique Nimiq wallets opening the Mini App during the measurement period
-- **10 pts — Design & UX**
-- **5 pts — Builder promotion** (Skool + public social post)
+- **25 pts — Design & UX**
+- **25 pts — Functionality**
+- **25 pts — Usefulness & originality**
+- **25 pts — Marketing & distribution**
+- **5 pts — Bonus**
+
+The live scoring guide explicitly evaluates first impression, navigation, mobile experience, onboarding, and whether a new user can reach real use in under 60 seconds. Previous 45/25/15/10/5 scoring notes are historical and must not drive current judging-phase optimization.
 
 Current submission portal: `https://miniappscompetition.com/submit`
 
