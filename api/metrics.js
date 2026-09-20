@@ -19,10 +19,11 @@ export default async function handler(req, res) {
       }, { 'cache-control': 'no-store' });
     }
 
-    const [bounties, payments, claims] = await Promise.all([
+    const [bounties, payments, claims, communityJoins] = await Promise.all([
       supabase('bounties', { query: { select: 'id,status,reward_amount_luna,created_at,updated_at' } }),
       supabase('payment_transactions', { query: { select: 'bounty_id,type,status,amount_luna,metadata,created_at,updated_at' } }),
       supabase('claims', { query: { select: 'bounty_id,contributor_user_id,nimiq_address,status,created_at,updated_at' } }),
+      supabase('audit_events', { query: { select: 'actor_id,event_type', event_type: 'eq.community.contributor_joined' } }),
     ]);
 
     const count = (status) => bounties.filter((item) => item.status === status).length;
@@ -30,6 +31,7 @@ export default async function handler(req, res) {
     const confirmedPayouts = payments.filter((item) => item.type === 'PAYOUT' && item.status === 'CONFIRMED');
     const paidBountyIds = new Set(confirmedPayouts.map((item) => item.bounty_id));
     const contributors = new Map();
+    const contributorPool = new Set((communityJoins || []).map((item) => item.actor_id).filter(Boolean));
     const verifiedWallets = new Set();
     const normalizeWallet = (value) => String(value || '').replace(/\s+/g, '').toUpperCase();
     for (const claim of claims) {
@@ -68,6 +70,7 @@ export default async function handler(req, res) {
         totalBountyLuna: bounties.reduce((sum, item) => sum + Number(item.reward_amount_luna || 0), 0),
         totalPaidLuna: confirmedPayouts.reduce((sum, item) => sum + Number(item.amount_luna || 0), 0),
         activeContributors: contributors.size,
+        contributorPool: contributorPool.size,
         verifiedWallets: verifiedWallets.size,
         repeatContributors: [...contributors.values()].filter((value) => value > 1).length,
         medianCompletionMs: medianMs,
