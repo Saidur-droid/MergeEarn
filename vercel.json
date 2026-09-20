@@ -47,5 +47,12 @@
       ]
     }
   ],
-  "ignoreCommand": "bash scripts/vercel-ignore-build.sh"
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
+  "git": {
+    "deploymentEnabled": {
+      "docs/*": false,
+      "ci/*": false,
+      "test/*": false
+    }
+  }
 }
