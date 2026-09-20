@@ -1,6 +1,8 @@
 # MergeEarn
 
 > **Fund issues. Reward merges.**
+>
+> **Judge / reviewer:** [Verify the complete public lifecycle in 60 seconds](docs/JUDGE_PROOF.md) · [Live bounty board](https://github.com/Saidur-droid/MergeEarn/issues/33)
 
 MergeEarn turns real GitHub issues into funded NIM bounties. Maintainers fund work, contributors solve it through a pull request, and payout is released only after GitHub work state and Nimiq payment state are independently verified.
 
@@ -33,9 +35,13 @@ Observed release state on 2026-09-15:
 - Payout: independently server-verified before `PAID`
 - Completed bounty state: `PAID`
 
-Before final competition submission, keep the latest `main` CI green, rotate any credential or wallet recovery material ever exposed outside its intended secret store, and inspect production runtime logs for new blocking errors.
+MergeEarn is in the Cycle 2 public judging phase. Keep `main` CI green, keep production proof reachable, grow only genuine usage, and never weaken the GitHub/Nimiq verification boundaries.
 
 ## Judge / first-time user path
+
+A judge does **not** need to sign in first. Open the [60-second proof dossier](docs/JUDGE_PROOF.md) or the live public bounty board and inspect the real GitHub/Nimiq evidence. Authentication is only needed when taking a maintainer/contributor action.
+
+For an active maintainer flow:
 
 1. Open MergeEarn inside Nimiq Pay.
 2. Sign in with GitHub.
