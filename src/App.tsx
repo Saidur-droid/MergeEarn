@@ -2,7 +2,7 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import { api, Bounty, CopilotDraft, Metrics, SessionUser } from './api';
 import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './integrations/nimiq';
 import { sendNimFundingPayment } from './payments/nimiq';
-import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
+import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress, publicProofGlossary } from './publicBounties';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
@@ -17,7 +17,7 @@ function Metric({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 function Status({ value }: { value: string }) {
-  return <span className={`status-pill status-${value.toLowerCase().replaceAll('_', '-')}`}>{value.replaceAll('_', ' ')}</span>;
+  return <span className={`status-pill status-${value.toLowerCase().replaceAll('_', '-')}`} aria-label={`Bounty status: ${value.replaceAll('_', ' ')}`}>{value.replaceAll('_', ' ')}</span>;
 }
 
 export default function App() {
@@ -353,12 +353,26 @@ export default function App() {
               MergeEarn turns real GitHub issues into funded NIM bounties. Funding, merged work, and payout are independently re-checked before the lifecycle can advance.
             </p>
             <div className="landing-actions">
-              <a className="landing-primary" href={judgeProofBounty ? `/?bounty=${encodeURIComponent(judgeProofBounty.id)}#live-bounties` : '#live-bounties'}>
-                Inspect verified proof <span aria-hidden="true">→</span>
+              <a className="landing-primary" href="#live-bounties">
+                Earn NIM <span aria-hidden="true">→</span>
               </a>
               <a className="landing-secondary" href="#sponsor-bounties">
-                Sponsor a real issue <span aria-hidden="true">↓</span>
+                Sponsor work <span aria-hidden="true">↓</span>
               </a>
+            </div>
+            <div className="first-time-chooser" aria-label="Choose how you want to use MergeEarn">
+              <article>
+                <span>Contributor</span>
+                <strong>Earn NIM for merged GitHub work</strong>
+                <p>Open a funded bounty, sign in with GitHub, connect Nimiq Pay, then submit your PR.</p>
+                <a href="#live-bounties">See funded work</a>
+              </article>
+              <article>
+                <span>Sponsor</span>
+                <strong>Put 5 NIM behind a real issue</strong>
+                <p>Pick a small open task, approve one Nimiq Pay transaction, and MergeEarn verifies it before work begins.</p>
+                <a href="#sponsor-bounties">See sponsor tasks</a>
+              </article>
             </div>
             <div className="landing-microcopy">
               <span className="micro-check" aria-hidden="true">✓</span>
@@ -439,6 +453,16 @@ export default function App() {
           </div>
         </section>
 
+        <section className="first-time-flow" aria-labelledby="first-time-flow-title">
+          <p className="process-eyebrow">First time here?</p>
+          <h2 id="first-time-flow-title">Three steps. No guessing.</h2>
+          <div className="first-time-flow-grid">
+            <article><span>1</span><strong>Choose</strong><p>Earn NIM from funded work, or sponsor a task you want completed.</p></article>
+            <article><span>2</span><strong>Connect only when needed</strong><p>GitHub proves identity and work. Nimiq Pay is used only for funding, claiming or payout.</p></article>
+            <article><span>3</span><strong>Follow verified state</strong><p>FUNDED, merged and PAID states are checked against GitHub or Nimiq—not screenshots.</p></article>
+          </div>
+        </section>
+
         <section className="public-market" id="live-bounties" aria-labelledby="live-bounties-title">
           <div className="public-market-heading">
             <div>
@@ -480,12 +504,12 @@ export default function App() {
                 const submission = bounty.submissions?.[0];
                 const progress = publicLifecycleProgress(bounty.status);
                 return (
-                  <article className={`public-bounty-card ${selectedBountyId === bounty.id ? 'featured' : ''}`} id={`bounty-${bounty.id}`} key={bounty.id}>
+                  <article className={`public-bounty-card ${selectedBountyId === bounty.id ? 'featured' : ''}`} id={`bounty-${bounty.id}`} key={bounty.id} aria-labelledby={`bounty-title-${bounty.id}`}>
                     <div className="public-bounty-topline">
                       <Status value={bounty.status} />
-                      <strong>{bounty.reward_amount_nim} NIM</strong>
+                      <strong aria-label={`Reward: ${bounty.reward_amount_nim} NIM`}>{bounty.reward_amount_nim} NIM</strong>
                     </div>
-                    <h3>{bounty.title}</h3>
+                    <h3 id={`bounty-title-${bounty.id}`}>{bounty.title}</h3>
                     <p>{publicBountySummary(bounty.description)}</p>
                     <div className="public-bounty-meta">
                       <span>{bounty.github_repositories?.full_name || 'GitHub repository'}</span>
@@ -500,24 +524,24 @@ export default function App() {
                         <i style={{ width: `${Math.round((progress.step / progress.total) * 100)}%` }} />
                       </div>
                     </div>
-                    <div className="public-proof-links">
-                      {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer">Issue ↗</a> : null}
-                      {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer">Pull request ↗</a> : null}
-                      {funding?.providerReference ? <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer">Funding tx ↗</a> : null}
-                      {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer">Payout tx ↗</a> : null}
+                    <div className="public-proof-links" aria-label={`Proof links for ${bounty.title}`}>
+                      {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer" aria-label={`View GitHub issue for ${bounty.title}`}>Issue ↗</a> : null}
+                      {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer" aria-label={`View pull request for ${bounty.title}`}>Pull request ↗</a> : null}
+                      {funding?.providerReference ? <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer" aria-label={`View funding transaction for ${bounty.title}`}>Funding tx ↗</a> : null}
+                      {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer" aria-label={`View payout transaction for ${bounty.title}`}>Payout tx ↗</a> : null}
                     </div>
                     <div className="public-bounty-actions">
                       <div className="public-share-actions">
-                        <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`}>Open proof <span aria-hidden="true">→</span></a>
-                        <button className="public-copy-link" type="button" onClick={() => shareBounty(bounty)}>
+                        <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`} aria-label={`Open verified proof for ${bounty.title}`}>Open proof <span aria-hidden="true">→</span></a>
+                        <button className="public-copy-link" type="button" onClick={() => shareBounty(bounty)} aria-label={`Share bounty ${bounty.title}`}>
                           Share
                         </button>
-                        <button className="public-copy-link" type="button" onClick={() => copyBountyLink(bounty.id)}>
+                        <button className="public-copy-link" type="button" onClick={() => copyBountyLink(bounty.id)} aria-label={`Copy link for ${bounty.title}`}>
                           {copiedBountyId === bounty.id ? 'Copied ✓' : 'Copy link'}
                         </button>
                       </div>
                       {bounty.status === 'FUNDED' ? (
-                        <a className="public-claim-link" href="/api/auth/github" onClick={() => sessionStorage.setItem('mergeearn_bounty', bounty.id)}>Claim with GitHub</a>
+                        <a className="public-claim-link" href="/api/auth/github" onClick={() => sessionStorage.setItem('mergeearn_bounty', bounty.id)} aria-label={`Claim ${bounty.title} with GitHub`}>Claim & earn</a>
                       ) : null}
                     </div>
                   </article>
@@ -549,6 +573,25 @@ export default function App() {
           ) : null}
         </section>
 
+        <section className="proof-glossary-section" aria-labelledby="proof-glossary-title">
+          <div className="public-market-heading">
+            <div>
+              <p className="process-eyebrow">What the status means</p>
+              <h2 id="proof-glossary-title">Plain language proof states.</h2>
+            </div>
+            <span className="public-market-note">Each important state has an external source of truth.</span>
+          </div>
+          <div className="proof-glossary-grid">
+            {publicProofGlossary().map((entry) => (
+              <article className="proof-glossary-card" key={entry.term}>
+                <span>{entry.term.replaceAll('_', ' / ')}</span>
+                <h3>{entry.title}</h3>
+                <p>{entry.description}</p>
+                <small>{entry.authority} verifies this state</small>
+              </article>
+            ))}
+          </div>
+        </section>
 
         <section className="sponsor-market" id="sponsor-bounties" aria-labelledby="sponsor-market-title">
           <div className="public-market-heading">
