@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { assertExpectedPullRequest, canReplacePaymentReference, isPayoutEligible } from './policy.js';
+import { assertExpectedPullRequest, canReplacePaymentReference, isPayoutEligible, pullRequestVerificationStatus } from './policy.js';
 
 describe('pull request verification policy', () => {
   const pr = {
@@ -19,6 +19,11 @@ describe('pull request verification policy', () => {
 
   it('rejects a PR targeting another branch', () => {
     expect(() => assertExpectedPullRequest(pr, 'acme/project', 'develop')).toThrow('must target develop');
+  });
+
+  it('keeps an unmerged pull request pending instead of verified', () => {
+    expect(pullRequestVerificationStatus({ merged: false })).toBe('PENDING');
+    expect(pullRequestVerificationStatus({ merged: true })).toBe('VERIFIED');
   });
 });
 
