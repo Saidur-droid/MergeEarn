@@ -768,3 +768,75 @@
 .public-progress-track{height:5px;margin-top:7px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.06)}
 .public-progress-track i{display:block;height:100%;border-radius:999px;background:rgba(154,168,255,.88)}
 .public-empty-action{margin-top:14px;padding:9px 12px;border:1px solid rgba(255,255,255,.11);border-radius:10px;background:rgba(255,255,255,.04);color:#dce2e9;font-size:.72rem;font-weight:780;cursor:pointer}
+
+
+/* Judge-zero-friction growth pass */
+.landing-utility-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 18px;
+  margin-top:17px;
+}
+.landing-utility-links a{
+  color:#8792a2;
+  font-size:.78rem;
+  font-weight:720;
+  text-decoration:none;
+}
+.landing-utility-links a:hover,
+.landing-utility-links a:focus-visible{color:#fff}
+
+.judge-strip{
+  display:flex;
+  width:min(100%,1180px);
+  margin:0 auto;
+  padding:18px 0;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  border-top:1px solid rgba(255,255,255,.075);
+  border-bottom:1px solid rgba(255,255,255,.075);
+}
+.judge-strip strong{
+  display:block;
+  max-width:720px;
+  color:#e9edf3;
+  font-size:.9rem;
+  line-height:1.45;
+}
+.judge-strip-metrics{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:10px 16px;
+  color:#6f7b8b;
+  font-size:.69rem;
+}
+.judge-strip-metrics b{color:#dfe5ed;font-size:.8rem}
+.sponsor-card.featured{
+  border-color:rgba(142,156,255,.36);
+  background:linear-gradient(180deg,rgba(116,132,255,.07),#090d12 52%);
+}
+.sponsor-actions{flex-wrap:wrap}
+.sponsor-actions .sponsor-share{
+  background:transparent;
+  color:#9aa8ff;
+  border-color:rgba(154,168,255,.18);
+}
+.public-filters button:focus-visible,
+.public-copy-link:focus-visible,
+.public-view-link:focus-visible,
+.public-claim-link:focus-visible,
+.sponsor-actions a:focus-visible,
+.sponsor-actions button:focus-visible,
+.landing-primary:focus-visible,
+.landing-secondary:focus-visible,
+.landing-utility-links a:focus-visible{
+  outline:2px solid #aeb8ff;
+  outline-offset:3px;
+}
+@media(max-width:680px){
+  .judge-strip{align-items:flex-start;flex-direction:column}
+  .judge-strip-metrics{justify-content:flex-start}
+  .landing-utility-links{display:grid;grid-template-columns:1fr}
+}
