@@ -21,6 +21,7 @@ function shapeBounty(row) {
       id: transaction.id,
       type: transaction.type,
       status: transaction.status,
+      providerReference: transaction.status === 'CONFIRMED' ? transaction.provider_reference || undefined : undefined,
     })) : undefined,
   };
 }
@@ -28,8 +29,6 @@ function shapeBounty(row) {
 export default async function handler(req, res) {
   if (!method(req, res, ['GET', 'POST', 'PATCH'])) return;
   try {
-    const session = await requireSession(req);
-
     if (req.method === 'GET') {
       const url = new URL(req.url, 'http://localhost');
       const id = url.searchParams.get('id');
@@ -40,14 +39,15 @@ export default async function handler(req, res) {
       }
       const rows = await supabase('bounties', {
         query: {
-          select: '*,github_repositories(full_name,default_branch),source_issues(issue_number,title,html_url),claims(id,status,contributor_user_id),submissions(id,verification_status,html_url,merged_at),payment_transactions(id,type,status)',
+          select: '*,github_repositories(full_name,default_branch),source_issues(issue_number,title,html_url),claims(id,status,contributor_user_id),submissions(id,verification_status,html_url,merged_at),payment_transactions(id,type,status,provider_reference)',
           order: 'created_at.desc',
           limit: 100,
         },
       });
-      return json(res, 200, { bounties: rows.map(shapeBounty) });
+      return json(res, 200, { bounties: rows.map(shapeBounty) }, { 'cache-control': 'public, s-maxage=15, stale-while-revalidate=30' });
     }
 
+    const session = await requireSession(req);
     const body = await readJson(req);
 
     if (req.method === 'PATCH') {
