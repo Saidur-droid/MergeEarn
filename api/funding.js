@@ -170,7 +170,9 @@ async function verifyFunding(bounty) {
     error.statusCode = 409;
     throw error;
   }
-  if (transaction.status === 'CONFIRMED' && bounty.status === 'FUNDED') return { confirmed: true, transaction };
+  if (transaction.status === 'CONFIRMED' && bounty.status === 'FUNDED' && transaction.metadata?.verifiedSender) {
+    return { confirmed: true, transaction };
+  }
 
   const verification = await verifyNimiqTransaction({
     hash: transaction.provider_reference,
@@ -190,10 +192,11 @@ async function verifyFunding(bounty) {
   }
   if (!verification.confirmed) return { confirmed: false, pending: true, message: verification.reason };
 
+  const verifiedSender = verification.result?.sender || verification.result?.from || verification.result?.senderAddress || null;
   const updated = await supabase('payment_transactions', {
     method: 'PATCH',
     query: { id: `eq.${transaction.id}` },
-    body: { status: 'CONFIRMED', error_message: null, metadata: { ...transaction.metadata, verifiedAt: new Date().toISOString() }, updated_at: new Date().toISOString() },
+    body: { status: 'CONFIRMED', error_message: null, metadata: { ...transaction.metadata, verifiedAt: new Date().toISOString(), verifiedSender }, updated_at: new Date().toISOString() },
     prefer: 'return=representation',
   });
   if (bounty.status === 'READY_TO_FUND') {
