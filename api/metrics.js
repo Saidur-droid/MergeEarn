@@ -21,8 +21,8 @@ export default async function handler(req, res) {
 
     const [bounties, payments, claims] = await Promise.all([
       supabase('bounties', { query: { select: 'id,status,reward_amount_luna,created_at,updated_at' } }),
-      supabase('payment_transactions', { query: { select: 'bounty_id,type,status,amount_luna,created_at,updated_at' } }),
-      supabase('claims', { query: { select: 'bounty_id,contributor_user_id,status,created_at,updated_at' } }),
+      supabase('payment_transactions', { query: { select: 'bounty_id,type,status,amount_luna,metadata,created_at,updated_at' } }),
+      supabase('claims', { query: { select: 'bounty_id,contributor_user_id,nimiq_address,status,created_at,updated_at' } }),
     ]);
 
     const count = (status) => bounties.filter((item) => item.status === status).length;
@@ -30,7 +30,17 @@ export default async function handler(req, res) {
     const confirmedPayouts = payments.filter((item) => item.type === 'PAYOUT' && item.status === 'CONFIRMED');
     const paidBountyIds = new Set(confirmedPayouts.map((item) => item.bounty_id));
     const contributors = new Map();
-    for (const claim of claims) contributors.set(claim.contributor_user_id, (contributors.get(claim.contributor_user_id) || 0) + 1);
+    const verifiedWallets = new Set();
+    const normalizeWallet = (value) => String(value || '').replace(/\s+/g, '').toUpperCase();
+    for (const claim of claims) {
+      contributors.set(claim.contributor_user_id, (contributors.get(claim.contributor_user_id) || 0) + 1);
+      const wallet = normalizeWallet(claim.nimiq_address);
+      if (wallet) verifiedWallets.add(wallet);
+    }
+    for (const payment of confirmedFunding) {
+      const wallet = normalizeWallet(payment.metadata?.verifiedSender);
+      if (wallet) verifiedWallets.add(wallet);
+    }
 
     const durations = bounties
       .filter((item) => paidBountyIds.has(item.id))
@@ -58,6 +68,7 @@ export default async function handler(req, res) {
         totalBountyLuna: bounties.reduce((sum, item) => sum + Number(item.reward_amount_luna || 0), 0),
         totalPaidLuna: confirmedPayouts.reduce((sum, item) => sum + Number(item.amount_luna || 0), 0),
         activeContributors: contributors.size,
+        verifiedWallets: verifiedWallets.size,
         repeatContributors: [...contributors.values()].filter((value) => value > 1).length,
         medianCompletionMs: medianMs,
       },
