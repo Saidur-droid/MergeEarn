@@ -18,10 +18,22 @@ export function publicBountySummary(description: string) {
   return cleaned || 'Open the linked GitHub issue to review this bounty.';
 }
 
+export function sortPublicBounties(bounties: Bounty[]) {
+  return [...bounties].sort((a, b) => {
+    const aActionable = a.status === 'FUNDED' ? 0 : 1;
+    const bActionable = b.status === 'FUNDED' ? 0 : 1;
+    return aActionable - bActionable;
+  });
+}
+
 export function filterPublicBounties(bounties: Bounty[], filter: PublicBountyFilter) {
-  if (filter === 'paid') return bounties.filter((bounty) => bounty.status === 'PAID');
-  if (filter === 'open') return bounties.filter((bounty) => bounty.status !== 'PAID');
-  return bounties;
+  let filtered = bounties;
+  if (filter === 'paid') {
+    filtered = bounties.filter((bounty) => bounty.status === 'PAID');
+  } else if (filter === 'open') {
+    filtered = bounties.filter((bounty) => bounty.status !== 'PAID');
+  }
+  return sortPublicBounties(filtered);
 }
 
 export function publicBountyShareUrl(id: string, origin: string) {
