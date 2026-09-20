@@ -562,7 +562,7 @@ export default function App() {
             {sponsorIssues.map((issueNumber) => (
               <article className={`sponsor-card ${sponsorTarget === issueNumber ? 'featured' : ''}`} id={`sponsor-${issueNumber}`} key={issueNumber}>
                 <span className="sponsor-number">Issue #{issueNumber}</span>
-                <h3>{issueNumber === 25 ? 'Improve keyboard focus' : issueNumber === 26 ? 'Add contributor onboarding' : issueNumber === 27 ? 'Copy confirmed proof links' : 'Improve accessibility labels'}</h3>
+                <h3>{issueNumber === 26 ? 'Add contributor onboarding' : issueNumber === 27 ? 'Copy confirmed proof links' : issueNumber === 28 ? 'Improve accessibility labels' : 'Add proof glossary'}</h3>
                 <p>Small, contributor-friendly MergeEarn task. Server-created bounty, fixed 5 NIM reward, chain-verified funding.</p>
                 <div className="sponsor-actions">
                   <a href={`https://github.com/Saidur-droid/MergeEarn/issues/${issueNumber}`} target="_blank" rel="noreferrer">View issue ↗</a>
