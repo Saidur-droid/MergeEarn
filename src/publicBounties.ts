@@ -2,6 +2,30 @@ import { Bounty } from './api';
 
 export type PublicBountyFilter = 'all' | 'open' | 'paid';
 
+export interface PublicBountyLifecycleCue {
+  step: 'funded' | 'claimed' | 'verified' | 'paid' | 'open';
+  label: string;
+  detail: string;
+}
+
+export function publicBountyLifecycleCue(status: string): PublicBountyLifecycleCue {
+  const normalized = (status || '').toUpperCase();
+  switch (normalized) {
+    case 'PAID':
+      return { step: 'paid', label: 'Paid', detail: 'Reward settled on-chain' };
+    case 'VERIFIED':
+    case 'APPROVED':
+      return { step: 'verified', label: 'Approved', detail: 'PR verified & approved for payout' };
+    case 'CLAIMED':
+    case 'PR_SUBMITTED':
+      return { step: 'claimed', label: 'In Review', detail: 'PR submitted by contributor' };
+    case 'FUNDED':
+      return { step: 'funded', label: 'Funded', detail: 'Ready for solution & PR' };
+    default:
+      return { step: 'open', label: 'Open', detail: 'Awaiting contribution' };
+  }
+}
+
 export function publicBountySummary(description: string) {
   const cleaned = description
     .split(/\r?\n/)
