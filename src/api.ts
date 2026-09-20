@@ -81,6 +81,7 @@ export type Metrics = {
   totalBountyLuna: number;
   totalPaidLuna: number;
   activeContributors: number;
+  verifiedWallets: number;
   repeatContributors: number;
   medianCompletionMs: number | null;
 };
