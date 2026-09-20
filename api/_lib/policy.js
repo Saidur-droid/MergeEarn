@@ -33,3 +33,7 @@ export function canReplacePaymentReference(transaction, nextReference) {
 export function isPayoutEligible(status) {
   return status === 'APPROVED' || status === 'PAYMENT_FAILED';
 }
+
+export function pullRequestVerificationStatus(pr) {
+  return pr?.merged === true ? 'VERIFIED' : 'PENDING';
+}

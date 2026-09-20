@@ -29,6 +29,12 @@ describe('bounty state machine', () => {
     expect(canTransitionBounty('PAID', 'APPROVED')).toBe(false);
   });
 
+  it('keeps a cancelled bounty terminal', () => {
+    expect(canTransitionBounty('READY_TO_FUND', 'CANCELLED')).toBe(true);
+    expect(canTransitionBounty('CANCELLED', 'FUNDED')).toBe(false);
+    expect(canTransitionBounty('CANCELLED', 'PAID')).toBe(false);
+  });
+
   it('allows retry after a payment failure only through approval', () => {
     expect(canTransitionBounty('PAYMENT_FAILED', 'APPROVED')).toBe(true);
     expect(canTransitionBounty('PAYMENT_FAILED', 'PAID')).toBe(false);
