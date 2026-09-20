@@ -48,3 +48,10 @@ export function publicLifecycleProgress(status: string) {
 export function publicBountyShareUrl(id: string, origin: string) {
   return `${origin.replace(/\/$/, '')}/?bounty=${encodeURIComponent(id)}#live-bounties`;
 }
+
+export function contributorOnboardingHint(status: string): string | null {
+  if (status === 'FUNDED') {
+    return 'claim → fix → PR → verified payout';
+  }
+  return null;
+}

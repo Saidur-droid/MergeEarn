@@ -666,6 +666,8 @@
 .public-bounty-meta { flex-wrap: wrap; gap: 7px 13px; margin-top: 18px; color: #647182; font-size: .68rem; }
 .public-proof-links { flex-wrap: wrap; gap: 8px 12px; margin-top: 14px; }
 .public-proof-links a { color: #9aa8ff; font-size: .69rem; font-weight: 720; text-decoration: none; }
+.public-onboarding-note { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 6px 10px; border-radius: 8px; background: rgba(142,156,255,.08); border: 1px solid rgba(142,156,255,.18); color: #a5b4fc; font-size: .72rem; font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; }
+.public-onboarding-note .onboarding-flow-tag { text-transform: uppercase; font-size: .62rem; font-weight: 700; letter-spacing: .05em; padding: 1px 5px; border-radius: 4px; background: rgba(142,156,255,.2); color: #c7d2fe; }
 .public-bounty-actions { justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 20px; }
 .public-view-link,.public-claim-link { color: #dbe1e9; font-size: .75rem; font-weight: 780; text-decoration: none; }
 .public-claim-link { padding: 9px 11px; border: 1px solid rgba(255,255,255,.11); border-radius: 10px; background: rgba(255,255,255,.035); }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterPublicBounties, prioritizePublicBounties, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
+import { contributorOnboardingHint, filterPublicBounties, prioritizePublicBounties, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
 import type { Bounty } from './api';
 
 function bounty(status: string): Bounty {
@@ -46,5 +46,11 @@ describe('public bounty helpers', () => {
   it('creates a canonical share URL', () => {
     expect(publicBountyShareUrl('abc 123', 'https://mergeearn.vercel.app/'))
       .toBe('https://mergeearn.vercel.app/?bounty=abc%20123#live-bounties');
+  });
+
+  it('provides compact onboarding flow hint for funded bounties', () => {
+    expect(contributorOnboardingHint('FUNDED')).toBe('claim → fix → PR → verified payout');
+    expect(contributorOnboardingHint('CLAIMED')).toBeNull();
+    expect(contributorOnboardingHint('PAID')).toBeNull();
   });
 });
