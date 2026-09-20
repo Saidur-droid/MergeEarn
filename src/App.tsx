@@ -173,12 +173,13 @@ export default function App() {
   }
 
   async function sponsorIssue(issueNumber: number) {
-    if (!wallet) {
-      setWalletHelp(true);
-      return setError('Open MergeEarn inside Nimiq Pay and connect a wallet before sponsoring a bounty.');
-    }
     const setup = await run('sponsor-init', () => api.sponsorInit(issueNumber));
     if (!setup) return;
+    if (!wallet) {
+      setWalletHelp(true);
+      setError('Sponsor opportunity prepared. Open MergeEarn inside Nimiq Pay and connect a wallet to fund it.');
+      return;
+    }
     if (setup.status === 'FUNDED') {
       setNotice('This issue is already funded.');
       return refreshProduct();
