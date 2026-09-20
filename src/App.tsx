@@ -41,6 +41,7 @@ export default function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [publicFilter, setPublicFilter] = useState<PublicBountyFilter>('all');
   const [copiedBountyId, setCopiedBountyId] = useState<string | null>(null);
+  const sponsorTarget = Number(new URLSearchParams(window.location.search).get('sponsor') || '0');
   const sponsorIssues = [25, 26, 27, 28];
 
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
@@ -48,6 +49,7 @@ export default function App() {
   const selectedBounty = bounties.find((bounty) => bounty.id === selectedBountyId) || null;
   const publicBounties = useMemo(() => bounties.filter((bounty) => !['DRAFT','CANCELLED','EXPIRED'].includes(bounty.status)), [bounties]);
   const visiblePublicBounties = useMemo(() => filterPublicBounties(publicBounties, publicFilter).slice(0, 9), [publicBounties, publicFilter]);
+  const judgeProofBounty = useMemo(() => publicBounties.find((bounty) => bounty.status === 'PAID') || publicBounties[0] || null, [publicBounties]);
 
   const run = useCallback(async <T,>(label: string, work: () => Promise<T>, success?: string): Promise<T | null> => {
     setBusy(label);
@@ -298,6 +300,25 @@ export default function App() {
     await copyBountyLink(bounty.id);
   }
 
+  async function shareSponsorIssue(issueNumber: number) {
+    const url = `${window.location.origin}/?sponsor=${issueNumber}#sponsor-${issueNumber}`;
+    const text = `Sponsor a real MergeEarn GitHub issue with 5 NIM. Funding becomes real only after Nimiq verification.`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `MergeEarn issue #${issueNumber}`, text, url });
+        return;
+      } catch (cause) {
+        if (cause instanceof DOMException && cause.name === 'AbortError') return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setNotice(`Sponsor link for issue #${issueNumber} copied.`);
+    } catch {
+      window.prompt('Copy this sponsor link:', url);
+    }
+  }
+
   async function logout() {
     await run('logout', api.logout);
     window.location.reload();
@@ -325,25 +346,29 @@ export default function App() {
           <div className="landing-copy">
             <div className="landing-kicker">
               <span className="kicker-mark" aria-hidden="true">M</span>
-              <span>GitHub-native bounties · Nimiq powered</span>
+              <span>For open-source maintainers & contributors · Nimiq powered</span>
             </div>
             <h1>Funded before work.<span>Verified before payout.</span></h1>
             <p className="landing-lede">
               MergeEarn turns real GitHub issues into funded NIM bounties. Funding, merged work, and payout are independently re-checked before the lifecycle can advance.
             </p>
             <div className="landing-actions">
-              <a className="landing-primary" href="/api/auth/github">
-                Continue with GitHub <span aria-hidden="true">→</span>
+              <a className="landing-primary" href={judgeProofBounty ? `/?bounty=${encodeURIComponent(judgeProofBounty.id)}#live-bounties` : '#live-bounties'}>
+                Inspect verified proof <span aria-hidden="true">→</span>
               </a>
-              <a className="landing-secondary" href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">
-                Watch verified demo <span aria-hidden="true">↗</span>
+              <a className="landing-secondary" href="#sponsor-bounties">
+                Sponsor a real issue <span aria-hidden="true">↓</span>
               </a>
             </div>
             <div className="landing-microcopy">
               <span className="micro-check" aria-hidden="true">✓</span>
               <span>No screenshot approvals. No browser-trusted <code>FUNDED</code> or <code>PAID</code> state.</span>
             </div>
-            <a className="landing-pay-link" href={nimiqPayDeepLink}>Open directly in Nimiq Pay <span aria-hidden="true">↗</span></a>
+            <div className="landing-utility-links">
+              <a href="/api/auth/github">Continue with GitHub <span aria-hidden="true">→</span></a>
+              <a href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">Watch 60s demo <span aria-hidden="true">↗</span></a>
+              <a href={nimiqPayDeepLink}>Open in Nimiq Pay <span aria-hidden="true">↗</span></a>
+            </div>
           </div>
 
           <aside className="proof-window" aria-label="Verified bounty lifecycle example">
@@ -398,7 +423,20 @@ export default function App() {
           </aside>
         </section>
 
-
+        <section className="judge-strip" aria-label="Judge quick proof">
+          <div>
+            <span className="proof-overline">Judge in under 60 seconds</span>
+            <strong>Open a real bounty → inspect GitHub merge → inspect confirmed Nimiq proof.</strong>
+          </div>
+          <div className="judge-strip-metrics" aria-label="Live product totals">
+            {metrics ? <>
+              <span><b>{metrics.funded}</b> funded</span>
+              <span><b>{metrics.verifiedMerged}</b> merged</span>
+              <span><b>{metrics.paid}</b> paid</span>
+              <span><b>{metrics.activeContributors}</b> contributors</span>
+            </> : <span>Live metrics loading…</span>}
+          </div>
+        </section>
 
         <section className="public-market" id="live-bounties" aria-labelledby="live-bounties-title">
           <div className="public-market-heading">
@@ -510,7 +548,7 @@ export default function App() {
         </section>
 
 
-        <section className="sponsor-market" aria-labelledby="sponsor-market-title">
+        <section className="sponsor-market" id="sponsor-bounties" aria-labelledby="sponsor-market-title">
           <div className="public-market-heading">
             <div>
               <p className="process-eyebrow">Community funded · zero maintainer spend</p>
@@ -520,12 +558,13 @@ export default function App() {
           </div>
           <div className="sponsor-grid">
             {sponsorIssues.map((issueNumber) => (
-              <article className="sponsor-card" key={issueNumber}>
+              <article className={`sponsor-card ${sponsorTarget === issueNumber ? 'featured' : ''}`} id={`sponsor-${issueNumber}`} key={issueNumber}>
                 <span className="sponsor-number">Issue #{issueNumber}</span>
                 <h3>{issueNumber === 25 ? 'Improve keyboard focus' : issueNumber === 26 ? 'Add contributor onboarding' : issueNumber === 27 ? 'Copy confirmed proof links' : 'Improve accessibility labels'}</h3>
                 <p>Small, contributor-friendly MergeEarn task. Server-created bounty, fixed 5 NIM reward, chain-verified funding.</p>
                 <div className="sponsor-actions">
                   <a href={`https://github.com/Saidur-droid/MergeEarn/issues/${issueNumber}`} target="_blank" rel="noreferrer">View issue ↗</a>
+                  <button className="sponsor-share" type="button" onClick={() => shareSponsorIssue(issueNumber)}>Share</button>
                   <button onClick={() => sponsorIssue(issueNumber)} disabled={Boolean(busy)}>{busy?.startsWith('sponsor') ? 'Working…' : 'Sponsor 5 NIM'}</button>
                 </div>
               </article>
