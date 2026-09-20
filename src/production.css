@@ -760,3 +760,11 @@
   .public-bounty-actions{align-items:flex-start;flex-direction:column}
   .public-share-actions{width:100%;justify-content:space-between}
 }
+
+
+.public-progress{margin-top:14px}
+.public-progress-copy{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#7f8b99;font-size:.68rem}
+.public-progress-copy strong{color:#cfd6df;font-size:.7rem}
+.public-progress-track{height:5px;margin-top:7px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.06)}
+.public-progress-track i{display:block;height:100%;border-radius:999px;background:rgba(154,168,255,.88)}
+.public-empty-action{margin-top:14px;padding:9px 12px;border:1px solid rgba(255,255,255,.11);border-radius:10px;background:rgba(255,255,255,.04);color:#dce2e9;font-size:.72rem;font-weight:780;cursor:pointer}

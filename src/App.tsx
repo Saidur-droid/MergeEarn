@@ -2,7 +2,7 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import { api, Bounty, CopilotDraft, Metrics, SessionUser } from './api';
 import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './integrations/nimiq';
 import { sendNimFundingPayment } from './payments/nimiq';
-import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary } from './publicBounties';
+import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
@@ -284,6 +284,20 @@ export default function App() {
     }
   }
 
+  async function shareBounty(bounty: Bounty) {
+    const url = publicBountyShareUrl(bounty.id, window.location.origin);
+    const text = `${bounty.title} · ${bounty.reward_amount_nim} NIM bounty on MergeEarn`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: bounty.title, text, url });
+        return;
+      } catch (cause) {
+        if (cause instanceof DOMException && cause.name === 'AbortError') return;
+      }
+    }
+    await copyBountyLink(bounty.id);
+  }
+
   async function logout() {
     await run('logout', api.logout);
     window.location.reload();
@@ -424,6 +438,7 @@ export default function App() {
                 const funding = bounty.payment_transactions?.find((tx) => tx.type === 'FUNDING' && tx.status === 'CONFIRMED');
                 const payout = bounty.payment_transactions?.find((tx) => tx.type === 'PAYOUT' && tx.status === 'CONFIRMED');
                 const submission = bounty.submissions?.[0];
+                const progress = publicLifecycleProgress(bounty.status);
                 return (
                   <article className={`public-bounty-card ${selectedBountyId === bounty.id ? 'featured' : ''}`} id={`bounty-${bounty.id}`} key={bounty.id}>
                     <div className="public-bounty-topline">
@@ -436,6 +451,15 @@ export default function App() {
                       <span>{bounty.github_repositories?.full_name || 'GitHub repository'}</span>
                       <span>Issue #{bounty.source_issues?.issue_number || '—'}</span>
                     </div>
+                    <div className="public-progress" aria-label={`Lifecycle progress: ${progress.label}`}>
+                      <div className="public-progress-copy">
+                        <strong>{progress.label}</strong>
+                        <span>{progress.step}/{progress.total}</span>
+                      </div>
+                      <div className="public-progress-track" aria-hidden="true">
+                        <i style={{ width: `${Math.round((progress.step / progress.total) * 100)}%` }} />
+                      </div>
+                    </div>
                     <div className="public-proof-links">
                       {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer">Issue ↗</a> : null}
                       {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer">Pull request ↗</a> : null}
@@ -445,6 +469,9 @@ export default function App() {
                     <div className="public-bounty-actions">
                       <div className="public-share-actions">
                         <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`}>Open proof <span aria-hidden="true">→</span></a>
+                        <button className="public-copy-link" type="button" onClick={() => shareBounty(bounty)}>
+                          Share
+                        </button>
                         <button className="public-copy-link" type="button" onClick={() => copyBountyLink(bounty.id)}>
                           {copiedBountyId === bounty.id ? 'Copied ✓' : 'Copy link'}
                         </button>
@@ -459,8 +486,15 @@ export default function App() {
             </div>
           ) : (
             <div className="public-empty">
-              <strong>The public board is ready.</strong>
-              <span>Published bounties appear here automatically as soon as their server-verified lifecycle begins.</span>
+              <strong>{publicFilter === 'open' ? 'No open bounties right now.' : publicFilter === 'paid' ? 'No paid proof in this view yet.' : 'The public board is ready.'}</strong>
+              <span>
+                {publicFilter === 'open'
+                  ? 'Sponsor one of the community issues below or switch to Paid to inspect completed proof.'
+                  : publicFilter === 'paid'
+                    ? 'Switch to All to inspect the current lifecycle, or sponsor a community issue to create the next proof.'
+                    : 'Published bounties appear here automatically as soon as their server-verified lifecycle begins.'}
+              </span>
+              {publicFilter !== 'all' ? <button className="public-empty-action" type="button" onClick={() => setPublicFilter('all')}>Show all bounties</button> : null}
             </div>
           )}
 
