@@ -5,6 +5,7 @@ import { sendNimFundingPayment } from './payments/nimiq';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
+const nimiqExplorerUrl = (hash: string) => `https://nimiq.watch/#${encodeURIComponent(hash)}`;
 
 function normalizeAddress(value: string) {
   return value.replace(/\s+/g, '').toUpperCase();
@@ -28,7 +29,7 @@ export default function App() {
   const [draft, setDraft] = useState<CopilotDraft | null>(null);
   const [rewardNim, setRewardNim] = useState('10');
   const [bounties, setBounties] = useState<Bounty[]>([]);
-  const [selectedBountyId, setSelectedBountyId] = useState<string>('');
+  const [selectedBountyId, setSelectedBountyId] = useState<string>(() => new URLSearchParams(window.location.search).get('bounty') || sessionStorage.getItem('mergeearn_bounty') || '');
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [canManageBounty, setCanManageBounty] = useState(false);
   const [wallet, setWallet] = useState<NimiqWalletSnapshot | null>(null);
@@ -41,6 +42,7 @@ export default function App() {
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
   const selectedIssueData = issues.find((issue) => issue.id === selectedIssue) || null;
   const selectedBounty = bounties.find((bounty) => bounty.id === selectedBountyId) || null;
+  const publicBounties = useMemo(() => bounties.filter((bounty) => !['DRAFT','CANCELLED','EXPIRED'].includes(bounty.status)).slice(0, 6), [bounties]);
 
   const run = useCallback(async <T,>(label: string, work: () => Promise<T>, success?: string): Promise<T | null> => {
     setBusy(label);
@@ -62,7 +64,7 @@ export default function App() {
     const [bountyResult, metricResult] = await Promise.all([api.bounties(), api.metrics()]);
     setBounties(bountyResult.bounties);
     setMetrics(metricResult.metrics);
-    setSelectedBountyId((current) => current || bountyResult.bounties[0]?.id || '');
+    setSelectedBountyId((current) => bountyResult.bounties.some((bounty) => bounty.id === current) ? current : bountyResult.bounties[0]?.id || '');
   }, []);
 
   useEffect(() => {
@@ -70,6 +72,7 @@ export default function App() {
       try {
         const session = await api.session();
         setUser(session.user);
+        await refreshProduct();
         if (session.authenticated) {
           const repoResult = await api.repositories();
           setRepositories(repoResult.repositories);
@@ -337,6 +340,69 @@ export default function App() {
               </div>
             </div>
           </aside>
+        </section>
+
+
+
+        <section className="public-market" id="live-bounties" aria-labelledby="live-bounties-title">
+          <div className="public-market-heading">
+            <div>
+              <p className="process-eyebrow">Live product · no login required</p>
+              <h2 id="live-bounties-title">Browse real bounty state before you connect anything.</h2>
+            </div>
+            <span className="public-market-note">GitHub work + Nimiq payment state, independently verified</span>
+          </div>
+
+          {publicBounties.length ? (
+            <div className="public-bounty-grid">
+              {publicBounties.map((bounty) => {
+                const funding = bounty.payment_transactions?.find((tx) => tx.type === 'FUNDING' && tx.status === 'CONFIRMED');
+                const payout = bounty.payment_transactions?.find((tx) => tx.type === 'PAYOUT' && tx.status === 'CONFIRMED');
+                const submission = bounty.submissions?.[0];
+                return (
+                  <article className={`public-bounty-card ${selectedBountyId === bounty.id ? 'featured' : ''}`} id={`bounty-${bounty.id}`} key={bounty.id}>
+                    <div className="public-bounty-topline">
+                      <Status value={bounty.status} />
+                      <strong>{bounty.reward_amount_nim} NIM</strong>
+                    </div>
+                    <h3>{bounty.title}</h3>
+                    <p>{bounty.description}</p>
+                    <div className="public-bounty-meta">
+                      <span>{bounty.github_repositories?.full_name || 'GitHub repository'}</span>
+                      <span>Issue #{bounty.source_issues?.issue_number || '—'}</span>
+                    </div>
+                    <div className="public-proof-links">
+                      {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer">Issue ↗</a> : null}
+                      {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer">Pull request ↗</a> : null}
+                      {funding?.providerReference ? <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer">Funding tx ↗</a> : null}
+                      {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer">Payout tx ↗</a> : null}
+                    </div>
+                    <div className="public-bounty-actions">
+                      <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`}>Open proof <span aria-hidden="true">→</span></a>
+                      {bounty.status === 'FUNDED' ? (
+                        <a className="public-claim-link" href="/api/auth/github" onClick={() => sessionStorage.setItem('mergeearn_bounty', bounty.id)}>Claim with GitHub</a>
+                      ) : null}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="public-empty">
+              <strong>The public board is ready.</strong>
+              <span>Published bounties appear here automatically as soon as their server-verified lifecycle begins.</span>
+            </div>
+          )}
+
+          {selectedBounty ? (
+            <div className="public-selected-proof" aria-label="Selected bounty proof">
+              <div>
+                <span className="proof-overline">Selected evidence</span>
+                <strong>{selectedBounty.title}</strong>
+              </div>
+              <a href={`/?bounty=${encodeURIComponent(selectedBounty.id)}#live-bounties`}>Shareable bounty URL ↗</a>
+            </div>
+          ) : null}
         </section>
 
         <section className="landing-process" aria-labelledby="landing-process-title">
