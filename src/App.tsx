@@ -250,15 +250,142 @@ export default function App() {
 
   if (!user) {
     return (
-      <main className="landing-shell">
-        <section className="landing-card">
-          <span className="brand-mark large">M</span>
-          <p className="eyebrow">GitHub-native bounties · Nimiq powered</p>
-          <h1>Turn GitHub issues into paid, verified work.</h1>
-          <p>Maintainers create and fund real issue bounties. Contributors claim them, link real pull requests, and get paid only after GitHub and Nimiq verification.</p>
-          <a className="primary button-link" href="/api/auth/github">Continue with GitHub</a>
-          <small>GitHub permissions are checked server-side. Payment state is never inferred from browser claims.</small>
+      <main className="landing-shell landing-premium">
+        <nav className="landing-nav" aria-label="Primary">
+          <a className="landing-wordmark" href="/" aria-label="MergeEarn home">
+            <span className="brand-mark">M</span>
+            <span>MergeEarn</span>
+          </a>
+          <div className="landing-nav-meta">
+            <span className="landing-live"><i aria-hidden="true" /> Live · verified E2E</span>
+            <a className="landing-nav-link" href="https://github.com/Saidur-droid/MergeEarn" target="_blank" rel="noreferrer">Source ↗</a>
+          </div>
+        </nav>
+
+        <section className="landing-hero-grid">
+          <div className="landing-copy">
+            <div className="landing-kicker">
+              <span className="kicker-mark" aria-hidden="true">M</span>
+              <span>GitHub-native bounties · Nimiq powered</span>
+            </div>
+            <h1>Funded before work.<span>Verified before payout.</span></h1>
+            <p className="landing-lede">
+              MergeEarn turns real GitHub issues into funded NIM bounties. Funding, merged work, and payout are independently re-checked before the lifecycle can advance.
+            </p>
+            <div className="landing-actions">
+              <a className="landing-primary" href="/api/auth/github">
+                Continue with GitHub <span aria-hidden="true">→</span>
+              </a>
+              <a className="landing-secondary" href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">
+                Watch verified demo <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+            <div className="landing-microcopy">
+              <span className="micro-check" aria-hidden="true">✓</span>
+              <span>No screenshot approvals. No browser-trusted <code>FUNDED</code> or <code>PAID</code> state.</span>
+            </div>
+            <a className="landing-pay-link" href={nimiqPayDeepLink}>Open directly in Nimiq Pay <span aria-hidden="true">↗</span></a>
+          </div>
+
+          <aside className="proof-window" aria-label="Verified bounty lifecycle example">
+            <div className="proof-chrome">
+              <div className="proof-dots" aria-hidden="true"><i /><i /><i /></div>
+              <span>Verified bounty lifecycle</span>
+              <span className="proof-paid">PAID</span>
+            </div>
+            <div className="proof-body">
+              <div className="proof-title-row">
+                <div>
+                  <span className="proof-overline">Release evidence</span>
+                  <h2>Issue → merge → verified payout</h2>
+                </div>
+                <span className="proof-amount">NIM</span>
+              </div>
+
+              <div className="proof-timeline">
+                <div className="proof-step">
+                  <span className="proof-check">✓</span>
+                  <div><strong>Funding confirmed</strong><small>Nimiq transaction re-checked server-side</small></div>
+                  <span className="proof-source">NIMIQ</span>
+                </div>
+                <div className="proof-step">
+                  <span className="proof-check">✓</span>
+                  <div><strong>Contributor claimed</strong><small>GitHub identity + payout address recorded</small></div>
+                  <span className="proof-source">CLAIM</span>
+                </div>
+                <div className="proof-step">
+                  <span className="proof-check">✓</span>
+                  <div><strong>Pull request merged</strong><small>Expected repository and base branch verified</small></div>
+                  <a className="proof-source proof-link" href="https://github.com/Saidur-droid/MergeEarn/pull/5" target="_blank" rel="noreferrer">PR #5 ↗</a>
+                </div>
+                <div className="proof-step">
+                  <span className="proof-check">✓</span>
+                  <div><strong>Maintainer approved</strong><small>Repository permission checked again</small></div>
+                  <span className="proof-source">GITHUB</span>
+                </div>
+                <div className="proof-step final">
+                  <span className="proof-check">✓</span>
+                  <div><strong>Payout confirmed</strong><small>Sender, recipient, amount and inclusion verified</small></div>
+                  <span className="proof-source">NIMIQ</span>
+                </div>
+              </div>
+
+              <div className="proof-footer">
+                <span><b>GitHub</b> proves the work</span>
+                <span className="proof-divider" aria-hidden="true" />
+                <span><b>Nimiq</b> proves the money</span>
+              </div>
+            </div>
+          </aside>
         </section>
+
+        <section className="landing-process" aria-labelledby="landing-process-title">
+          <div className="process-heading">
+            <p className="process-eyebrow">One clean loop</p>
+            <h2 id="landing-process-title">From issue to payout, without trusting a screenshot.</h2>
+          </div>
+          <div className="process-grid">
+            <article>
+              <span>01</span>
+              <h3>Fund the issue</h3>
+              <p>A maintainer chooses a real GitHub issue and funds the exact NIM reward through Nimiq Pay.</p>
+            </article>
+            <article>
+              <span>02</span>
+              <h3>Ship the fix</h3>
+              <p>A contributor claims the bounty and links the real pull request—nothing is self-reported as complete.</p>
+            </article>
+            <article>
+              <span>03</span>
+              <h3>Verify the merge</h3>
+              <p>MergeEarn checks the repository, expected base branch and merged state directly with GitHub.</p>
+            </article>
+            <article>
+              <span>04</span>
+              <h3>Release payout</h3>
+              <p>Only verified work can be approved; the Nimiq payment is checked again before the bounty becomes paid.</p>
+            </article>
+          </div>
+        </section>
+
+        <section className="landing-trust" aria-label="Trust model">
+          <div>
+            <p className="process-eyebrow">The difference</p>
+            <h2>Two independent sources of truth.</h2>
+          </div>
+          <div className="trust-statements">
+            <p><span>GitHub</span> is authoritative for repository permission, pull-request identity, branch and merge state.</p>
+            <p><span>Nimiq</span> is authoritative for funding and payout. Client-side success never creates money-sensitive state.</p>
+          </div>
+        </section>
+
+        <footer className="landing-footer">
+          <span>MergeEarn · Fund issues. Reward merges.</span>
+          <div>
+            <a href="https://github.com/Saidur-droid/MergeEarn" target="_blank" rel="noreferrer">Open source ↗</a>
+            <a href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">Demo ↗</a>
+          </div>
+        </footer>
       </main>
     );
   }
