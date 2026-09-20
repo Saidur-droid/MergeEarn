@@ -57,7 +57,7 @@ export default async function handler(req, res) {
         actor_id: session.user.id,
         event_type: JOIN_EVENT,
         metadata: {
-          githubLogin: session.user.githubLogin,
+          githubLogin: session.user.github_login,
           nimiqAddress,
           source: 'nimiq-pay-contributor-pool',
         },
