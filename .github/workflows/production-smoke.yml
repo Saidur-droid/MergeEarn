@@ -1,0 +1,52 @@
+name: Production smoke monitor
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check production health and judge-facing landing
+        id: smoke
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 2 --max-time 20 https://mergeearn.vercel.app/api/health | tee /tmp/health.json
+          grep -q '"ok":true' /tmp/health.json
+          curl --fail --silent --show-error --retry 2 --max-time 20 https://mergeearn.vercel.app/ | grep -q 'MergeEarn'
+
+      - name: Open or update incident issue
+        if: steps.smoke.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh label create production-health --color D73A4A --description 'Automated MergeEarn production monitor' --force
+          issue="$(gh issue list --label production-health --state open --json number --jq '.[0].number // empty')"
+          if [ -z "$issue" ]; then
+            gh issue create --title '[monitor] MergeEarn production health check failed' --label production-health --body "Automated smoke check failed at $(date -u +'%Y-%m-%dT%H:%M:%SZ'). Check production health, GitHub OAuth, database access, Nimiq RPC and the live landing immediately."
+          else
+            gh issue comment "$issue" --body "Health check failed again at $(date -u +'%Y-%m-%dT%H:%M:%SZ')."
+          fi
+          exit 1
+
+      - name: Close recovered incident
+        if: steps.smoke.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          issue="$(gh issue list --label production-health --state open --json number --jq '.[0].number // empty' 2>/dev/null || true)"
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body "Production smoke checks recovered at $(date -u +'%Y-%m-%dT%H:%M:%SZ'). Closing automatically."
+            gh issue close "$issue"
+          fi
