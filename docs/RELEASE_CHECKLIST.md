@@ -58,9 +58,9 @@ This is the final operator checklist for the Nimiq Mini Apps Competition Cycle 2
 - [x] Intended Nimiq Pay Mini App/WebView experience tested on mobile.
 - [x] Funding retry/failure handling exercised during live debugging.
 - [x] Payout retry/failure handling exercised and existing confirmed transaction safely re-verified.
-- [ ] Dedicated wrong-repository/wrong-base/unmerged PR negative-test pass recorded.
-- [ ] Dedicated cancelled/wrong-amount payment negative-test pass recorded.
-- [ ] Dedicated unauthorized-account approve/pay negative-test pass recorded.
+- [x] Automated wrong-repository/wrong-base/unmerged-PR negative-path pass recorded in CI (PR #38).
+- [x] Automated cancelled-bounty/wrong-amount/pending-confirmation payment negative-path pass recorded in CI (PR #38).
+- [x] Automated non-maintainer repository-authorization rejection is covered in CI; approve/payout both require the same server-side maintainer assertion (PR #38).
 - [ ] AI-provider failure fallback explicitly re-tested in production.
 
 ## F. Security/public release
@@ -81,11 +81,11 @@ This is the final operator checklist for the Nimiq Mini Apps Competition Cycle 2
 - [ ] Capture funding confirmation screenshot.
 - [ ] Capture merged PR + verified screenshot.
 - [ ] Capture final `PAID` screenshot.
-- [ ] Record 60–90 second demo using `docs/DEMO_RUNBOOK.md`.
+- [x] Demo video published and publicly re-verified: `https://youtube.com/shorts/xf0TRhqKeUE`.
 - [x] Canonical live URL and GitHub URL filled in `docs/SUBMISSION_FORM.md`.
-- [ ] Publish Skool post using `docs/PROMOTION_COPY.md`.
-- [ ] Publish at least one public social post.
-- [ ] Save direct Skool/social URLs.
+- [x] Skool `Promote Your Work` post is publicly reachable from the recorded profile/community URL.
+- [x] Public X post is reachable: `https://x.com/Rifatncr7/status/2100430329886745073`.
+- [x] Demo, Skool, X, live-app, repository and showcase URLs are recorded in `docs/SUBMISSION_FORM.md`.
 
 ## H. Submit
 
@@ -96,10 +96,10 @@ This is the final operator checklist for the Nimiq Mini Apps Competition Cycle 2
 - [x] Demo video URL published and recorded.
 - [x] Skool promotion URL published and recorded.
 - [x] Public social post URL published and recorded.
-- [ ] Re-check every submitted URL in a signed-out browser where appropriate.
+- [x] Public/signed-out URL re-check completed on 2026-09-20 for live app, repository, demo, Skool evidence, X post and official showcase entry.
 - [x] Submitted before the Cycle 2 deadline.
 - [x] Public Cycle 2 showcase listing serves as submission evidence.
 
 ## Definition of finished
 
-The core product is proven end-to-end through `PAID`. Final competition submission readiness additionally requires the remaining security rotations, final runtime review, and required portal/promotion assets.
+The core product is proven end-to-end through `PAID`. Core competition evidence is live and publicly re-verified. Remaining operational hardening items are the Vercel runtime-log review, production AI-fallback retest, and secret/wallet rotations that require secure account-level secret-store or wallet control.
