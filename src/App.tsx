@@ -433,6 +433,7 @@ export default function App() {
               <span><b>{metrics.funded}</b> funded</span>
               <span><b>{metrics.verifiedMerged}</b> merged</span>
               <span><b>{metrics.paid}</b> paid</span>
+              <span><b>{metrics.verifiedWallets}</b> verified wallets</span>
               <span><b>{metrics.activeContributors}</b> contributors</span>
             </> : <span>Live metrics loading…</span>}
           </div>
@@ -465,6 +466,7 @@ export default function App() {
                 <span><strong>{metrics.funded}</strong> funded</span>
                 <span><strong>{metrics.verifiedMerged}</strong> merged</span>
                 <span><strong>{metrics.paid}</strong> paid</span>
+                <span><strong>{metrics.verifiedWallets}</strong> wallets</span>
                 <span><strong>{metrics.activeContributors}</strong> contributors</span>
               </div>
             ) : null}
