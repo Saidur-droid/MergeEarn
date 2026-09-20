@@ -48,3 +48,34 @@ export function publicLifecycleProgress(status: string) {
 export function publicBountyShareUrl(id: string, origin: string) {
   return `${origin.replace(/\/$/, '')}/?bounty=${encodeURIComponent(id)}#live-bounties`;
 }
+
+
+export type ProofGlossaryEntry = {
+  term: 'FUNDED' | 'MERGED_VERIFIED' | 'PAID';
+  title: string;
+  description: string;
+  authority: 'Nimiq' | 'GitHub';
+};
+
+export function publicProofGlossary(): ProofGlossaryEntry[] {
+  return [
+    {
+      term: 'FUNDED',
+      title: 'Funded',
+      description: 'The exact NIM reward transaction is confirmed before contributor work is treated as funded.',
+      authority: 'Nimiq',
+    },
+    {
+      term: 'MERGED_VERIFIED',
+      title: 'Merged + verified',
+      description: 'The pull request is merged into the expected repository and base branch, then checked again by MergeEarn.',
+      authority: 'GitHub',
+    },
+    {
+      term: 'PAID',
+      title: 'Paid',
+      description: 'The payout transaction is confirmed with the expected sender, recipient and amount before the bounty is complete.',
+      authority: 'Nimiq',
+    },
+  ];
+}
