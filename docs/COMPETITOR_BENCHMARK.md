@@ -10,13 +10,15 @@ The live Cycle 2 showcase contained **142 public entries** when screened on 2026
 
 ## Current published scoring weights
 
-The live Nimiq scoring guide uses 100 points:
+The live Nimiq scoring guide currently shows **105 points**:
 
-- 45 — Functionality, reliability and usefulness
-- 25 — Nimiq Pay and Nimiq integration
-- 15 — Real usage
-- 10 — Design and UX
-- 5 — Builder promotion checklist
+- 25 — Design & UX
+- 25 — Functionality
+- 25 — Usefulness & originality
+- 25 — Marketing & distribution
+- 5 — Bonus
+
+The scoring page explicitly asks whether a new user can understand the app without instructions and go from zero to using it in under 60 seconds.
 
 Source: https://miniappscompetition.com/scoring
 
