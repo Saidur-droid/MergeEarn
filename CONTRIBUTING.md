@@ -54,3 +54,14 @@ A pull request should:
 Changes to authentication, repository authorization, bounty state transitions, funding, payout, encryption, database privileges, or Nimiq transaction verification require explicit review of the trust boundary and tests covering failure paths.
 
 See `SECURITY.md` for vulnerability handling and release requirements.
+
+
+## Community-sponsored bounties
+
+MergeEarn keeps a small set of contributor-friendly issues eligible for a 5 NIM community-sponsored bounty. Check the live app before starting work:
+
+https://mergeearn.vercel.app
+
+A task is a real bounty only after the live app shows it as `FUNDED`. Funding is approved by the sponsor in Nimiq Pay and independently verified by MergeEarn. Do not rely on screenshots, comments, or promises as payment proof.
+
+Current sponsor-eligible issues: #25, #26, #27, #28.
