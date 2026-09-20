@@ -19,7 +19,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --retry 2 --max-time 20 https://mergeearn.vercel.app/api/health | tee /tmp/health.json
+          curl --fail --silent --show-error --retry 2 --max-time 20 https://mergeearn.vercel.app/api/metrics?health=1 | tee /tmp/health.json
           grep -q '"ok":true' /tmp/health.json
           curl --fail --silent --show-error --retry 2 --max-time 20 https://mergeearn.vercel.app/ | grep -q 'MergeEarn'
 

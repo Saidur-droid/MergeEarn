@@ -1,8 +1,24 @@
-import { handleError, json, method, requireEnv, supabase } from './_lib/server.js';
+import { handleError, json, method, nimiqRpc, requireEnv, supabase } from './_lib/server.js';
 
 export default async function handler(req, res) {
   if (!method(req, res, ['GET'])) return;
   try {
+    const url = new URL(req.url, 'http://localhost');
+    if (url.searchParams.get('health') === '1') {
+      const [rows, blockNumber] = await Promise.all([
+        supabase('bounties', { query: { select: 'id', limit: 1 } }),
+        nimiqRpc('getBlockNumber'),
+      ]);
+      return json(res, 200, {
+        ok: true,
+        database: Array.isArray(rows),
+        nimiqRpc: Number.isFinite(Number(blockNumber)),
+        blockNumber: Number(blockNumber),
+        fundingConfigured: Boolean(requireEnv('NIMIQ_FUNDING_ADDRESS')),
+        checkedAt: new Date().toISOString(),
+      }, { 'cache-control': 'no-store' });
+    }
+
     const [bounties, payments, claims] = await Promise.all([
       supabase('bounties', { query: { select: 'id,status,reward_amount_luna,created_at,updated_at' } }),
       supabase('payment_transactions', { query: { select: 'bounty_id,type,status,amount_luna,created_at,updated_at' } }),
