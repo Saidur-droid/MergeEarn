@@ -159,10 +159,14 @@ Read [`AGENTS.md`](AGENTS.md) first for project operating rules, then [`CONTRIBU
 MergeEarn keeps a small set of contributor-friendly issues open for community sponsorship.
 
 Current eligible issues:
-- #25 — keyboard-visible focus states
 - #26 — contributor onboarding note
 - #27 — confirmed transaction-proof copy action
 - #28 — public bounty accessibility labels
+- #31 — proof glossary for first-time visitors
+
+Open the self-updating bounty board: https://github.com/Saidur-droid/MergeEarn/issues/33
+
+GitHub's contributor discovery page: https://github.com/Saidur-droid/MergeEarn/contribute
 
 Open the live app first: https://mergeearn.vercel.app
 
