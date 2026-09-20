@@ -135,6 +135,10 @@ Repository secret search did not find the previously exposed session secret valu
 
 ## Current release status
 
+### Post-submission judging phase — 2026-09-20
+
+MergeEarn has been submitted for Cycle 2 and is now in the public judging/showcase phase. Post-submission priorities are reliability, judge-first proof, real organic usage, and repeat verified bounty lifecycles. Do not fabricate wallets, transactions, users, GitHub activity, or traffic. Do not buy usage. All growth must be genuine and competition-safe.
+
 ### Core product
 
 The core product flow is proven end-to-end and functional through `PAID`.
@@ -147,7 +151,7 @@ The core product flow is proven end-to-end and functional through `PAID`.
 - Required demo/video/screenshots are captured.
 - Skool promotion URL is published and recorded if required by the portal.
 - Public social post URL is published and recorded if required.
-- Competition portal submission is completed and confirmation saved.
+- Competition portal submission is completed and the public showcase entry remains reachable.
 
 See `docs/RELEASE_CHECKLIST.md` for the canonical checkbox list.
 
@@ -166,13 +170,13 @@ Prepared files:
 
 ## Next-session priority order
 
-1. Rotate `SESSION_ENCRYPTION_KEY`; redeploy; verify GitHub login still works.
-2. For any mainnet/real-value use, create a fresh Nimiq wallet and update public address config.
-3. Inspect latest Vercel runtime errors/logs and resolve any blocking current errors.
-4. Confirm latest `main` CI remains green.
-5. Capture final `PAID` screenshot + short demo video.
-6. Publish promotion posts and fill their URLs in `docs/SUBMISSION_FORM.md`.
-7. Complete Cycle 2 submission and save confirmation evidence.
+1. Keep the no-login judge path reliable: public bounty evidence, GitHub links, Nimiq transaction links, live metrics, and production smoke checks.
+2. Grow genuine unique Nimiq-wallet usage organically; never simulate or purchase usage.
+3. Complete 2–3 fresh real sponsor → contributor → PR → merge → payout lifecycles using real independent users where available.
+4. Finish the open contributor-friendly issues (#10–#13) through the product whenever genuine contributors participate.
+5. Rotate `SESSION_ENCRYPTION_KEY`; redeploy; verify GitHub login still works.
+6. For any mainnet/real-value use, create a fresh Nimiq wallet and update public address config.
+7. Inspect production runtime errors/logs and keep latest `main` CI green throughout judging.
 
 ## Definition of 100%
 

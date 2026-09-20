@@ -147,4 +147,4 @@ Open source, developer tools, GitHub, bounties, payments, Nimiq Pay, NIM, contri
 - [x] Skool promotion evidence added: `https://www.skool.com/@rifat-rahman-3006?g=miniappscompetition`
 - [x] Public social post URL added: `https://x.com/Rifatncr7/status/2100430329886745073`
 - [ ] Final production runtime-log review after the last deployment
-- [ ] Cycle 2 portal submission completed
+- [x] Cycle 2 portal submission completed; project is in the public Cycle 2 showcase

@@ -89,16 +89,16 @@ This is the final operator checklist for the Nimiq Mini Apps Competition Cycle 2
 
 ## H. Submit
 
-- [ ] Open the current Cycle 2 submission portal.
-- [ ] Paste canonical answers from `docs/SUBMISSION_FORM.md`.
-- [ ] Supply live Mini App URL.
-- [ ] Supply public GitHub repository URL.
-- [ ] Supply demo video URL if requested/available.
-- [ ] Supply Skool promotion URL.
-- [ ] Supply public social post URL.
+- [x] Cycle 2 portal submission completed.
+- [x] Canonical submission answers supplied.
+- [x] Live Mini App URL supplied.
+- [x] Public GitHub repository URL supplied.
+- [x] Demo video URL published and recorded.
+- [x] Skool promotion URL published and recorded.
+- [x] Public social post URL published and recorded.
 - [ ] Re-check every submitted URL in a signed-out browser where appropriate.
-- [ ] Submit before the deadline.
-- [ ] Save submission confirmation/evidence.
+- [x] Submitted before the Cycle 2 deadline.
+- [x] Public Cycle 2 showcase listing serves as submission evidence.
 
 ## Definition of finished
 

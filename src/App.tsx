@@ -2,6 +2,7 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import { api, Bounty, CopilotDraft, Metrics, SessionUser } from './api';
 import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './integrations/nimiq';
 import { sendNimFundingPayment } from './payments/nimiq';
+import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary } from './publicBounties';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
@@ -38,12 +39,15 @@ export default function App() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [publicFilter, setPublicFilter] = useState<PublicBountyFilter>('all');
+  const [copiedBountyId, setCopiedBountyId] = useState<string | null>(null);
   const sponsorIssues = [10, 11, 12, 13];
 
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
   const selectedIssueData = issues.find((issue) => issue.id === selectedIssue) || null;
   const selectedBounty = bounties.find((bounty) => bounty.id === selectedBountyId) || null;
-  const publicBounties = useMemo(() => bounties.filter((bounty) => !['DRAFT','CANCELLED','EXPIRED'].includes(bounty.status)).slice(0, 6), [bounties]);
+  const publicBounties = useMemo(() => bounties.filter((bounty) => !['DRAFT','CANCELLED','EXPIRED'].includes(bounty.status)), [bounties]);
+  const visiblePublicBounties = useMemo(() => filterPublicBounties(publicBounties, publicFilter).slice(0, 9), [publicBounties, publicFilter]);
 
   const run = useCallback(async <T,>(label: string, work: () => Promise<T>, success?: string): Promise<T | null> => {
     setBusy(label);
@@ -269,6 +273,17 @@ export default function App() {
     await refreshProduct();
   }
 
+  async function copyBountyLink(bountyId: string) {
+    const url = publicBountyShareUrl(bountyId, window.location.origin);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedBountyId(bountyId);
+      window.setTimeout(() => setCopiedBountyId((current) => current === bountyId ? null : current), 1800);
+    } catch {
+      window.prompt('Copy this bounty link:', url);
+    }
+  }
+
   async function logout() {
     await run('logout', api.logout);
     window.location.reload();
@@ -380,9 +395,32 @@ export default function App() {
             <span className="public-market-note">GitHub work + Nimiq payment state, independently verified</span>
           </div>
 
-          {publicBounties.length ? (
+          <div className="public-market-toolbar" aria-label="Public bounty filters">
+            <div className="public-filters" role="group" aria-label="Filter bounties">
+              {(['all','open','paid'] as PublicBountyFilter[]).map((filter) => (
+                <button
+                  className={publicFilter === filter ? 'active' : ''}
+                  key={filter}
+                  onClick={() => setPublicFilter(filter)}
+                  type="button"
+                >
+                  {filter === 'all' ? 'All' : filter === 'open' ? 'Open' : 'Paid'}
+                </button>
+              ))}
+            </div>
+            {metrics ? (
+              <div className="public-live-metrics" aria-label="Live product proof">
+                <span><strong>{metrics.funded}</strong> funded</span>
+                <span><strong>{metrics.verifiedMerged}</strong> merged</span>
+                <span><strong>{metrics.paid}</strong> paid</span>
+                <span><strong>{metrics.activeContributors}</strong> contributors</span>
+              </div>
+            ) : null}
+          </div>
+
+          {visiblePublicBounties.length ? (
             <div className="public-bounty-grid">
-              {publicBounties.map((bounty) => {
+              {visiblePublicBounties.map((bounty) => {
                 const funding = bounty.payment_transactions?.find((tx) => tx.type === 'FUNDING' && tx.status === 'CONFIRMED');
                 const payout = bounty.payment_transactions?.find((tx) => tx.type === 'PAYOUT' && tx.status === 'CONFIRMED');
                 const submission = bounty.submissions?.[0];
@@ -393,7 +431,7 @@ export default function App() {
                       <strong>{bounty.reward_amount_nim} NIM</strong>
                     </div>
                     <h3>{bounty.title}</h3>
-                    <p>{bounty.description}</p>
+                    <p>{publicBountySummary(bounty.description)}</p>
                     <div className="public-bounty-meta">
                       <span>{bounty.github_repositories?.full_name || 'GitHub repository'}</span>
                       <span>Issue #{bounty.source_issues?.issue_number || '—'}</span>
@@ -405,7 +443,12 @@ export default function App() {
                       {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer">Payout tx ↗</a> : null}
                     </div>
                     <div className="public-bounty-actions">
-                      <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`}>Open proof <span aria-hidden="true">→</span></a>
+                      <div className="public-share-actions">
+                        <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`}>Open proof <span aria-hidden="true">→</span></a>
+                        <button className="public-copy-link" type="button" onClick={() => copyBountyLink(bounty.id)}>
+                          {copiedBountyId === bounty.id ? 'Copied ✓' : 'Copy link'}
+                        </button>
+                      </div>
                       {bounty.status === 'FUNDED' ? (
                         <a className="public-claim-link" href="/api/auth/github" onClick={() => sessionStorage.setItem('mergeearn_bounty', bounty.id)}>Claim with GitHub</a>
                       ) : null}
