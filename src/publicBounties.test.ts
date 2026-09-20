@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterPublicBounties, publicBountyShareUrl, publicBountySummary } from './publicBounties';
+import { filterPublicBounties, prioritizePublicBounties, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
 import type { Bounty } from './api';
 
 function bounty(status: string): Bounty {
@@ -29,6 +29,18 @@ describe('public bounty helpers', () => {
     expect(filterPublicBounties(items, 'open').map((item) => item.status)).toEqual(['FUNDED', 'CLAIMED']);
     expect(filterPublicBounties(items, 'paid').map((item) => item.status)).toEqual(['PAID']);
     expect(filterPublicBounties(items, 'all')).toHaveLength(3);
+  });
+
+  it('prioritizes funded work while preserving relative order otherwise', () => {
+    const items = [bounty('PAID'), bounty('CLAIMED'), bounty('FUNDED'), bounty('PR_SUBMITTED')];
+    expect(prioritizePublicBounties(items).map((item) => item.status))
+      .toEqual(['FUNDED', 'PAID', 'CLAIMED', 'PR_SUBMITTED']);
+  });
+
+  it('maps public lifecycle states to concise progress labels', () => {
+    expect(publicLifecycleProgress('FUNDED')).toEqual({ label: 'Ready to claim', step: 2, total: 5 });
+    expect(publicLifecycleProgress('PR_SUBMITTED')).toEqual({ label: 'PR submitted', step: 3, total: 5 });
+    expect(publicLifecycleProgress('PAID')).toEqual({ label: 'Paid', step: 5, total: 5 });
   });
 
   it('creates a canonical share URL', () => {
