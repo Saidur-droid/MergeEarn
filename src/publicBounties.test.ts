@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { filterPublicBounties, prioritizePublicBounties, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
+import {
+  filterPublicBounties,
+  prioritizePublicBounties,
+  publicBountyShareUrl,
+  publicBountySummary,
+  publicLifecycleProgress,
+  publicProofGlossary,
+} from './publicBounties';
 import type { Bounty } from './api';
 
 function bounty(status: string): Bounty {
@@ -46,5 +53,29 @@ describe('public bounty helpers', () => {
   it('creates a canonical share URL', () => {
     expect(publicBountyShareUrl('abc 123', 'https://mergeearn.vercel.app/'))
       .toBe('https://mergeearn.vercel.app/?bounty=abc%20123#live-bounties');
+  });
+
+  it('provides compact proof glossary terms pointing to authoritative sources', () => {
+    const glossary = publicProofGlossary();
+    expect(glossary).toHaveLength(3);
+    expect(glossary.map((entry) => entry.term)).toEqual(['FUNDED', 'MERGED_VERIFIED', 'PAID']);
+    
+    const funded = glossary.find((entry) => entry.term === 'FUNDED')!;
+    expect(funded.title).toBe('Funded');
+    expect(funded.description.toLowerCase()).toContain('funds');
+    expect(funded.authority.toLowerCase()).toContain('nimiq');
+    expect(funded.source).toBe('Nimiq');
+
+    const merged = glossary.find((entry) => entry.term === 'MERGED_VERIFIED')!;
+    expect(merged.title).toBe('Merged / Verified');
+    expect(merged.description.toLowerCase()).toContain('pull request');
+    expect(merged.authority.toLowerCase()).toContain('github');
+    expect(merged.source).toBe('GitHub');
+
+    const paid = glossary.find((entry) => entry.term === 'PAID')!;
+    expect(paid.title).toBe('Paid');
+    expect(paid.description.toLowerCase()).toContain('payout');
+    expect(paid.authority.toLowerCase()).toContain('nimiq');
+    expect(paid.source).toBe('Nimiq');
   });
 });
