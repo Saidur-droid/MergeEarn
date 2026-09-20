@@ -947,3 +947,46 @@
   .proof-glossary-grid{grid-template-columns:1fr}
   .first-time-chooser{margin-top:14px}
 }
+
+
+.contributor-pool-card{
+  display:flex;
+  width:min(100%,1180px);
+  margin:0 auto 26px;
+  padding:20px 22px;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  border:1px solid rgba(142,156,255,.22);
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(116,132,255,.045),rgba(255,255,255,.015));
+}
+.contributor-pool-card h2{
+  margin:6px 0 7px;
+  color:#edf1f6;
+  font-size:1.05rem;
+  letter-spacing:-.025em;
+}
+.contributor-pool-card p{
+  max-width:720px;
+  margin:0;
+  color:#7c8999;
+  font-size:.8rem;
+  line-height:1.55;
+}
+.contributor-pool-actions{
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  gap:9px;
+}
+.pool-ready{
+  color:#76daa5;
+  font-size:.78rem;
+  font-weight:800;
+}
+@media(max-width:760px){
+  .contributor-pool-card{align-items:flex-start;flex-direction:column}
+  .contributor-pool-actions{width:100%;flex-direction:column;align-items:stretch}
+  .contributor-pool-actions button{width:100%}
+}
