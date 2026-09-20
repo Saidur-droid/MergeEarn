@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterPublicBounties, publicBountyShareUrl, publicBountySummary } from './publicBounties';
+import { filterPublicBounties, publicBountyShareUrl, publicBountySummary, sortPublicBounties } from './publicBounties';
 import type { Bounty } from './api';
 
 function bounty(status: string): Bounty {
@@ -29,6 +29,13 @@ describe('public bounty helpers', () => {
     expect(filterPublicBounties(items, 'open').map((item) => item.status)).toEqual(['FUNDED', 'CLAIMED']);
     expect(filterPublicBounties(items, 'paid').map((item) => item.status)).toEqual(['PAID']);
     expect(filterPublicBounties(items, 'all')).toHaveLength(3);
+  });
+
+  it('prioritizes actionable funded bounties over non-actionable states', () => {
+    const items = [bounty('PAID'), bounty('CLAIMED'), bounty('FUNDED')];
+    expect(sortPublicBounties(items).map((item) => item.status)).toEqual(['FUNDED', 'PAID', 'CLAIMED']);
+    expect(filterPublicBounties(items, 'open').map((item) => item.status)).toEqual(['FUNDED', 'CLAIMED']);
+    expect(filterPublicBounties(items, 'all').map((item) => item.status)).toEqual(['FUNDED', 'PAID', 'CLAIMED']);
   });
 
   it('creates a canonical share URL', () => {
