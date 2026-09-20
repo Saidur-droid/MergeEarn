@@ -1,0 +1,119 @@
+name: Community growth board
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch verified public state
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 2 --max-time 20 https://mergeearn.vercel.app/api/bounties > /tmp/bounties.json
+          curl --fail --silent --show-error --retry 2 --max-time 20 https://mergeearn.vercel.app/api/metrics > /tmp/metrics.json
+          jq -e '.bounties | type == "array"' /tmp/bounties.json >/dev/null
+          jq -e '.metrics | type == "object"' /tmp/metrics.json >/dev/null
+
+      - name: Sync issue labels and live board
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          gh label create bounty-waiting --color BFD4F2 --description 'Sponsor opportunity not funded yet' --force
+          gh label create bounty-ready --color D4C5F9 --description 'Prepared and ready for NIM funding' --force
+          gh label create bounty-funded --color 0E8A16 --description 'Funding verified on Nimiq; ready for contributor work' --force
+          gh label create bounty-in-progress --color FBCA04 --description 'Claimed or pull request submitted' --force
+          gh label create bounty-verified --color 5319E7 --description 'GitHub merge verified or payout approval stage' --force
+          gh label create bounty-paid --color 0052CC --description 'Verified NIM payout completed' --force
+
+          issues=(26 27 28 31)
+          rows=""
+
+          for issue in "${issues[@]}"; do
+            status="$(jq -r --argjson n "$issue" '
+              [.bounties[] | select(.source_issues.issue_number == $n)]
+              | sort_by(.created_at)
+              | last
+              | .status // "WAITING_SPONSOR"
+            ' /tmp/bounties.json)"
+
+            case "$status" in
+              WAITING_SPONSOR) label="bounty-waiting"; action="Waiting for sponsor" ;;
+              READY_TO_FUND) label="bounty-ready"; action="Ready for 5 NIM funding" ;;
+              FUNDED) label="bounty-funded"; action="FUNDED — ready to claim" ;;
+              CLAIMED|PR_SUBMITTED) label="bounty-in-progress"; action="Contributor work in progress" ;;
+              VERIFIED|APPROVED|PAYMENT_FAILED) label="bounty-verified"; action="Merge verified / payout stage" ;;
+              PAID) label="bounty-paid"; action="PAID — verified lifecycle complete" ;;
+              *) label="bounty-waiting"; action="$status" ;;
+            esac
+
+            for old in bounty-waiting bounty-ready bounty-funded bounty-in-progress bounty-verified bounty-paid; do
+              if [ "$old" != "$label" ]; then
+                gh issue edit "$issue" --remove-label "$old" >/dev/null 2>&1 || true
+              fi
+            done
+            gh issue edit "$issue" --add-label "$label" >/dev/null
+
+            title="$(gh issue view "$issue" --json title --jq .title)"
+            sponsor_url="https://mergeearn.vercel.app/?sponsor=$issue#sponsor-$issue"
+            rows+="| #$issue | $title | \`$status\` | [$action]($sponsor_url) |"$'\n'
+          done
+
+          funded="$(jq -r '.metrics.funded // 0' /tmp/metrics.json)"
+          merged="$(jq -r '.metrics.verifiedMerged // 0' /tmp/metrics.json)"
+          paid="$(jq -r '.metrics.paid // 0' /tmp/metrics.json)"
+          wallets="$(jq -r '.metrics.verifiedWallets // 0' /tmp/metrics.json)"
+          contributors="$(jq -r '.metrics.activeContributors // 0' /tmp/metrics.json)"
+          checked="$(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          cat > /tmp/board.md <<EOF
+# MergeEarn live community bounty board
+
+This is the public, automatically maintained entry point for contributor-friendly MergeEarn work.
+
+**Live app:** https://mergeearn.vercel.app  
+**GitHub Contribute page:** https://github.com/Saidur-droid/MergeEarn/contribute
+
+A task is paid only when MergeEarn shows it as \`FUNDED\`. Nimiq is authoritative for funding/payout and GitHub is authoritative for the work.
+
+<!-- MERGEEARN_LIVE_BOARD_START -->
+
+## Verified product evidence
+
+- **$funded** verified funding transaction(s)
+- **$merged** GitHub-verified merge(s)
+- **$paid** verified paid bounty/bounties
+- **$wallets** deduplicated verified wallet(s)
+- **$contributors** contributor(s)
+
+## Current community queue
+
+| Issue | Task | Live state | Next action |
+| --- | --- | --- | --- |
+$rows
+
+### Contributor path
+
+1. Open a task above.
+2. Confirm the live MergeEarn bounty says \`FUNDED\`.
+3. Claim it in MergeEarn with your Nimiq payout address.
+4. Implement the GitHub issue and open a PR against the expected branch.
+5. MergeEarn verifies the PR after merge.
+6. The payout completes only after maintainer approval and Nimiq confirmation.
+
+_Last synchronized: $checked._
+
+<!-- MERGEEARN_LIVE_BOARD_END -->
+EOF
+
+          gh issue edit 33 --body-file /tmp/board.md
