@@ -303,6 +303,25 @@ export default function App() {
     await copyBountyLink(bounty.id);
   }
 
+  async function shareMergeEarn() {
+    const url = window.location.origin;
+    const text = 'Earn NIM for verified GitHub work or sponsor a real open-source issue. GitHub proves the work. Nimiq proves the money.';
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'MergeEarn', text, url });
+        return;
+      } catch (cause) {
+        if (cause instanceof DOMException && cause.name === 'AbortError') return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setNotice('MergeEarn link copied. Send it to a developer or Nimiq user.');
+    } catch {
+      window.prompt('Copy the MergeEarn link:', url);
+    }
+  }
+
   async function shareSponsorIssue(issueNumber: number) {
     const url = `${window.location.origin}/?sponsor=${issueNumber}#sponsor-${issueNumber}`;
     const text = `Sponsor a real MergeEarn GitHub issue with 5 NIM. Funding becomes real only after Nimiq verification.`;
@@ -393,6 +412,7 @@ export default function App() {
               <span className="micro-check" aria-hidden="true">✓</span>
               <span>No screenshot approvals. No browser-trusted <code>FUNDED</code> or <code>PAID</code> state.</span>
             </div>
+            <button className="landing-share-button" type="button" onClick={shareMergeEarn}>Invite a developer / Share MergeEarn</button>
             <div className="landing-utility-links">
               <a href="/api/auth/github">Continue with GitHub <span aria-hidden="true">→</span></a>
               <a href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">Watch 60s demo <span aria-hidden="true">↗</span></a>
