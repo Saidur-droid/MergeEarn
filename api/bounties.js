@@ -1,4 +1,4 @@
-import { assertRepoMaintainer, getBounty, handleError, json, lunaToNim, method, nimToLuna, readJson, requireSession, supabase, transitionBounty } from './_lib/server.js';
+import { assertRepoMaintainer, getBounty, getSession, handleError, json, lunaToNim, method, nimToLuna, readJson, requireSession, supabase, transitionBounty } from './_lib/server.js';
 
 function shapeBounty(row) {
   if (!row) return null;
@@ -30,11 +30,14 @@ export default async function handler(req, res) {
   if (!method(req, res, ['GET', 'POST', 'PATCH'])) return;
   try {
     if (req.method === 'GET') {
+      const session = await getSession(req);
+      const publicRepository = process.env.PUBLIC_BOUNTY_REPOSITORY?.trim() || 'Saidur-droid/MergeEarn';
       const url = new URL(req.url, 'http://localhost');
       const id = url.searchParams.get('id');
       if (id) {
         const bounty = await getBounty(id);
         if (!bounty) return json(res, 404, { error: 'Bounty not found.' });
+        if (!session && bounty.github_repositories?.full_name !== publicRepository) return json(res, 404, { error: 'Bounty not found.' });
         return json(res, 200, { bounty: shapeBounty(bounty) });
       }
       const rows = await supabase('bounties', {
@@ -44,7 +47,8 @@ export default async function handler(req, res) {
           limit: 100,
         },
       });
-      return json(res, 200, { bounties: rows.map(shapeBounty) }, { 'cache-control': 'public, s-maxage=15, stale-while-revalidate=30' });
+      const visibleRows = session ? rows : rows.filter((row) => row.github_repositories?.full_name === publicRepository);
+      return json(res, 200, { bounties: visibleRows.map(shapeBounty) }, { 'cache-control': session ? 'private, no-store' : 'public, s-maxage=15, stale-while-revalidate=30' });
     }
 
     const session = await requireSession(req);
