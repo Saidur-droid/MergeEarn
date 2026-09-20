@@ -38,6 +38,7 @@ export default function App() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const sponsorIssues = [10, 11, 12, 13];
 
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
   const selectedIssueData = issues.find((issue) => issue.id === selectedIssue) || null;
@@ -168,6 +169,31 @@ export default function App() {
     const verified = await run('fund-verify', () => api.fundingVerify(bounty.id));
     if (verified?.confirmed) setNotice('Funding confirmed on Nimiq. Bounty is open for contributors.');
     else setNotice('Funding transaction recorded and is awaiting chain confirmation. Use Verify funding to refresh.');
+    await refreshProduct();
+  }
+
+  async function sponsorIssue(issueNumber: number) {
+    if (!wallet) {
+      setWalletHelp(true);
+      return setError('Open MergeEarn inside Nimiq Pay and connect a wallet before sponsoring a bounty.');
+    }
+    const setup = await run('sponsor-init', () => api.sponsorInit(issueNumber));
+    if (!setup) return;
+    if (setup.status === 'FUNDED') {
+      setNotice('This issue is already funded.');
+      return refreshProduct();
+    }
+    if (setup.status !== 'READY_TO_FUND') {
+      setNotice(`This sponsor opportunity is currently ${setup.status.replaceAll('_', ' ').toLowerCase()}.`);
+      return refreshProduct();
+    }
+    const txHash = await run('sponsor-pay', () => sendNimFundingPayment({ recipient: setup.fundingAddress, amountNim: setup.rewardNim }));
+    if (!txHash) return;
+    const submitted = await run('sponsor-record', () => api.sponsorSubmit(setup.bountyId, txHash));
+    if (!submitted) return;
+    const verified = await run('sponsor-verify', () => api.sponsorVerify(setup.bountyId));
+    if (verified?.confirmed) setNotice(`Issue #${issueNumber} is now a funded ${setup.rewardNim} NIM bounty.`);
+    else setNotice(verified?.message || 'Sponsor payment recorded and awaiting Nimiq confirmation.');
     await refreshProduct();
   }
 
@@ -404,6 +430,35 @@ export default function App() {
             </div>
           ) : null}
         </section>
+
+
+        <section className="sponsor-market" aria-labelledby="sponsor-market-title">
+          <div className="public-market-heading">
+            <div>
+              <p className="process-eyebrow">Community funded · zero maintainer spend</p>
+              <h2 id="sponsor-market-title">Sponsor the next MergeEarn bounty.</h2>
+            </div>
+            <span className="public-market-note">Each approved task becomes a real 5 NIM bounty only after Nimiq confirms the sponsor payment.</span>
+          </div>
+          <div className="sponsor-grid">
+            {sponsorIssues.map((issueNumber) => (
+              <article className="sponsor-card" key={issueNumber}>
+                <span className="sponsor-number">Issue #{issueNumber}</span>
+                <h3>{issueNumber === 10 ? 'Polish public bounty card copy' : issueNumber === 11 ? 'Add copy-to-share action' : issueNumber === 12 ? 'Add marketplace status filters' : 'Strengthen production smoke coverage'}</h3>
+                <p>Small, contributor-friendly MergeEarn task. Server-created bounty, fixed 5 NIM reward, chain-verified funding.</p>
+                <div className="sponsor-actions">
+                  <a href={`https://github.com/Saidur-droid/MergeEarn/issues/${issueNumber}`} target="_blank" rel="noreferrer">View issue ↗</a>
+                  <button onClick={() => sponsorIssue(issueNumber)} disabled={Boolean(busy)}>{busy?.startsWith('sponsor') ? 'Working…' : 'Sponsor 5 NIM'}</button>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="sponsor-footnote">
+            <span>Maintainer cost: <strong>0 NIM</strong></span>
+            <span>Sponsor approves their own wallet transaction. MergeEarn never fabricates funding or wallet activity.</span>
+          </div>
+        </section>
+
 
         <section className="landing-process" aria-labelledby="landing-process-title">
           <div className="process-heading">
