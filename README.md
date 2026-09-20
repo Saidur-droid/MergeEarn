@@ -152,3 +152,18 @@ A release is competition-ready when the deployed flow reaches `PAID`, CI is gree
 ## Contributing
 
 Read [`AGENTS.md`](AGENTS.md) first for project operating rules, then [`CONTRIBUTING.md`](CONTRIBUTING.md). Payment-state and authorization changes require tests and must not weaken the GitHub/Nimiq trust boundaries.
+
+
+## Contribute for verified NIM bounties
+
+MergeEarn keeps a small set of contributor-friendly issues open for community sponsorship.
+
+Current eligible issues:
+- #25 — keyboard-visible focus states
+- #26 — contributor onboarding note
+- #27 — confirmed transaction-proof copy action
+- #28 — public bounty accessibility labels
+
+Open the live app first: https://mergeearn.vercel.app
+
+A task is a real paid bounty only after the live app shows `FUNDED`. Sponsors approve their own Nimiq Pay transaction, MergeEarn independently verifies funding, contributors submit real GitHub pull requests, and payout remains subject to the verified merge + approval + Nimiq confirmation path.

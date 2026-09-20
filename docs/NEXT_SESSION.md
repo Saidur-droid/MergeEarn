@@ -173,7 +173,7 @@ Prepared files:
 1. Keep the no-login judge path reliable: public bounty evidence, GitHub links, Nimiq transaction links, live metrics, and production smoke checks.
 2. Grow genuine unique Nimiq-wallet usage organically; never simulate or purchase usage.
 3. Complete 2–3 fresh real sponsor → contributor → PR → merge → payout lifecycles using real independent users where available.
-4. Finish the open contributor-friendly issues (#17–#20) through the product whenever genuine contributors participate.
+4. Use the fresh contributor-friendly issues (#25–#28) for genuine community-sponsored lifecycles through the product whenever genuine contributors participate.
 5. Rotate `SESSION_ENCRYPTION_KEY`; redeploy; verify GitHub login still works.
 6. For any mainnet/real-value use, create a fresh Nimiq wallet and update public address config.
 7. Inspect production runtime errors/logs and keep latest `main` CI green throughout judging.

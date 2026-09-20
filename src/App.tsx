@@ -41,7 +41,7 @@ export default function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [publicFilter, setPublicFilter] = useState<PublicBountyFilter>('all');
   const [copiedBountyId, setCopiedBountyId] = useState<string | null>(null);
-  const sponsorIssues = [17, 18, 19, 20];
+  const sponsorIssues = [25, 26, 27, 28];
 
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
   const selectedIssueData = issues.find((issue) => issue.id === selectedIssue) || null;
@@ -522,7 +522,7 @@ export default function App() {
             {sponsorIssues.map((issueNumber) => (
               <article className="sponsor-card" key={issueNumber}>
                 <span className="sponsor-number">Issue #{issueNumber}</span>
-                <h3>{issueNumber === 17 ? 'Add native Share action' : issueNumber === 18 ? 'Prioritize funded bounties' : issueNumber === 19 ? 'Show lifecycle progress' : 'Improve filter empty states'}</h3>
+                <h3>{issueNumber === 25 ? 'Improve keyboard focus' : issueNumber === 26 ? 'Add contributor onboarding' : issueNumber === 27 ? 'Copy confirmed proof links' : 'Improve accessibility labels'}</h3>
                 <p>Small, contributor-friendly MergeEarn task. Server-created bounty, fixed 5 NIM reward, chain-verified funding.</p>
                 <div className="sponsor-actions">
                   <a href={`https://github.com/Saidur-droid/MergeEarn/issues/${issueNumber}`} target="_blank" rel="noreferrer">View issue ↗</a>
