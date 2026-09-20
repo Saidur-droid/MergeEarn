@@ -2,11 +2,10 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import { api, Bounty, CopilotDraft, Metrics, SessionUser } from './api';
 import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './integrations/nimiq';
 import { sendNimFundingPayment } from './payments/nimiq';
-import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
+import { filterPublicBounties, nimiqExplorerUrl, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
-const nimiqExplorerUrl = (hash: string) => `https://nimiq.watch/#${encodeURIComponent(hash)}`;
 
 function normalizeAddress(value: string) {
   return value.replace(/\s+/g, '').toUpperCase();
@@ -41,6 +40,7 @@ export default function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [publicFilter, setPublicFilter] = useState<PublicBountyFilter>('all');
   const [copiedBountyId, setCopiedBountyId] = useState<string | null>(null);
+  const [copiedTxHash, setCopiedTxHash] = useState<string | null>(null);
   const sponsorTarget = Number(new URLSearchParams(window.location.search).get('sponsor') || '0');
   const sponsorIssues = [26, 27, 28, 31];
 
@@ -286,6 +286,17 @@ export default function App() {
     }
   }
 
+  async function copyTxProof(hash: string, label: string) {
+    const url = nimiqExplorerUrl(hash);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedTxHash(hash);
+      window.setTimeout(() => setCopiedTxHash((curr) => curr === hash ? null : curr), 1800);
+    } catch {
+      window.prompt(`Copy ${label} URL:`, url);
+    }
+  }
+
   async function shareBounty(bounty: Bounty) {
     const url = publicBountyShareUrl(bounty.id, window.location.origin);
     const text = `${bounty.title} · ${bounty.reward_amount_nim} NIM bounty on MergeEarn`;
@@ -500,11 +511,25 @@ export default function App() {
                         <i style={{ width: `${Math.round((progress.step / progress.total) * 100)}%` }} />
                       </div>
                     </div>
-                    <div className="public-proof-links">
-                      {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer">Issue ↗</a> : null}
-                      {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer">Pull request ↗</a> : null}
-                      {funding?.providerReference ? <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer">Funding tx ↗</a> : null}
-                      {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer">Payout tx ↗</a> : null}
+                    <div className="public-proof-links" aria-label={`Proof links for ${bounty.title}`}>
+                      {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer" aria-label={`View issue #${bounty.source_issues?.issue_number || ''} for ${bounty.title} on GitHub`}>Issue ↗</a> : null}
+                      {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer" aria-label={`View pull request for ${bounty.title} on GitHub`}>Pull request ↗</a> : null}
+                      {funding?.providerReference ? (
+                        <span className="public-proof-group">
+                          <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer" aria-label={`View funding transaction on Nimiq explorer for ${bounty.title}`}>Funding tx ↗</a>
+                          <button className="public-proof-copy" type="button" onClick={() => copyTxProof(funding.providerReference!, 'funding tx')} aria-label={`Copy funding transaction link for ${bounty.title}`}>
+                            {copiedTxHash === funding.providerReference ? '✓' : 'Copy'}
+                          </button>
+                        </span>
+                      ) : null}
+                      {payout?.providerReference ? (
+                        <span className="public-proof-group">
+                          <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer" aria-label={`View payout transaction on Nimiq explorer for ${bounty.title}`}>Payout tx ↗</a>
+                          <button className="public-proof-copy" type="button" onClick={() => copyTxProof(payout.providerReference!, 'payout tx')} aria-label={`Copy payout transaction link for ${bounty.title}`}>
+                            {copiedTxHash === payout.providerReference ? '✓' : 'Copy'}
+                          </button>
+                        </span>
+                      ) : null}
                     </div>
                     <div className="public-bounty-actions">
                       <div className="public-share-actions">

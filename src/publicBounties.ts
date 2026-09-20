@@ -48,3 +48,7 @@ export function publicLifecycleProgress(status: string) {
 export function publicBountyShareUrl(id: string, origin: string) {
   return `${origin.replace(/\/$/, '')}/?bounty=${encodeURIComponent(id)}#live-bounties`;
 }
+
+export function nimiqExplorerUrl(hash: string) {
+  return `https://nimiq.watch/#${encodeURIComponent(hash)}`;
+}

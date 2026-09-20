@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterPublicBounties, prioritizePublicBounties, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
+import { filterPublicBounties, nimiqExplorerUrl, prioritizePublicBounties, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress } from './publicBounties';
 import type { Bounty } from './api';
 
 function bounty(status: string): Bounty {
@@ -46,5 +46,10 @@ describe('public bounty helpers', () => {
   it('creates a canonical share URL', () => {
     expect(publicBountyShareUrl('abc 123', 'https://mergeearn.vercel.app/'))
       .toBe('https://mergeearn.vercel.app/?bounty=abc%20123#live-bounties');
+  });
+
+  it('creates a canonical Nimiq explorer URL', () => {
+    expect(nimiqExplorerUrl('tx-hash-123'))
+      .toBe('https://nimiq.watch/#tx-hash-123');
   });
 });
