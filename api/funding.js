@@ -2,10 +2,10 @@ import { getBounty, getSession, handleError, json, method, nimToLuna, readJson, 
 
 const SPONSOR_REPOSITORY = 'Saidur-droid/MergeEarn';
 const SPONSOR_ISSUES = new Map([
-  [10, { rewardNim: '5' }],
-  [11, { rewardNim: '5' }],
-  [12, { rewardNim: '5' }],
-  [13, { rewardNim: '5' }],
+  [17, { rewardNim: '5' }],
+  [18, { rewardNim: '5' }],
+  [19, { rewardNim: '5' }],
+  [20, { rewardNim: '5' }],
 ]);
 
 function isApprovedSponsorBounty(bounty) {
