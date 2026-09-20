@@ -185,8 +185,7 @@
   color: #cbd2dc;
   font-size: .8rem;
   font-weight: 720;
-  text-decoration: none;
-}
+  text-decoration: none; }
 .landing-nav-link:hover,
 .landing-pay-link:hover,
 .landing-footer a:hover { color: #fff; }
@@ -194,7 +193,7 @@
 .landing-hero-grid {
   display: grid;
   width: min(100%, 1180px);
-  margin: 0 auto;
+  margin: 0 mauto;
   padding: clamp(72px, 9vw, 124px) 0 clamp(68px, 8vw, 108px);
   grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
   gap: clamp(42px, 7vw, 92px);
@@ -800,7 +799,7 @@
 .judge-strip strong{
   display:block;
   max-width:720px;
-  color:#e9edf3;
+  color: #e9edf3;
   font-size:.9rem;
   line-height:1.45;
 }
@@ -813,7 +812,7 @@
   font-size:.69rem;
 }
 .judge-strip-metrics b{color:#dfe5ed;font-size:.8rem}
-.sponsor-card.featured{
+.sponsor-card.featured{ 
   border-color:rgba(142,156,255,.36);
   background:linear-gradient(180deg,rgba(116,132,255,.07),#090d12 52%);
 }
@@ -840,3 +839,74 @@
   .judge-strip-metrics{justify-content:flex-start}
   .landing-utility-links{display:grid;grid-template-columns:1fr}
 }
+
+/* Proof glossary styles */
+.proof-glossary-section {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 0 0 clamp(48px, 6vw, 76px);
+}
+.proof-glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.proof-glossary-card {
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: #090d12;
+}
+.proof-glossary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.proof-glossary-source {
+  color: #8d9aff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.proof-glossary-card h3 {
+  margin: 0 0 8px;
+  color: #edf1f6;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+.proof-glossary-card p {
+  margin: 0 0 16px;
+  color: #8a96a7;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  flex-grow: 1;
+}
+.proof-glossary-authority {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: #63d99d;
+  font-size: 0.74rem;
+  font-weight: 650;
+}
+.proof-glossary-check {
+  font-weight: 900;
+}
+@media (max-width: 940px) {
+  .proof-glossary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 680px) {
+  .proof-glossary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
