@@ -17,7 +17,7 @@ function Metric({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 function Status({ value }: { value: string }) {
-  return <span className={`status-pill status-${value.toLowerCase().replaceAll('_', '-')}`}>{value.replaceAll('_', ' ')}</span>;
+  return <span className={`status-pill status-${value.toLowerCase().replaceAll('_', '-')}`} aria-label={`Bounty status: ${value.replaceAll('_', ' ')}`}>{value.replaceAll('_', ' ')}</span>;
 }
 
 export default function App() {
@@ -480,12 +480,12 @@ export default function App() {
                 const submission = bounty.submissions?.[0];
                 const progress = publicLifecycleProgress(bounty.status);
                 return (
-                  <article className={`public-bounty-card ${selectedBountyId === bounty.id ? 'featured' : ''}`} id={`bounty-${bounty.id}`} key={bounty.id}>
+                  <article className={`public-bounty-card ${selectedBountyId === bounty.id ? 'featured' : ''}`} id={`bounty-${bounty.id}`} key={bounty.id} aria-labelledby={`bounty-title-${bounty.id}`}>
                     <div className="public-bounty-topline">
                       <Status value={bounty.status} />
-                      <strong>{bounty.reward_amount_nim} NIM</strong>
+                      <strong aria-label={`Reward: ${bounty.reward_amount_nim} NIM`}>{bounty.reward_amount_nim} NIM</strong>
                     </div>
-                    <h3>{bounty.title}</h3>
+                    <h3 id={`bounty-title-${bounty.id}`}>{bounty.title}</h3>
                     <p>{publicBountySummary(bounty.description)}</p>
                     <div className="public-bounty-meta">
                       <span>{bounty.github_repositories?.full_name || 'GitHub repository'}</span>
@@ -500,24 +500,24 @@ export default function App() {
                         <i style={{ width: `${Math.round((progress.step / progress.total) * 100)}%` }} />
                       </div>
                     </div>
-                    <div className="public-proof-links">
-                      {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer">Issue ↗</a> : null}
-                      {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer">Pull request ↗</a> : null}
-                      {funding?.providerReference ? <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer">Funding tx ↗</a> : null}
-                      {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer">Payout tx ↗</a> : null}
+                    <div className="public-proof-links" aria-label={`Proof links for ${bounty.title}`}>
+                      {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer" aria-label={`View issue #${bounty.source_issues?.issue_number || ''} for ${bounty.title} on GitHub`}>Issue ↗</a> : null}
+                      {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer" aria-label={`View pull request for ${bounty.title} on GitHub`}>Pull request ↗</a> : null}
+                      {funding?.providerReference ? <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer" aria-label={`View funding transaction on Nimiq explorer for ${bounty.title}`}>Funding tx ↗</a> : null}
+                      {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer" aria-label={`View payout transaction on Nimiq explorer for ${bounty.title}`}>Payout tx ↗</a> : null}
                     </div>
-                    <div className="public-bounty-actions">
+                    <div className="public-bounty-actions" aria-label={`Actions for ${bounty.title}`}>
                       <div className="public-share-actions">
-                        <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`}>Open proof <span aria-hidden="true">→</span></a>
-                        <button className="public-copy-link" type="button" onClick={() => shareBounty(bounty)}>
+                        <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`} aria-label={`Open verified proof for ${bounty.title}`}>Open proof <span aria-hidden="true">→</span></a>
+                        <button className="public-copy-link" type="button" onClick={() => shareBounty(bounty)} aria-label={`Share bounty: ${bounty.title}`}>
                           Share
                         </button>
-                        <button className="public-copy-link" type="button" onClick={() => copyBountyLink(bounty.id)}>
+                        <button className="public-copy-link" type="button" onClick={() => copyBountyLink(bounty.id)} aria-label={`Copy link for bounty: ${bounty.title}`}>
                           {copiedBountyId === bounty.id ? 'Copied ✓' : 'Copy link'}
                         </button>
                       </div>
                       {bounty.status === 'FUNDED' ? (
-                        <a className="public-claim-link" href="/api/auth/github" onClick={() => sessionStorage.setItem('mergeearn_bounty', bounty.id)}>Claim with GitHub</a>
+                        <a className="public-claim-link" href="/api/auth/github" onClick={() => sessionStorage.setItem('mergeearn_bounty', bounty.id)} aria-label={`Claim bounty for ${bounty.title} with GitHub`}>Claim with GitHub</a>
                       ) : null}
                     </div>
                   </article>
