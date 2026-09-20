@@ -17,6 +17,7 @@ function shapeBounty(row) {
       status: claim.status,
       contributor_user_id: claim.contributor_user_id,
     })) : undefined,
+    submissions: row.submissions ? (Array.isArray(row.submissions) ? row.submissions : [row.submissions]) : undefined,
     payment_transactions: Array.isArray(paymentTransactions) ? paymentTransactions.map((transaction) => ({
       id: transaction.id,
       type: transaction.type,
@@ -24,6 +25,13 @@ function shapeBounty(row) {
       providerReference: transaction.status === 'CONFIRMED' ? transaction.provider_reference || undefined : undefined,
     })) : undefined,
   };
+}
+
+function shapePublicBounty(row) {
+  const shaped = shapeBounty(row);
+  if (!shaped) return null;
+  const { creator_user_id: _creatorUserId, repository_id: _repositoryId, source_issue_id: _sourceIssueId, claims: _claims, ...publicSafe } = shaped;
+  return publicSafe;
 }
 
 export default async function handler(req, res) {
@@ -38,7 +46,7 @@ export default async function handler(req, res) {
         const bounty = await getBounty(id);
         if (!bounty) return json(res, 404, { error: 'Bounty not found.' });
         if (!session && bounty.github_repositories?.full_name !== publicRepository) return json(res, 404, { error: 'Bounty not found.' });
-        return json(res, 200, { bounty: shapeBounty(bounty) });
+        return json(res, 200, { bounty: session ? shapeBounty(bounty) : shapePublicBounty(bounty) });
       }
       const rows = await supabase('bounties', {
         query: {
@@ -48,7 +56,7 @@ export default async function handler(req, res) {
         },
       });
       const visibleRows = session ? rows : rows.filter((row) => row.github_repositories?.full_name === publicRepository);
-      return json(res, 200, { bounties: visibleRows.map(shapeBounty) }, { 'cache-control': session ? 'private, no-store' : 'public, s-maxage=15, stale-while-revalidate=30' });
+      return json(res, 200, { bounties: visibleRows.map(session ? shapeBounty : shapePublicBounty) }, { 'cache-control': session ? 'private, no-store' : 'public, s-maxage=15, stale-while-revalidate=30' });
     }
 
     const session = await requireSession(req);
