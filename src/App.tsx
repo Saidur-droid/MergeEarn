@@ -41,6 +41,7 @@ export default function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [publicFilter, setPublicFilter] = useState<PublicBountyFilter>('all');
   const [copiedBountyId, setCopiedBountyId] = useState<string | null>(null);
+  const [communityJoined, setCommunityJoined] = useState(false);
   const sponsorTarget = Number(new URLSearchParams(window.location.search).get('sponsor') || '0');
   const sponsorIssues = [26, 27, 28, 31];
 
@@ -81,6 +82,8 @@ export default function App() {
         setUser(session.user);
         await refreshProduct();
         if (session.authenticated) {
+          const community = await api.communityStatus().catch(() => ({ joined: false, joinedAt: null }));
+          setCommunityJoined(community.joined);
           const repoResult = await api.repositories();
           setRepositories(repoResult.repositories);
           setSelectedRepo(repoResult.repositories[0]?.id || '');
@@ -319,6 +322,18 @@ export default function App() {
     }
   }
 
+  async function joinContributorPool() {
+    if (!wallet) {
+      setWalletHelp(true);
+      return setError('Connect Nimiq Pay first so MergeEarn can register the account you want to use for future bounty payouts.');
+    }
+    const result = await run('community-join', () => api.joinCommunity(wallet.address), 'You joined the contributor pool. You can now watch for funded work.');
+    if (result?.joined) {
+      setCommunityJoined(true);
+      await refreshProduct();
+    }
+  }
+
   async function logout() {
     await run('logout', api.logout);
     window.location.reload();
@@ -365,7 +380,7 @@ export default function App() {
                 <span>Contributor</span>
                 <strong>Earn NIM for merged GitHub work</strong>
                 <p>Open a funded bounty, sign in with GitHub, connect Nimiq Pay, then submit your PR.</p>
-                <a href="#live-bounties">See funded work</a>
+                <a href="/api/auth/github">Join contributor pool</a>
               </article>
               <article>
                 <span>Sponsor</span>
@@ -449,6 +464,7 @@ export default function App() {
               <span><b>{metrics.paid}</b> paid</span>
               <span><b>{metrics.verifiedWallets}</b> verified wallets</span>
               <span><b>{metrics.activeContributors}</b> contributors</span>
+              <span><b>{metrics.contributorPool}</b> in contributor pool</span>
             </> : <span>Live metrics loading…</span>}
           </div>
         </section>
@@ -492,6 +508,7 @@ export default function App() {
                 <span><strong>{metrics.paid}</strong> paid</span>
                 <span><strong>{metrics.verifiedWallets}</strong> wallets</span>
                 <span><strong>{metrics.activeContributors}</strong> contributors</span>
+                <span><strong>{metrics.contributorPool}</strong> pool</span>
               </div>
             ) : null}
           </div>
@@ -688,6 +705,18 @@ export default function App() {
         <p className="eyebrow">Issue → Fund → Fix → PR → Verify → Pay</p>
         <h1>Real bounties. Objective verification. Safe payouts.</h1>
         <p className="hero-copy">Create a bounty from an authorized GitHub repository, verify the merged pull request on the server, then release payment through Nimiq.</p>
+      </section>
+
+      <section className="contributor-pool-card" aria-labelledby="contributor-pool-title">
+        <div>
+          <span className="proof-overline">New contributor</span>
+          <h2 id="contributor-pool-title">{communityJoined ? 'You are in the contributor pool.' : 'Want to earn NIM from future GitHub bounties?'}</h2>
+          <p>{communityJoined ? 'Watch the public board for FUNDED work. Your GitHub identity is already registered for the contributor pool.' : 'Connect Nimiq Pay once, then join the pool. No payment is required. You only spend NIM if you choose to sponsor work.'}</p>
+        </div>
+        <div className="contributor-pool-actions">
+          {!wallet ? <button className="secondary" type="button" onClick={connectWallet}>Connect Nimiq Pay</button> : null}
+          {!communityJoined ? <button className="primary" type="button" onClick={joinContributorPool} disabled={busy === 'community-join'}>{busy === 'community-join' ? 'Joining…' : 'Join contributor pool'}</button> : <span className="pool-ready">Ready for funded work ✓</span>}
+        </div>
       </section>
 
       {!wallet ? (
