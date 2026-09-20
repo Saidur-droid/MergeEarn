@@ -64,4 +64,8 @@ https://mergeearn.vercel.app
 
 A task is a real bounty only after the live app shows it as `FUNDED`. Funding is approved by the sponsor in Nimiq Pay and independently verified by MergeEarn. Do not rely on screenshots, comments, or promises as payment proof.
 
-Current sponsor-eligible issues: #25, #26, #27, #28.
+Current sponsor-eligible issues: #26, #27, #28, #31.
+
+Self-updating live board: https://github.com/Saidur-droid/MergeEarn/issues/33
+
+GitHub contributor discovery: https://github.com/Saidur-droid/MergeEarn/contribute
