@@ -37,6 +37,8 @@ export const api = {
   payoutSubmit: (bountyId: string, txHash: string) => request('/api/payout', { method: 'POST', body: JSON.stringify({ bountyId, action: 'submit', txHash }) }),
   payoutVerify: (bountyId: string) => request<{ confirmed: boolean; pending?: boolean; message?: string }>('/api/payout', { method: 'POST', body: JSON.stringify({ bountyId, action: 'verify' }) }),
   metrics: () => request<{ publicConfig: { fundingAddress: string }; metrics: Metrics }>('/api/metrics'),
+  communityStatus: () => request<{ joined: boolean; joinedAt: string | null }>('/api/community'),
+  joinCommunity: (nimiqAddress: string) => request<{ joined: boolean; joinedAt: string; alreadyJoined?: boolean }>('/api/community', { method: 'POST', body: JSON.stringify({ nimiqAddress }) }),
   capabilities: (bountyId: string) => request<{ canManage: boolean }>(`/api/capabilities?bountyId=${encodeURIComponent(bountyId)}`),
 };
 
@@ -81,6 +83,7 @@ export type Metrics = {
   totalBountyLuna: number;
   totalPaidLuna: number;
   activeContributors: number;
+  contributorPool: number;
   verifiedWallets: number;
   repeatContributors: number;
   medianCompletionMs: number | null;
