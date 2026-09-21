@@ -49,6 +49,7 @@ export default function App() {
   const selectedIssueData = issues.find((issue) => issue.id === selectedIssue) || null;
   const selectedBounty = bounties.find((bounty) => bounty.id === selectedBountyId) || null;
   const publicBounties = useMemo(() => bounties.filter((bounty) => !['DRAFT','CANCELLED','EXPIRED'].includes(bounty.status)), [bounties]);
+  const availableFundedBounties = useMemo(() => publicBounties.filter((bounty) => bounty.status === 'FUNDED'), [publicBounties]);
   const visiblePublicBounties = useMemo(() => filterPublicBounties(publicBounties, publicFilter).slice(0, 9), [publicBounties, publicFilter]);
   const judgeProofBounty = useMemo(() => publicBounties.find((bounty) => bounty.status === 'PAID') || publicBounties[0] || null, [publicBounties]);
 
@@ -353,11 +354,7 @@ export default function App() {
   }
 
   async function joinContributorPool() {
-    if (!wallet) {
-      setWalletHelp(true);
-      return setError('Connect Nimiq Pay first so MergeEarn can register the account you want to use for future bounty payouts.');
-    }
-    const result = await run('community-join', () => api.joinCommunity(wallet.address), 'You joined the contributor pool. You can now watch for funded work.');
+    const result = await run('community-join', () => api.joinCommunity(wallet?.address), 'You joined the contributor pool. Connect Nimiq Pay only when you claim or sponsor work.');
     if (result?.joined) {
       setCommunityJoined(true);
       await refreshProduct();
@@ -384,6 +381,7 @@ export default function App() {
           <div className="landing-nav-meta">
             <span className="landing-live"><i aria-hidden="true" /> Live · verified E2E</span>
             <a className="landing-nav-link" href="https://github.com/Saidur-droid/MergeEarn" target="_blank" rel="noreferrer">Source ↗</a>
+            <a className="landing-nav-cta" href="/api/auth/github">Sign in with GitHub</a>
           </div>
         </nav>
 
@@ -398,8 +396,8 @@ export default function App() {
               MergeEarn turns real GitHub issues into funded NIM bounties. Funding, merged work, and payout are independently re-checked before the lifecycle can advance.
             </p>
             <div className="landing-actions">
-              <a className="landing-primary" href="#live-bounties">
-                Earn NIM <span aria-hidden="true">→</span>
+              <a className="landing-primary" href={availableFundedBounties.length ? '#live-bounties' : '/api/auth/github'}>
+                {availableFundedBounties.length ? 'Claim funded bounty' : 'Join next funded bounty'} <span aria-hidden="true">→</span>
               </a>
               <a className="landing-secondary" href="#sponsor-bounties">
                 Sponsor work <span aria-hidden="true">↓</span>
@@ -409,8 +407,8 @@ export default function App() {
               <article>
                 <span>Contributor</span>
                 <strong>Earn NIM for merged GitHub work</strong>
-                <p>Open a funded bounty, sign in with GitHub, connect Nimiq Pay, then submit your PR.</p>
-                <a href="/api/auth/github">Join contributor pool</a>
+                <p>Join with GitHub now. Connect Nimiq Pay only when you claim a funded bounty or need a payout address.</p>
+                <a href="/api/auth/github">Join free with GitHub</a>
               </article>
               <article>
                 <span>Sponsor</span>
@@ -494,7 +492,9 @@ export default function App() {
               <span><b>{metrics.verifiedMerged}</b> merged</span>
               <span><b>{metrics.paid}</b> paid</span>
               <span><b>{metrics.verifiedWallets}</b> verified wallets</span>
-              <span><b>{metrics.activeContributors}</b> contributors</span>
+              <span><b>{metrics.activeContributors}</b> paid-flow contributors</span>
+              <span><b>{metrics.registeredUsers}</b> GitHub users</span>
+              <span><b>{metrics.newUsers48h}</b> new in 48h</span>
               <span><b>{metrics.contributorPool}</b> in contributor pool</span>
             </> : <span>Live metrics loading…</span>}
           </div>
@@ -538,11 +538,23 @@ export default function App() {
                 <span><strong>{metrics.verifiedMerged}</strong> merged</span>
                 <span><strong>{metrics.paid}</strong> paid</span>
                 <span><strong>{metrics.verifiedWallets}</strong> wallets</span>
-                <span><strong>{metrics.activeContributors}</strong> contributors</span>
+                <span><strong>{metrics.availableFunded}</strong> available now</span>
+                <span><strong>{metrics.registeredUsers}</strong> GitHub users</span>
+                <span><strong>{metrics.newUsers48h}</strong> new / 48h</span>
                 <span><strong>{metrics.contributorPool}</strong> pool</span>
               </div>
             ) : null}
           </div>
+
+          {!availableFundedBounties.length ? (
+            <div className="public-availability" role="status">
+              <div>
+                <strong>No FUNDED bounty is open right now.</strong>
+                <span>That is the current growth bottleneck—not a Vercel outage. Join with GitHub now so you are registered and ready when a sponsor funds the next task.</span>
+              </div>
+              <a href="/api/auth/github">Join contributor pool →</a>
+            </div>
+          ) : null}
 
           {visiblePublicBounties.length ? (
             <div className="public-bounty-grid">
@@ -763,11 +775,11 @@ export default function App() {
         <div>
           <span className="proof-overline">New contributor</span>
           <h2 id="contributor-pool-title">{communityJoined ? 'You are in the contributor pool.' : 'Want to earn NIM from future GitHub bounties?'}</h2>
-          <p>{communityJoined ? 'Watch the public board for FUNDED work. Your GitHub identity is already registered for the contributor pool.' : 'Connect Nimiq Pay once, then join the pool. No payment is required. You only spend NIM if you choose to sponsor work.'}</p>
+          <p>{communityJoined ? 'Watch the public board for FUNDED work. Your GitHub identity is registered; connect Nimiq Pay only when a claim or sponsor action needs a wallet.' : 'Join with your GitHub identity now. Nimiq Pay is not required to join the pool; connect it later only for claiming, funding, or payout.'}</p>
         </div>
         <div className="contributor-pool-actions">
-          {!wallet ? <button className="secondary" type="button" onClick={connectWallet}>Connect Nimiq Pay</button> : null}
           {!communityJoined ? <button className="primary" type="button" onClick={joinContributorPool} disabled={busy === 'community-join'}>{busy === 'community-join' ? 'Joining…' : 'Join contributor pool'}</button> : <span className="pool-ready">Ready for funded work ✓</span>}
+          {!wallet ? <button className="secondary" type="button" onClick={connectWallet}>Connect Nimiq Pay later</button> : null}
         </div>
       </section>
 
