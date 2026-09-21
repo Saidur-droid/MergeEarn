@@ -171,14 +171,15 @@ Prepared files:
 ## Next-session priority order
 
 1. Keep the no-login judge path reliable: public bounty evidence, GitHub links, Nimiq transaction links, live metrics, and production smoke checks.
-2. Grow genuine unique Nimiq-wallet usage organically; never simulate or purchase usage.
-3. Complete 2–3 fresh real sponsor → contributor → PR → merge → payout lifecycles using real independent users where available.
-4. Use the fresh contributor-friendly issues (#26–#28 and #31) for genuine community-sponsored lifecycles through the product whenever genuine contributors participate.
-5. Rotate `SESSION_ENCRYPTION_KEY`; redeploy; verify GitHub login still works.
-6. For any mainnet/real-value use, create a fresh Nimiq wallet and update public address config.
-7. Inspect production runtime errors/logs when Vercel project log access is available and keep latest `main` CI green throughout judging.
-8. Keep issue #33 and the 15-minute community-growth workflow healthy; it is the canonical self-updating contributor/sponsor board.
-9. Keep the hourly `MergeEarn Judge Ops` automation enabled during judging.
+2. Grow genuine usage and distribution organically; never simulate or purchase users, wallets, traffic, transactions, stars, or PRs.
+3. Keep the first-time path under 60 seconds: Earn NIM / Sponsor work / Join contributor pool.
+4. Complete 2–3 fresh real sponsor → contributor → PR → merge → payout lifecycles using real independent users where available.
+5. Use the fresh contributor-friendly issues (#26–#28 and #31) for genuine community-sponsored lifecycles through the product whenever genuine contributors participate.
+6. Rotate `SESSION_ENCRYPTION_KEY`; redeploy; verify GitHub login still works.
+7. For any mainnet/real-value use, create a fresh Nimiq wallet and update public address config.
+8. Inspect production runtime errors/logs when Vercel project log access is available and keep latest `main` CI green throughout judging.
+9. Keep issue #33 and the community-growth workflow healthy; it is the canonical self-updating contributor/sponsor board.
+10. Keep the hourly `MergeEarn Judge Ops`, `Bounty Concierge`, and active 48-hour growth sprint automation healthy during judging.
 
 ## Definition of 100%
 

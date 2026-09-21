@@ -76,6 +76,7 @@ jobs:
           paid="$(jq -r '.metrics.paid // 0' /tmp/metrics.json)"
           wallets="$(jq -r '.metrics.verifiedWallets // 0' /tmp/metrics.json)"
           contributors="$(jq -r '.metrics.activeContributors // 0' /tmp/metrics.json)"
+          pool="$(jq -r '.metrics.contributorPool // 0' /tmp/metrics.json)"
           checked="$(date -u +'%Y-%m-%d %H:%M UTC')"
 
           cat > /tmp/board.md <<EOF
@@ -96,7 +97,8 @@ jobs:
           - **$merged** GitHub-verified merge(s)
           - **$paid** verified paid bounty/bounties
           - **$wallets** deduplicated verified wallet(s)
-          - **$contributors** contributor(s)
+          - **$contributors** contributor(s) with bounty activity
+          - **$pool** contributor-pool member(s)
           
           ## Current community queue
           
