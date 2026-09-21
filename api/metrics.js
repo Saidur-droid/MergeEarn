@@ -47,8 +47,8 @@ export default async function handler(req, res) {
 
       const body = await readJson(req);
       const nimiqAddress = normalizeAddress(body.nimiqAddress);
-      if (!validNimiqAddress(nimiqAddress)) {
-        return json(res, 400, { error: 'Connect a valid Nimiq Pay account before joining.' });
+      if (nimiqAddress && !validNimiqAddress(nimiqAddress)) {
+        return json(res, 400, { error: 'The optional Nimiq address is not valid.' });
       }
 
       const rows = await supabase('audit_events', {
@@ -61,8 +61,8 @@ export default async function handler(req, res) {
           event_type: JOIN_EVENT,
           metadata: {
             githubLogin: session.user.github_login,
-            nimiqAddress,
-            source: 'nimiq-pay-contributor-pool',
+            nimiqAddress: nimiqAddress || null,
+            source: nimiqAddress ? 'github-plus-nimiq-contributor-pool' : 'github-contributor-pool',
           },
         },
       });
@@ -90,11 +90,12 @@ export default async function handler(req, res) {
       }, { 'cache-control': 'no-store' });
     }
 
-    const [bounties, payments, claims, communityJoins] = await Promise.all([
+    const [bounties, payments, claims, communityJoins, users] = await Promise.all([
       supabase('bounties', { query: { select: 'id,status,reward_amount_luna,created_at,updated_at' } }),
       supabase('payment_transactions', { query: { select: 'bounty_id,type,status,amount_luna,metadata,created_at,updated_at' } }),
       supabase('claims', { query: { select: 'bounty_id,contributor_user_id,nimiq_address,status,created_at,updated_at' } }),
       supabase('audit_events', { query: { select: 'actor_id,event_type', event_type: 'eq.community.contributor_joined' } }),
+      supabase('users', { query: { select: 'id,created_at' } }),
     ]);
 
     const count = (status) => bounties.filter((item) => item.status === status).length;
@@ -104,6 +105,7 @@ export default async function handler(req, res) {
     const contributors = new Map();
     const contributorPool = new Set((communityJoins || []).map((item) => item.actor_id).filter(Boolean));
     const verifiedWallets = new Set();
+    const newUserCutoff = Date.now() - (48 * 60 * 60 * 1000);
     const normalizeWallet = (value) => String(value || '').replace(/\s+/g, '').toUpperCase();
     for (const claim of claims) {
       contributors.set(claim.contributor_user_id, (contributors.get(claim.contributor_user_id) || 0) + 1);
@@ -141,6 +143,9 @@ export default async function handler(req, res) {
         totalBountyLuna: bounties.reduce((sum, item) => sum + Number(item.reward_amount_luna || 0), 0),
         totalPaidLuna: confirmedPayouts.reduce((sum, item) => sum + Number(item.amount_luna || 0), 0),
         activeContributors: contributors.size,
+        registeredUsers: users.length,
+        newUsers48h: users.filter((item) => new Date(item.created_at).getTime() >= newUserCutoff).length,
+        availableFunded: count('FUNDED'),
         contributorPool: contributorPool.size,
         verifiedWallets: verifiedWallets.size,
         repeatContributors: [...contributors.values()].filter((value) => value > 1).length,
