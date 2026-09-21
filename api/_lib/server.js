@@ -199,7 +199,14 @@ export async function getSession(req) {
   const row = rows?.[0];
   if (!row) return null;
   const user = Array.isArray(row.users) ? row.users[0] : row.users;
-  return { id: row.id, user, githubToken: decryptSecret(row.github_access_token_ciphertext), rawToken: raw };
+  try {
+    return { id: row.id, user, githubToken: decryptSecret(row.github_access_token_ciphertext), rawToken: raw };
+  } catch {
+    // A SESSION_ENCRYPTION_KEY rotation intentionally invalidates older encrypted GitHub tokens.
+    // Treat the stale session as signed out instead of turning a safe key rotation into a 500 loop.
+    await supabase('sessions', { method: 'DELETE', query: { id: `eq.${row.id}` } }).catch(() => {});
+    return null;
+  }
 }
 
 export async function requireSession(req) {
