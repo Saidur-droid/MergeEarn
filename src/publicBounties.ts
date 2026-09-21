@@ -49,6 +49,13 @@ export function publicBountyShareUrl(id: string, origin: string) {
   return `${origin.replace(/\/$/, '')}/?bounty=${encodeURIComponent(id)}#live-bounties`;
 }
 
+export function nimiqExplorerUrl(hash: string) {
+  return `https://nimiq.watch/#${encodeURIComponent(hash)}`;
+}
+
+export function contributorOnboardingHint(status: string): string | null {
+  return status === 'FUNDED' ? 'claim → fix → PR → verified payout' : null;
+}
 
 export type ProofGlossaryEntry = {
   term: 'FUNDED' | 'MERGED_VERIFIED' | 'PAID';

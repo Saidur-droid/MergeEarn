@@ -2,11 +2,10 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'rea
 import { api, Bounty, CopilotDraft, Metrics, SessionUser } from './api';
 import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './integrations/nimiq';
 import { sendNimFundingPayment } from './payments/nimiq';
-import { filterPublicBounties, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress, publicProofGlossary } from './publicBounties';
+import { contributorOnboardingHint, filterPublicBounties, nimiqExplorerUrl, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress, publicProofGlossary } from './publicBounties';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
-const nimiqExplorerUrl = (hash: string) => `https://nimiq.watch/#${encodeURIComponent(hash)}`;
 
 function normalizeAddress(value: string) {
   return value.replace(/\s+/g, '').toUpperCase();
@@ -41,6 +40,7 @@ export default function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [publicFilter, setPublicFilter] = useState<PublicBountyFilter>('all');
   const [copiedBountyId, setCopiedBountyId] = useState<string | null>(null);
+  const [copiedTxHash, setCopiedTxHash] = useState<string | null>(null);
   const [communityJoined, setCommunityJoined] = useState(false);
   const sponsorTarget = Number(new URLSearchParams(window.location.search).get('sponsor') || '0');
   const sponsorIssues = [26, 27, 28, 31];
@@ -286,6 +286,17 @@ export default function App() {
       window.setTimeout(() => setCopiedBountyId((current) => current === bountyId ? null : current), 1800);
     } catch {
       window.prompt('Copy this bounty link:', url);
+    }
+  }
+
+  async function copyTxProof(hash: string, label: string) {
+    const url = nimiqExplorerUrl(hash);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedTxHash(hash);
+      window.setTimeout(() => setCopiedTxHash((current) => current === hash ? null : current), 1800);
+    } catch {
+      window.prompt(`Copy ${label} URL:`, url);
     }
   }
 
@@ -540,6 +551,7 @@ export default function App() {
                 const payout = bounty.payment_transactions?.find((tx) => tx.type === 'PAYOUT' && tx.status === 'CONFIRMED');
                 const submission = bounty.submissions?.[0];
                 const progress = publicLifecycleProgress(bounty.status);
+                const onboardingHint = contributorOnboardingHint(bounty.status);
                 return (
                   <article className={`public-bounty-card ${selectedBountyId === bounty.id ? 'featured' : ''}`} id={`bounty-${bounty.id}`} key={bounty.id} aria-labelledby={`bounty-title-${bounty.id}`}>
                     <div className="public-bounty-topline">
@@ -564,9 +576,29 @@ export default function App() {
                     <div className="public-proof-links" aria-label={`Proof links for ${bounty.title}`}>
                       {bounty.source_issues?.html_url ? <a href={bounty.source_issues.html_url} target="_blank" rel="noreferrer" aria-label={`View GitHub issue for ${bounty.title}`}>Issue ↗</a> : null}
                       {submission?.html_url ? <a href={submission.html_url} target="_blank" rel="noreferrer" aria-label={`View pull request for ${bounty.title}`}>Pull request ↗</a> : null}
-                      {funding?.providerReference ? <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer" aria-label={`View funding transaction for ${bounty.title}`}>Funding tx ↗</a> : null}
-                      {payout?.providerReference ? <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer" aria-label={`View payout transaction for ${bounty.title}`}>Payout tx ↗</a> : null}
+                      {funding?.providerReference ? (
+                        <span className="public-proof-group">
+                          <a href={nimiqExplorerUrl(funding.providerReference)} target="_blank" rel="noreferrer" aria-label={`View confirmed funding transaction for ${bounty.title} on Nimiq explorer`}>Funding tx ↗</a>
+                          <button className="public-proof-copy" type="button" onClick={() => copyTxProof(funding.providerReference!, 'funding transaction')} aria-label={`Copy confirmed funding transaction link for ${bounty.title}`}>
+                            {copiedTxHash === funding.providerReference ? 'Copied ✓' : 'Copy'}
+                          </button>
+                        </span>
+                      ) : null}
+                      {payout?.providerReference ? (
+                        <span className="public-proof-group">
+                          <a href={nimiqExplorerUrl(payout.providerReference)} target="_blank" rel="noreferrer" aria-label={`View confirmed payout transaction for ${bounty.title} on Nimiq explorer`}>Payout tx ↗</a>
+                          <button className="public-proof-copy" type="button" onClick={() => copyTxProof(payout.providerReference!, 'payout transaction')} aria-label={`Copy confirmed payout transaction link for ${bounty.title}`}>
+                            {copiedTxHash === payout.providerReference ? 'Copied ✓' : 'Copy'}
+                          </button>
+                        </span>
+                      ) : null}
                     </div>
+                    {onboardingHint ? (
+                      <div className="public-onboarding-note" aria-label="Contributor workflow">
+                        <span className="onboarding-flow-tag">Workflow</span>
+                        <span>{onboardingHint}</span>
+                      </div>
+                    ) : null}
                     <div className="public-bounty-actions">
                       <div className="public-share-actions">
                         <a className="public-view-link" href={`/?bounty=${encodeURIComponent(bounty.id)}#live-bounties`} aria-label={`Open verified proof for ${bounty.title}`}>Open proof <span aria-hidden="true">→</span></a>

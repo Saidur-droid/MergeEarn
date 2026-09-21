@@ -666,6 +666,11 @@
 .public-bounty-meta { flex-wrap: wrap; gap: 7px 13px; margin-top: 18px; color: #647182; font-size: .68rem; }
 .public-proof-links { flex-wrap: wrap; gap: 8px 12px; margin-top: 14px; }
 .public-proof-links a { color: #9aa8ff; font-size: .69rem; font-weight: 720; text-decoration: none; }
+.public-proof-group { display: inline-flex; align-items: center; gap: 5px; }
+.public-proof-copy { padding: 2px 6px; border: 1px solid rgba(154,168,255,.25); border-radius: 6px; background: transparent; color: #9aa8ff; font-size: .63rem; font-weight: 720; cursor: pointer; }
+.public-proof-copy:hover,.public-proof-copy:focus-visible { border-color: rgba(154,168,255,.55); color: #dce2ff; outline: none; }
+.public-onboarding-note { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 7px 10px; border: 1px solid rgba(142,156,255,.18); border-radius: 9px; background: rgba(142,156,255,.07); color: #aeb8ff; font-size: .7rem; line-height: 1.4; }
+.onboarding-flow-tag { flex: 0 0 auto; padding: 2px 5px; border-radius: 5px; background: rgba(142,156,255,.16); color: #c9d0ff; font-size: .6rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .public-bounty-actions { justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 20px; }
 .public-view-link,.public-claim-link { color: #dbe1e9; font-size: .75rem; font-weight: 780; text-decoration: none; }
 .public-claim-link { padding: 9px 11px; border: 1px solid rgba(255,255,255,.11); border-radius: 10px; background: rgba(255,255,255,.035); }
@@ -685,6 +690,7 @@
 @media (max-width: 680px) {
   .public-bounty-grid { grid-template-columns:1fr; }
   .public-bounty-card { min-height:250px; }
+  .public-onboarding-note { align-items:flex-start; flex-direction:column; gap:5px; }
   .public-selected-proof { align-items:flex-start; flex-direction:column; }
 }
 

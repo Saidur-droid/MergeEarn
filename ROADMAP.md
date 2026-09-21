@@ -70,7 +70,7 @@ Webhook ingestion is deferred until webhook credentials/configuration are introd
 - [x] Funding transaction record
 - [x] Pending/failed/retry/success handling
 - [x] Retry/idempotency policy coverage
-- [ ] Verify against configured production Nimiq RPC and real funding transaction
+- [x] Verify against configured production Nimiq RPC and real funding transaction
 
 ## Phase 6 - Contributor workflow
 
@@ -91,7 +91,7 @@ Webhook ingestion is deferred until webhook credentials/configuration are introd
 - [x] Provider-confirmed `PAID` transition
 - [x] Retry-safe payout failure handling
 - [x] Duplicate payout prevention at database/application policy boundaries
-- [ ] Exercise a real payout from the configured payout wallet
+- [x] Exercise a real payout from the configured payout wallet
 
 ## Phase 8 - Metrics and trust
 
@@ -110,20 +110,20 @@ Webhook ingestion is deferred until webhook credentials/configuration are introd
 - [x] Security headers and server-only secret boundaries
 - [x] Production setup/runbook in README
 - [x] CI: typecheck + tests + production build
-- [ ] Deploy configured production environment
-- [ ] Mobile WebView visual QA on deployed URL
+- [x] Deploy configured production environment
+- [x] Mobile WebView visual QA on deployed URL
 - [ ] Accessibility pass on deployed URL
 - [ ] Performance pass on deployed URL
 - [ ] README screenshots
-- [ ] 60-90 second demo recording
-- [ ] Submission description
+- [x] 60-90 second demo recording
+- [x] Submission description
 - [ ] Real-user pilot
 - [ ] Fix pilot friction
-- [ ] Make repository public if competition rules require it
+- [x] Make repository public if competition rules require it
 
 ## Current release gate
 
-The code-level P0 vertical slice is implemented on PR #3 and CI is green. The remaining release gate is operational, not another mock feature pass: create/configure the dedicated Supabase project, configure GitHub OAuth, Nimiq addresses/RPC, Vercel production environment, deploy, and run one real Issue -> Fund -> Claim -> PR -> Merge -> Approve -> Pay transaction path.
+The production P0 vertical slice is deployed and has completed a real TESTNET `Issue -> Fund -> Claim -> PR -> Merge -> Approve -> Pay` lifecycle through `PAID`. During public judging, the remaining gates are operational hardening and evidence quality: keep production/CI healthy, rotate any credentials or recovery material exposed outside their secret stores, finish the final runtime-log review, and keep judge-facing proof and first-time UX reliable.
 
 ## After competition
 
