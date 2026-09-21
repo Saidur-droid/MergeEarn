@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { assertRepoMaintainer, verifyNimiqTransaction } from './server.js';
+import { assertRepoMaintainer, encryptSecret, getSession, verifyNimiqTransaction } from './server.js';
 
 const FUNDING_ADDRESS = 'NQ80 F58K 8EKP SN7A L3GB R4SX J85K EC03 8P5Y';
 
@@ -27,6 +27,9 @@ function mockRpcTransaction(overrides = {}) {
 afterEach(() => {
   vi.unstubAllGlobals();
   delete process.env.NIMIQ_RPC_URL;
+  delete process.env.SUPABASE_URL;
+  delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  delete process.env.SESSION_ENCRYPTION_KEY;
 });
 
 describe('verifyNimiqTransaction', () => {
@@ -104,6 +107,41 @@ describe('verifyNimiqTransaction', () => {
     expect(result.confirmed).toBe(false);
     expect(result.rejected).toBeUndefined();
     expect(result.reason).toBe('Transaction is pending confirmation.');
+  });
+});
+
+
+describe('session encryption rotation', () => {
+  it('invalidates a stale encrypted GitHub token instead of throwing after key rotation', async () => {
+    process.env.SUPABASE_URL = 'https://db.test.invalid';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role';
+    process.env.SESSION_ENCRYPTION_KEY = 'old-session-key-for-test';
+    const ciphertext = encryptSecret('github-token');
+
+    process.env.SESSION_ENCRYPTION_KEY = 'new-session-key-for-test';
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        text: async () => JSON.stringify([{
+          id: 'session-1',
+          user_id: 'user-1',
+          github_access_token_ciphertext: ciphertext,
+          expires_at: new Date(Date.now() + 60_000).toISOString(),
+          users: { id: 'user-1', github_user_id: 1, github_login: 'tester', avatar_url: null },
+        }]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        text: async () => '',
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const session = await getSession({ headers: { cookie: 'mergeearn_session=test-token' } });
+
+    expect(session).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(String(fetchMock.mock.calls[1][0])).toContain('/rest/v1/sessions');
+    expect(fetchMock.mock.calls[1][1]?.method).toBe('DELETE');
   });
 });
 
