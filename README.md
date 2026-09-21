@@ -3,6 +3,8 @@
 > **Fund issues. Reward merges.**
 >
 > **Judge / reviewer:** [Verify the complete public lifecycle in 60 seconds](docs/JUDGE_PROOF.md) · [Live bounty board](https://github.com/Saidur-droid/MergeEarn/issues/33)
+>
+> **Developer?** [Join the contributor pool with GitHub](https://mergeearn.vercel.app/api/auth/github) — no wallet is needed until you actually claim funded work.
 
 MergeEarn turns real GitHub issues into funded NIM bounties. Maintainers fund work, contributors solve it through a pull request, and payout is released only after GitHub work state and Nimiq payment state are independently verified.
 
