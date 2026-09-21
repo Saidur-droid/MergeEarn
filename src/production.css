@@ -187,6 +187,20 @@
   font-weight: 720;
   text-decoration: none;
 }
+.landing-nav-cta {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 10px;
+  background: rgba(255,255,255,.045);
+  color: #f2f5f9;
+  font-size: .76rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+.landing-nav-cta:hover,.landing-nav-cta:focus-visible { border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.075); }
 .landing-nav-link:hover,
 .landing-pay-link:hover,
 .landing-footer a:hover { color: #fff; }
@@ -590,7 +604,8 @@
 @media (max-width: 430px) {
   .landing-shell.landing-premium { padding-left: 14px; padding-right: 14px; }
   .landing-wordmark > span:last-child { font-size: .9rem; }
-  .landing-nav-link { font-size: .74rem; }
+  .landing-nav-link { display:none; }
+  .landing-nav-cta { min-height:34px; padding:0 10px; font-size:.7rem; }
   .landing-hero-grid { padding-top: 54px; gap: 42px; }
   .landing-copy h1 { font-size: clamp(2.8rem, 16.5vw, 4rem); line-height: .92; }
   .landing-kicker { font-size: .66rem; letter-spacing: .06em; }
@@ -749,6 +764,21 @@
   font-size:.68rem;
 }
 .public-live-metrics strong{color:#dce2e9;font-size:.76rem}
+.public-availability{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin:-2px 0 18px;
+  padding:14px 16px;
+  border:1px solid rgba(255,197,93,.18);
+  border-radius:14px;
+  background:rgba(112,72,16,.09);
+}
+.public-availability strong,.public-availability span{display:block}
+.public-availability strong{color:#f0dfb8;font-size:.82rem}
+.public-availability span{max-width:760px;margin-top:4px;color:#8e8370;font-size:.72rem;line-height:1.45}
+.public-availability a{flex:0 0 auto;color:#c6ceff;font-size:.72rem;font-weight:800;text-decoration:none}
 .public-share-actions{display:flex;align-items:center;gap:10px;min-width:0}
 .public-copy-link{
   padding:0;
@@ -763,6 +793,7 @@
 @media(max-width:680px){
   .public-market-toolbar{align-items:flex-start;flex-direction:column}
   .public-live-metrics{justify-content:flex-start}
+  .public-availability{align-items:flex-start;flex-direction:column}
   .public-bounty-actions{align-items:flex-start;flex-direction:column}
   .public-share-actions{width:100%;justify-content:space-between}
 }

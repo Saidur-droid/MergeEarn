@@ -77,6 +77,9 @@ jobs:
           paid="$(jq -r '.metrics.paid // 0' /tmp/metrics.json)"
           wallets="$(jq -r '.metrics.verifiedWallets // 0' /tmp/metrics.json)"
           contributors="$(jq -r '.metrics.activeContributors // 0' /tmp/metrics.json)"
+          registered="$(jq -r '.metrics.registeredUsers // 0' /tmp/metrics.json)"
+          new48="$(jq -r '.metrics.newUsers48h // 0' /tmp/metrics.json)"
+          available="$(jq -r '.metrics.availableFunded // 0' /tmp/metrics.json)"
           pool="$(jq -r '.metrics.contributorPool // 0' /tmp/metrics.json)"
           checked="$(date -u +'%Y-%m-%d %H:%M UTC')"
 
@@ -99,6 +102,9 @@ jobs:
           - **$paid** verified paid bounty/bounties
           - **$wallets** deduplicated verified wallet(s)
           - **$contributors** contributor(s) with bounty activity
+          - **$registered** registered GitHub user(s)
+          - **$new48** new GitHub user(s) in the last 48 hours
+          - **$available** FUNDED bounty/bounties available to claim now
           - **$pool** contributor-pool member(s)
           
           ## Current community queue

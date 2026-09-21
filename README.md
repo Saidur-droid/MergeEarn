@@ -41,6 +41,8 @@ MergeEarn is in the Cycle 2 public judging phase. Keep `main` CI green, keep pro
 
 A judge does **not** need to sign in first. Open the [60-second proof dossier](docs/JUDGE_PROOF.md) or the live public bounty board and inspect the real GitHub/Nimiq evidence. Authentication is only needed when taking a maintainer/contributor action.
 
+**Contributor signup is GitHub-first:** a new developer can sign in and join the contributor pool without connecting Nimiq Pay. A Nimiq address is required later when they actually claim a funded bounty or take a payment/funding action. Public metrics separately track registered GitHub users, new users in the last 48 hours, contributor-pool members, and currently claimable `FUNDED` bounties.
+
 For an active maintainer flow:
 
 1. Open MergeEarn inside Nimiq Pay.
