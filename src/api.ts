@@ -40,6 +40,7 @@ export const api = {
   communityStatus: () => request<{ joined: boolean; joinedAt: string | null }>('/api/community'),
   joinCommunity: (nimiqAddress?: string) => request<{ joined: boolean; joinedAt: string; alreadyJoined?: boolean }>('/api/community', { method: 'POST', body: JSON.stringify({ nimiqAddress: nimiqAddress || '' }) }),
   capabilities: (bountyId: string) => request<{ canManage: boolean }>(`/api/capabilities?bountyId=${encodeURIComponent(bountyId)}`),
+  checks: (bountyId: string) => request<PullRequestCheckState>(`/api/checks?bountyId=${encodeURIComponent(bountyId)}`),
 };
 
 export type CopilotDraft = {
@@ -68,7 +69,7 @@ export type Bounty = {
   github_repositories?: { full_name: string; default_branch: string; owner?: string; name?: string };
   source_issues?: { issue_number: number; title: string; html_url: string };
   claims?: Array<{ id: string; status: string; contributor_user_id: string }>;
-  submissions?: Array<{ id: string; verification_status: string; html_url: string; merged_at: string | null }>;
+  submissions?: Array<{ id: string; verification_status: string; html_url: string; merged_at: string | null; head_sha?: string | null; pr_author_login?: string | null }>;
   payment_transactions?: Array<{ id: string; type: string; status: string; providerReference?: string }>;
 };
 
@@ -90,4 +91,11 @@ export type Metrics = {
   verifiedWallets: number;
   repeatContributors: number;
   medianCompletionMs: number | null;
+};
+
+export type PullRequestCheckState = {
+  state: 'passing' | 'failing' | 'pending' | 'unknown';
+  totalChecks: number;
+  completedChecks: number;
+  headSha: string | null;
 };
