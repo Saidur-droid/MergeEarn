@@ -1,8 +1,8 @@
 import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { api, Bounty, CopilotDraft, Metrics, SessionUser } from './api';
+import { api, Bounty, CopilotDraft, Metrics, PullRequestCheckState, SessionUser } from './api';
 import { connectNimiqWallet, NimiqWalletSnapshot, shortNimiqAddress } from './integrations/nimiq';
 import { sendNimFundingPayment } from './payments/nimiq';
-import { contributorOnboardingHint, filterPublicBounties, nimiqExplorerUrl, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress, publicProofGlossary } from './publicBounties';
+import { contributorOnboardingHint, contributorReliabilitySignals, filterPublicBounties, nimiqExplorerUrl, PublicBountyFilter, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress, publicProofGlossary, verifiedTransactionHistory } from './publicBounties';
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
@@ -42,8 +42,9 @@ export default function App() {
   const [copiedBountyId, setCopiedBountyId] = useState<string | null>(null);
   const [copiedTxHash, setCopiedTxHash] = useState<string | null>(null);
   const [communityJoined, setCommunityJoined] = useState(false);
+  const [checkStates, setCheckStates] = useState<Record<string, PullRequestCheckState>>({});
   const sponsorTarget = Number(new URLSearchParams(window.location.search).get('sponsor') || '0');
-  const sponsorIssues = [55, 56, 57, 58];
+  const sponsorIssues = [66, 67, 68, 69];
 
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
   const selectedIssueData = issues.find((issue) => issue.id === selectedIssue) || null;
@@ -52,6 +53,8 @@ export default function App() {
   const availableFundedBounties = useMemo(() => publicBounties.filter((bounty) => bounty.status === 'FUNDED'), [publicBounties]);
   const visiblePublicBounties = useMemo(() => filterPublicBounties(publicBounties, publicFilter).slice(0, 9), [publicBounties, publicFilter]);
   const judgeProofBounty = useMemo(() => publicBounties.find((bounty) => bounty.status === 'PAID') || publicBounties[0] || null, [publicBounties]);
+  const transactionHistory = useMemo(() => verifiedTransactionHistory(publicBounties), [publicBounties]);
+  const contributorSignals = useMemo(() => contributorReliabilitySignals(publicBounties), [publicBounties]);
 
   const run = useCallback(async <T,>(label: string, work: () => Promise<T>, success?: string): Promise<T | null> => {
     setBusy(label);
@@ -97,6 +100,22 @@ export default function App() {
       }
     })();
   }, [refreshProduct]);
+
+  useEffect(() => {
+    const withSubmissions = publicBounties.filter((bounty) => bounty.submissions?.[0]?.head_sha);
+    if (!withSubmissions.length) return;
+    let cancelled = false;
+    Promise.all(withSubmissions.map(async (bounty) => {
+      try {
+        return [bounty.id, await api.checks(bounty.id)] as const;
+      } catch {
+        return [bounty.id, { state: 'unknown', totalChecks: 0, completedChecks: 0, headSha: bounty.submissions?.[0]?.head_sha || null } satisfies PullRequestCheckState] as const;
+      }
+    })).then((entries) => {
+      if (!cancelled) setCheckStates((current) => ({ ...current, ...Object.fromEntries(entries) }));
+    });
+    return () => { cancelled = true; };
+  }, [publicBounties]);
 
   useEffect(() => {
     if (!selectedRepository) {
@@ -527,6 +546,7 @@ export default function App() {
                   key={filter}
                   onClick={() => setPublicFilter(filter)}
                   type="button"
+                  aria-pressed={publicFilter === filter}
                 >
                   {filter === 'all' ? 'All' : filter === 'open' ? 'Open' : 'Paid'}
                 </button>
@@ -564,6 +584,7 @@ export default function App() {
                 const submission = bounty.submissions?.[0];
                 const progress = publicLifecycleProgress(bounty.status);
                 const onboardingHint = contributorOnboardingHint(bounty.status);
+                const checkState = checkStates[bounty.id];
                 return (
                   <article className={`public-bounty-card ${selectedBountyId === bounty.id ? 'featured' : ''}`} id={`bounty-${bounty.id}`} key={bounty.id} aria-labelledby={`bounty-title-${bounty.id}`}>
                     <div className="public-bounty-topline">
@@ -575,6 +596,7 @@ export default function App() {
                     <div className="public-bounty-meta">
                       <span>{bounty.github_repositories?.full_name || 'GitHub repository'}</span>
                       <span>Issue #{bounty.source_issues?.issue_number || '—'}</span>
+                      {submission ? <span className={`ci-state ci-${checkState?.state || 'unknown'}`} aria-label={`GitHub CI status: ${checkState?.state || 'unknown'}`}>CI: {checkState?.state || 'unknown'}</span> : null}
                     </div>
                     <div className="public-progress" aria-label={`Lifecycle progress: ${progress.label}`}>
                       <div className="public-progress-copy">
@@ -654,6 +676,50 @@ export default function App() {
           ) : null}
         </section>
 
+        <section className="proof-glossary-section trust-history-section" aria-labelledby="transaction-history-title">
+          <div className="public-market-heading">
+            <div>
+              <p className="process-eyebrow">Verified money trail</p>
+              <h2 id="transaction-history-title">Confirmed transaction history.</h2>
+            </div>
+            <span className="public-market-note">Only server-confirmed Nimiq funding and payout proofs appear here.</span>
+          </div>
+          {transactionHistory.length ? (
+            <div className="trust-history-grid">
+              {transactionHistory.map((item) => (
+                <article className="trust-history-card" key={item.id}>
+                  <span>{item.type}</span>
+                  <strong>{item.amountNim} NIM</strong>
+                  <p>{item.bountyTitle}</p>
+                  <a href={item.explorerUrl} target="_blank" rel="noreferrer">Verified Nimiq proof ↗</a>
+                </article>
+              ))}
+            </div>
+          ) : <div className="public-empty"><strong>No confirmed transactions yet.</strong><span>Confirmed funding and payout records will appear here automatically.</span></div>}
+        </section>
+
+        <section className="proof-glossary-section trust-history-section" aria-labelledby="contributor-reliability-title">
+          <div className="public-market-heading">
+            <div>
+              <p className="process-eyebrow">Evidence-based contributor history</p>
+              <h2 id="contributor-reliability-title">Reliability without invented scores.</h2>
+            </div>
+            <span className="public-market-note">Signals come only from GitHub-verified merges and completed MergeEarn payout lifecycles.</span>
+          </div>
+          {contributorSignals.length ? (
+            <div className="trust-history-grid">
+              {contributorSignals.map((signal) => (
+                <article className="trust-history-card" key={signal.login}>
+                  <span>GitHub contributor</span>
+                  <strong>@{signal.login}</strong>
+                  <p>{signal.verifiedMerges} verified merge{signal.verifiedMerges === 1 ? '' : 's'} · {signal.paidCompletions} paid completion{signal.paidCompletions === 1 ? '' : 's'}</p>
+                  <small>{signal.paidCompletions > 0 ? 'Verified MergeEarn completion history' : 'First verified contribution; no paid completion yet'}</small>
+                </article>
+              ))}
+            </div>
+          ) : <div className="public-empty"><strong>No verified contributor history yet.</strong><span>Signals appear only after GitHub verifies a linked merge.</span></div>}
+        </section>
+
         <section className="proof-glossary-section" aria-labelledby="proof-glossary-title">
           <div className="public-market-heading">
             <div>
@@ -686,12 +752,12 @@ export default function App() {
             {sponsorIssues.map((issueNumber) => (
               <article className={`sponsor-card ${sponsorTarget === issueNumber ? 'featured' : ''}`} id={`sponsor-${issueNumber}`} key={issueNumber}>
                 <span className="sponsor-number">Issue #{issueNumber}</span>
-                <h3>{issueNumber === 55 ? 'Show GitHub CI/check status' : issueNumber === 56 ? 'Add verified transaction history' : issueNumber === 57 ? 'Add contributor reliability signals' : 'Accessibility & performance pass'}</h3>
+                <h3>{issueNumber === 66 ? 'Open shared bounties in Nimiq Pay' : issueNumber === 67 ? 'Track privacy-safe signup sources' : issueNumber === 68 ? 'Add aggregate acquisition funnel metrics' : 'Add current README judge screenshots'}</h3>
                 <p>Small, contributor-friendly MergeEarn task. Server-created bounty, fixed 5 NIM reward, chain-verified funding.</p>
                 <div className="sponsor-actions">
                   <a href={`https://github.com/Saidur-droid/MergeEarn/issues/${issueNumber}`} target="_blank" rel="noreferrer">View issue ↗</a>
                   <button className="sponsor-share" type="button" onClick={() => shareSponsorIssue(issueNumber)}>Share</button>
-                  <button onClick={() => sponsorIssue(issueNumber)} disabled={Boolean(busy)}>{busy?.startsWith('sponsor') ? 'Working…' : 'Sponsor 5 NIM'}</button>
+                  <button onClick={() => sponsorIssue(issueNumber)} disabled={Boolean(busy)} aria-label={`Sponsor issue #${issueNumber} with 5 NIM`}>{busy?.startsWith('sponsor') ? 'Working…' : 'Sponsor 5 NIM'}</button>
                 </div>
               </article>
             ))}

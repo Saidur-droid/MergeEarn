@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       }
       const rows = await supabase('bounties', {
         query: {
-          select: '*,github_repositories(full_name,default_branch),source_issues(issue_number,title,html_url),claims(id,status,contributor_user_id),submissions(id,verification_status,html_url,merged_at),payment_transactions(id,type,status,provider_reference)',
+          select: '*,github_repositories(full_name,default_branch),source_issues(issue_number,title,html_url),claims(id,status,contributor_user_id),submissions(id,verification_status,html_url,merged_at,head_sha,pr_author_login),payment_transactions(id,type,status,provider_reference)',
           order: 'created_at.desc',
           limit: 100,
         },

@@ -85,7 +85,7 @@ Webhook ingestion is deferred until webhook credentials/configuration are introd
 
 - [x] Detect merged PR from canonical GitHub state
 - [x] Validate expected repository/base branch
-- [ ] Optional CI/check status display
+- [x] Optional CI/check status display
 - [x] Maintainer approval safeguard
 - [x] Nimiq payout request implementation
 - [x] Provider-confirmed `PAID` transition
@@ -100,8 +100,8 @@ Webhook ingestion is deferred until webhook credentials/configuration are introd
 - [x] Completion metrics
 - [x] Repeat contributor metric
 - [x] Payment transaction persistence
-- [ ] Dedicated transaction-history UI
-- [ ] Expanded contributor reliability signals
+- [x] Dedicated transaction-history UI
+- [x] Expanded contributor reliability signals
 
 ## Phase 9 - Competition polish
 
@@ -112,8 +112,8 @@ Webhook ingestion is deferred until webhook credentials/configuration are introd
 - [x] CI: typecheck + tests + production build
 - [x] Deploy configured production environment
 - [x] Mobile WebView visual QA on deployed URL
-- [ ] Accessibility pass on deployed URL
-- [ ] Performance pass on deployed URL
+- [x] Accessibility pass on deployed URL
+- [x] Performance pass on deployed URL
 - [ ] README screenshots
 - [x] 60-90 second demo recording
 - [x] Submission description

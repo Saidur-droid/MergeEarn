@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contributorOnboardingHint, filterPublicBounties, nimiqExplorerUrl, prioritizePublicBounties, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress, publicProofGlossary } from './publicBounties';
+import { contributorOnboardingHint, contributorReliabilitySignals, filterPublicBounties, nimiqExplorerUrl, prioritizePublicBounties, publicBountyShareUrl, publicBountySummary, publicLifecycleProgress, publicProofGlossary, verifiedTransactionHistory } from './publicBounties';
 import type { Bounty } from './api';
 
 function bounty(status: string): Bounty {
@@ -65,4 +65,23 @@ describe('public bounty helpers', () => {
     expect(glossary.find((entry) => entry.term === 'MERGED_VERIFIED')?.authority).toBe('GitHub');
     expect(glossary.find((entry) => entry.term === 'PAID')?.authority).toBe('Nimiq');
   });
+  it('builds transaction history from confirmed proof only', () => {
+    const item = bounty('PAID');
+    item.payment_transactions = [
+      { id: 'fund', type: 'FUNDING', status: 'CONFIRMED', providerReference: 'abc' },
+      { id: 'pending', type: 'PAYOUT', status: 'PENDING', providerReference: 'hidden' },
+    ];
+    expect(verifiedTransactionHistory([item])).toEqual([
+      expect.objectContaining({ id: 'fund', type: 'FUNDING', explorerUrl: 'https://nimiq.watch/#abc' }),
+    ]);
+  });
+
+  it('derives contributor reliability only from verified lifecycle data', () => {
+    const paid = bounty('PAID');
+    paid.submissions = [{ id: 's1', verification_status: 'VERIFIED', html_url: 'https://github.com/a/b/pull/1', merged_at: '2026-09-01T00:00:00Z', pr_author_login: 'alice' }];
+    const pending = bounty('PR_SUBMITTED');
+    pending.submissions = [{ id: 's2', verification_status: 'PENDING', html_url: 'https://github.com/a/b/pull/2', merged_at: null, pr_author_login: 'bob' }];
+    expect(contributorReliabilitySignals([paid, pending])).toEqual([{ login: 'alice', verifiedMerges: 1, paidCompletions: 1 }]);
+  });
+
 });

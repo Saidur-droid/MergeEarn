@@ -86,3 +86,48 @@ export function publicProofGlossary(): ProofGlossaryEntry[] {
     },
   ];
 }
+
+export type VerifiedTransactionHistoryItem = {
+  id: string;
+  bountyId: string;
+  bountyTitle: string;
+  amountNim: string;
+  type: string;
+  explorerUrl: string;
+};
+
+export function verifiedTransactionHistory(bounties: Bounty[]): VerifiedTransactionHistoryItem[] {
+  return bounties.flatMap((bounty) =>
+    (bounty.payment_transactions || [])
+      .filter((transaction) => transaction.status === 'CONFIRMED' && transaction.providerReference)
+      .map((transaction) => ({
+        id: transaction.id,
+        bountyId: bounty.id,
+        bountyTitle: bounty.title,
+        amountNim: bounty.reward_amount_nim,
+        type: transaction.type,
+        explorerUrl: nimiqExplorerUrl(transaction.providerReference!),
+      })),
+  );
+}
+
+export type ContributorReliabilitySignal = {
+  login: string;
+  verifiedMerges: number;
+  paidCompletions: number;
+};
+
+export function contributorReliabilitySignals(bounties: Bounty[]): ContributorReliabilitySignal[] {
+  const byLogin = new Map<string, ContributorReliabilitySignal>();
+  for (const bounty of bounties) {
+    for (const submission of bounty.submissions || []) {
+      const login = submission.pr_author_login?.trim();
+      if (!login || submission.verification_status !== 'VERIFIED') continue;
+      const current = byLogin.get(login) || { login, verifiedMerges: 0, paidCompletions: 0 };
+      current.verifiedMerges += 1;
+      if (bounty.status === 'PAID') current.paidCompletions += 1;
+      byLogin.set(login, current);
+    }
+  }
+  return [...byLogin.values()].sort((a, b) => b.paidCompletions - a.paidCompletions || b.verifiedMerges - a.verifiedMerges || a.login.localeCompare(b.login));
+}
