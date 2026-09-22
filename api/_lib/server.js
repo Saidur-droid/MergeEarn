@@ -226,15 +226,16 @@ export async function deleteSession(req) {
 }
 
 export async function github(path, token, options = {}) {
+  const headers = {
+    accept: 'application/vnd.github+json',
+    'x-github-api-version': '2022-11-28',
+    'user-agent': 'MergeEarn',
+    ...(options.headers || {}),
+  };
+  if (token) headers.authorization = `Bearer ${token}`;
   const response = await fetch(`https://api.github.com${path}`, {
     ...options,
-    headers: {
-      accept: 'application/vnd.github+json',
-      authorization: `Bearer ${token}`,
-      'x-github-api-version': '2022-11-28',
-      'user-agent': 'MergeEarn',
-      ...(options.headers || {}),
-    },
+    headers,
   });
   const text = await response.text();
   const data = text ? JSON.parse(text) : null;
