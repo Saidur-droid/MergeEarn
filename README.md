@@ -168,11 +168,10 @@ Read [`AGENTS.md`](AGENTS.md) first for project operating rules, then [`CONTRIBU
 
 MergeEarn keeps a small set of contributor-friendly issues open for community sponsorship.
 
-Current eligible issues:
-- #66 — public Open in Nimiq Pay CTA for shared bounty pages
-- #67 — privacy-safe acquisition source preservation through GitHub signup
-- #68 — aggregate real-user acquisition funnel metrics
+Current eligible issue:
 - #69 — current judge-flow screenshots in README
+
+Issues #66–#68 were completed in the live product and are intentionally not advertised for sponsorship.
 
 Open the self-updating bounty board: https://github.com/Saidur-droid/MergeEarn/issues/33
 
