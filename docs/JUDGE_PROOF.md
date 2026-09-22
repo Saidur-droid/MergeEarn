@@ -46,10 +46,10 @@ GitHub contributor discovery:
 https://github.com/Saidur-droid/MergeEarn/contribute
 
 Current sponsor-eligible issues:
-- #26
-- #27
-- #28
-- #31
+- #55
+- #56
+- #57
+- #58
 
 A task only becomes paid work after the live product reports it as `FUNDED`.
 
