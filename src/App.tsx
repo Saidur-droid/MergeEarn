@@ -6,6 +6,17 @@ import { contributorOnboardingHint, contributorReliabilitySignals, filterPublicB
 
 const publicFundingAddress = import.meta.env.VITE_NIMIQ_FUNDING_ADDRESS?.trim() ?? '';
 const nimiqPayDeepLink = 'https://nimpay.app/miniapps/open/mergeearn.vercel.app';
+const allowedAcquisitionSources = new Set(['nimiq-space', 'skool', 'x', 'github', 'referral']);
+
+function currentAcquisitionSource() {
+  const value = new URLSearchParams(window.location.search).get('src')?.trim().toLowerCase() || '';
+  return allowedAcquisitionSources.has(value) ? value : '';
+}
+
+function githubSignInUrl() {
+  const source = currentAcquisitionSource();
+  return source ? `/api/auth/github?src=${encodeURIComponent(source)}` : '/api/auth/github';
+}
 
 function normalizeAddress(value: string) {
   return value.replace(/\s+/g, '').toUpperCase();
@@ -44,6 +55,8 @@ export default function App() {
   const [communityJoined, setCommunityJoined] = useState(false);
   const [checkStates, setCheckStates] = useState<Record<string, PullRequestCheckState>>({});
   const sponsorTarget = Number(new URLSearchParams(window.location.search).get('sponsor') || '0');
+  const acquisitionSource = currentAcquisitionSource();
+  const signInUrl = githubSignInUrl();
   const sponsorIssues = [66, 67, 68, 69];
 
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
@@ -299,7 +312,7 @@ export default function App() {
   }
 
   async function copyBountyLink(bountyId: string) {
-    const url = publicBountyShareUrl(bountyId, window.location.origin);
+    const url = publicBountyShareUrl(bountyId, window.location.origin, 'referral');
     try {
       await navigator.clipboard.writeText(url);
       setCopiedBountyId(bountyId);
@@ -321,7 +334,7 @@ export default function App() {
   }
 
   async function shareBounty(bounty: Bounty) {
-    const url = publicBountyShareUrl(bounty.id, window.location.origin);
+    const url = publicBountyShareUrl(bounty.id, window.location.origin, 'referral');
     const text = `${bounty.title} · ${bounty.reward_amount_nim} NIM bounty on MergeEarn`;
     if (navigator.share) {
       try {
@@ -335,7 +348,7 @@ export default function App() {
   }
 
   async function shareMergeEarn() {
-    const url = window.location.origin;
+    const url = `${window.location.origin}/?src=referral`;
     const text = 'Earn NIM for verified GitHub work or sponsor a real open-source issue. GitHub proves the work. Nimiq proves the money.';
     if (navigator.share) {
       try {
@@ -400,7 +413,7 @@ export default function App() {
           <div className="landing-nav-meta">
             <span className="landing-live"><i aria-hidden="true" /> Live · verified E2E</span>
             <a className="landing-nav-link" href="https://github.com/Saidur-droid/MergeEarn" target="_blank" rel="noreferrer">Source ↗</a>
-            <a className="landing-nav-cta" href="/api/auth/github">Sign in with GitHub</a>
+            <a className="landing-nav-cta" href={signInUrl}>Sign in with GitHub</a>
           </div>
         </nav>
 
@@ -415,7 +428,7 @@ export default function App() {
               MergeEarn turns real GitHub issues into funded NIM bounties. Funding, merged work, and payout are independently re-checked before the lifecycle can advance.
             </p>
             <div className="landing-actions">
-              <a className="landing-primary" href={availableFundedBounties.length ? '#live-bounties' : '/api/auth/github'}>
+              <a className="landing-primary" href={availableFundedBounties.length ? '#live-bounties' : signInUrl}>
                 {availableFundedBounties.length ? 'Claim funded bounty' : 'Join next funded bounty'} <span aria-hidden="true">→</span>
               </a>
               <a className="landing-secondary" href="#sponsor-bounties">
@@ -427,7 +440,7 @@ export default function App() {
                 <span>Contributor</span>
                 <strong>Earn NIM for merged GitHub work</strong>
                 <p>Join with GitHub now. Connect Nimiq Pay only when you claim a funded bounty or need a payout address.</p>
-                <a href="/api/auth/github">Join free with GitHub</a>
+                <a href={signInUrl}>Join free with GitHub</a>
               </article>
               <article>
                 <span>Sponsor</span>
@@ -442,9 +455,9 @@ export default function App() {
             </div>
             <button className="landing-share-button" type="button" onClick={shareMergeEarn}>Invite a developer / Share MergeEarn</button>
             <div className="landing-utility-links">
-              <a href="/api/auth/github">Continue with GitHub <span aria-hidden="true">→</span></a>
+              <a href={signInUrl}>Continue with GitHub <span aria-hidden="true">→</span></a>
               <a href="https://youtube.com/shorts/xf0TRhqKeUE" target="_blank" rel="noreferrer">Watch 60s demo <span aria-hidden="true">↗</span></a>
-              <a href={nimiqPayDeepLink}>Open in Nimiq Pay <span aria-hidden="true">↗</span></a>
+              <a href={nimiqPayDeepLink} onClick={() => acquisitionSource && sessionStorage.setItem('mergeearn_acquisition_source', acquisitionSource)}>Open in Nimiq Pay <span aria-hidden="true">↗</span></a>
             </div>
           </div>
 
@@ -538,6 +551,17 @@ export default function App() {
             <span className="public-market-note">GitHub work + Nimiq payment state, independently verified</span>
           </div>
 
+          {metrics?.acquisitionSources?.length ? (
+            <div className="acquisition-proof" aria-label="Aggregate acquisition funnel">
+              <strong>Genuine acquisition funnel</strong>
+              <div>
+                {metrics.acquisitionSources.map((item) => (
+                  <span key={item.source}><b>{item.source}</b> · {item.registeredUsers} signup{item.registeredUsers === 1 ? '' : 's'} · {item.contributorPool} pool</span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className="public-market-toolbar" aria-label="Public bounty filters">
             <div className="public-filters" role="group" aria-label="Filter bounties">
               {(['all','open','paid'] as PublicBountyFilter[]).map((filter) => (
@@ -572,7 +596,7 @@ export default function App() {
                 <strong>No FUNDED bounty is open right now.</strong>
                 <span>That is the current growth bottleneck—not a Vercel outage. Join with GitHub now so you are registered and ready when a sponsor funds the next task.</span>
               </div>
-              <a href="/api/auth/github">Join contributor pool →</a>
+              <a href={signInUrl}>Join contributor pool →</a>
             </div>
           ) : null}
 
@@ -642,9 +666,10 @@ export default function App() {
                         <button className="public-copy-link" type="button" onClick={() => copyBountyLink(bounty.id)} aria-label={`Copy link for ${bounty.title}`}>
                           {copiedBountyId === bounty.id ? 'Copied ✓' : 'Copy link'}
                         </button>
+                        <a className="public-view-link" href={nimiqPayDeepLink} aria-label={`Open MergeEarn in Nimiq Pay for ${bounty.title}`} onClick={() => sessionStorage.setItem('mergeearn_bounty', bounty.id)}>Open in Nimiq Pay ↗</a>
                       </div>
                       {bounty.status === 'FUNDED' ? (
-                        <a className="public-claim-link" href="/api/auth/github" onClick={() => sessionStorage.setItem('mergeearn_bounty', bounty.id)} aria-label={`Claim ${bounty.title} with GitHub`}>Claim & earn</a>
+                        <a className="public-claim-link" href={signInUrl} onClick={() => sessionStorage.setItem('mergeearn_bounty', bounty.id)} aria-label={`Claim ${bounty.title} with GitHub`}>Claim & earn</a>
                       ) : null}
                     </div>
                   </article>
