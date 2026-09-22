@@ -44,7 +44,7 @@ export default function App() {
   const [communityJoined, setCommunityJoined] = useState(false);
   const [checkStates, setCheckStates] = useState<Record<string, PullRequestCheckState>>({});
   const sponsorTarget = Number(new URLSearchParams(window.location.search).get('sponsor') || '0');
-  const sponsorIssues = [55, 56, 57, 58];
+  const sponsorIssues = [66, 67, 68, 69];
 
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
   const selectedIssueData = issues.find((issue) => issue.id === selectedIssue) || null;
@@ -752,7 +752,7 @@ export default function App() {
             {sponsorIssues.map((issueNumber) => (
               <article className={`sponsor-card ${sponsorTarget === issueNumber ? 'featured' : ''}`} id={`sponsor-${issueNumber}`} key={issueNumber}>
                 <span className="sponsor-number">Issue #{issueNumber}</span>
-                <h3>{issueNumber === 55 ? 'Show GitHub CI/check status' : issueNumber === 56 ? 'Add verified transaction history' : issueNumber === 57 ? 'Add contributor reliability signals' : 'Accessibility & performance pass'}</h3>
+                <h3>{issueNumber === 66 ? 'Open shared bounties in Nimiq Pay' : issueNumber === 67 ? 'Track privacy-safe signup sources' : issueNumber === 68 ? 'Add aggregate acquisition funnel metrics' : 'Add current README judge screenshots'}</h3>
                 <p>Small, contributor-friendly MergeEarn task. Server-created bounty, fixed 5 NIM reward, chain-verified funding.</p>
                 <div className="sponsor-actions">
                   <a href={`https://github.com/Saidur-droid/MergeEarn/issues/${issueNumber}`} target="_blank" rel="noreferrer">View issue ↗</a>
