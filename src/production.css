@@ -1043,3 +1043,99 @@
   text-decoration:underline;
   outline:none;
 }
+
+
+/* Final judging accessibility + performance pass */
+.public-market,
+.proof-glossary-section,
+.sponsor-market,
+.landing-process,
+.landing-trust {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 720px;
+}
+#live-bounties,
+#sponsor-bounties,
+.proof-glossary-section {
+  scroll-margin-top: 88px;
+}
+.ci-state {
+  padding: 3px 7px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 999px;
+  font-weight: 780;
+  text-transform: capitalize;
+}
+.ci-passing { color: #83e6b6; border-color: rgba(99,217,157,.25); }
+.ci-failing { color: #ffb6b6; border-color: rgba(255,125,125,.25); }
+.ci-pending { color: #f0d798; border-color: rgba(255,197,93,.25); }
+.ci-unknown { color: #8b96a6; }
+.trust-history-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 12px;
+}
+.trust-history-card {
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  background: #090d12;
+}
+.trust-history-card > span {
+  display: block;
+  color: #8e9cff;
+  font-size: .64rem;
+  font-weight: 820;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.trust-history-card > strong {
+  display: block;
+  margin-top: 8px;
+  color: #eef2f7;
+  font-size: 1rem;
+}
+.trust-history-card > p,
+.trust-history-card > small {
+  display: block;
+  margin: 7px 0 0;
+  color: #778394;
+  font-size: .74rem;
+  line-height: 1.5;
+}
+.trust-history-card > a {
+  display: inline-block;
+  margin-top: 12px;
+  color: #aeb8ff;
+  font-size: .72rem;
+  font-weight: 780;
+  text-decoration: none;
+}
+button,
+.button-link,
+.public-claim-link,
+.sponsor-actions a,
+.sponsor-actions button {
+  min-height: 44px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #aeb8ff;
+  outline-offset: 3px;
+}
+@media(max-width:760px){
+  .trust-history-grid { grid-template-columns: 1fr; }
+}
+@media(prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
