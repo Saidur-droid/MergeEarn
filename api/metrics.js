@@ -1,6 +1,7 @@
 import { handleError, json, method, nimiqRpc, readJson, requireEnv, requireSession, supabase } from './_lib/server.js';
 
 const JOIN_EVENT = 'community.contributor_joined';
+const ACQUISITION_EVENT = 'acquisition.github_registered';
 
 function normalizeAddress(value) {
   return String(value || '').trim().replace(/\s+/g, ' ').toUpperCase();
@@ -19,16 +20,29 @@ export default async function handler(req, res) {
       if (!method(req, res, ['GET', 'POST'])) return;
 
       const session = await requireSession(req);
-      const existing = await supabase('audit_events', {
-        query: {
-          select: 'id,created_at,metadata',
-          actor_type: 'eq.USER',
-          actor_id: `eq.${session.user.id}`,
-          event_type: `eq.${JOIN_EVENT}`,
-          order: 'created_at.asc',
-          limit: 1,
-        },
-      });
+      const [existing, acquisitionEvents] = await Promise.all([
+        supabase('audit_events', {
+          query: {
+            select: 'id,created_at,metadata',
+            actor_type: 'eq.USER',
+            actor_id: `eq.${session.user.id}`,
+            event_type: `eq.${JOIN_EVENT}`,
+            order: 'created_at.asc',
+            limit: 1,
+          },
+        }),
+        supabase('audit_events', {
+          query: {
+            select: 'metadata',
+            actor_type: 'eq.USER',
+            actor_id: `eq.${session.user.id}`,
+            event_type: `eq.${ACQUISITION_EVENT}`,
+            order: 'created_at.asc',
+            limit: 1,
+          },
+        }),
+      ]);
+      const acquisitionSource = String(acquisitionEvents?.[0]?.metadata?.source || 'direct');
 
       if (req.method === 'GET') {
         return json(res, 200, {
@@ -63,6 +77,7 @@ export default async function handler(req, res) {
             githubLogin: session.user.github_login,
             nimiqAddress: nimiqAddress || null,
             source: nimiqAddress ? 'github-plus-nimiq-contributor-pool' : 'github-contributor-pool',
+            acquisitionSource,
           },
         },
       });
@@ -90,12 +105,13 @@ export default async function handler(req, res) {
       }, { 'cache-control': 'no-store' });
     }
 
-    const [bounties, payments, claims, communityJoins, users] = await Promise.all([
+    const [bounties, payments, claims, communityJoins, users, acquisitionEvents] = await Promise.all([
       supabase('bounties', { query: { select: 'id,status,reward_amount_luna,created_at,updated_at' } }),
       supabase('payment_transactions', { query: { select: 'bounty_id,type,status,amount_luna,metadata,created_at,updated_at' } }),
       supabase('claims', { query: { select: 'bounty_id,contributor_user_id,nimiq_address,status,created_at,updated_at' } }),
-      supabase('audit_events', { query: { select: 'actor_id,event_type', event_type: 'eq.community.contributor_joined' } }),
+      supabase('audit_events', { query: { select: 'actor_id,event_type,metadata', event_type: 'eq.community.contributor_joined' } }),
       supabase('users', { query: { select: 'id,created_at' } }),
+      supabase('audit_events', { query: { select: 'actor_id,event_type,metadata', event_type: 'eq.acquisition.github_registered' } }),
     ]);
 
     const count = (status) => bounties.filter((item) => item.status === status).length;
@@ -128,6 +144,23 @@ export default async function handler(req, res) {
         : (durations[durations.length / 2 - 1] + durations[durations.length / 2]) / 2
       : null;
 
+    const registrationByUser = new Map();
+    for (const event of acquisitionEvents || []) {
+      if (!event.actor_id || registrationByUser.has(event.actor_id)) continue;
+      registrationByUser.set(event.actor_id, String(event.metadata?.source || 'direct'));
+    }
+    const joinedByUser = new Map();
+    for (const event of communityJoins || []) {
+      if (!event.actor_id || joinedByUser.has(event.actor_id)) continue;
+      joinedByUser.set(event.actor_id, String(event.metadata?.acquisitionSource || registrationByUser.get(event.actor_id) || 'direct'));
+    }
+    const acquisitionSourceNames = new Set([...registrationByUser.values(), ...joinedByUser.values()]);
+    const acquisitionSources = [...acquisitionSourceNames].sort().map((source) => ({
+      source,
+      registeredUsers: [...registrationByUser.values()].filter((value) => value === source).length,
+      contributorPool: [...joinedByUser.values()].filter((value) => value === source).length,
+    }));
+
     json(res, 200, {
       publicConfig: {
         fundingAddress: requireEnv('NIMIQ_FUNDING_ADDRESS'),
@@ -150,6 +183,7 @@ export default async function handler(req, res) {
         verifiedWallets: verifiedWallets.size,
         repeatContributors: [...contributors.values()].filter((value) => value > 1).length,
         medianCompletionMs: medianMs,
+        acquisitionSources,
       },
     });
   } catch (error) {
