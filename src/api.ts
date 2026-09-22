@@ -91,6 +91,7 @@ export type Metrics = {
   verifiedWallets: number;
   repeatContributors: number;
   medianCompletionMs: number | null;
+  acquisitionSources: Array<{ source: string; registeredUsers: number; contributorPool: number }>;
 };
 
 export type PullRequestCheckState = {
