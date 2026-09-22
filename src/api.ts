@@ -40,7 +40,7 @@ export const api = {
   communityStatus: () => request<{ joined: boolean; joinedAt: string | null }>('/api/community'),
   joinCommunity: (nimiqAddress?: string) => request<{ joined: boolean; joinedAt: string; alreadyJoined?: boolean }>('/api/community', { method: 'POST', body: JSON.stringify({ nimiqAddress: nimiqAddress || '' }) }),
   capabilities: (bountyId: string) => request<{ canManage: boolean }>(`/api/capabilities?bountyId=${encodeURIComponent(bountyId)}`),
-  checks: (bountyId: string) => request<PullRequestCheckState>(`/api/checks?bountyId=${encodeURIComponent(bountyId)}`),
+  checks: (bountyId: string) => request<PullRequestCheckState>(`/api/submissions?action=checks&bountyId=${encodeURIComponent(bountyId)}`),
 };
 
 export type CopilotDraft = {
