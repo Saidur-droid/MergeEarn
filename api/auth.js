@@ -11,8 +11,17 @@ import {
   randomToken,
   requireEnv,
   sessionCookie,
+  supabase,
   upsertUser,
 } from './_lib/server.js';
+
+const ACQUISITION_EVENT = 'acquisition.github_registered';
+const ALLOWED_ACQUISITION_SOURCES = new Set(['nimiq-space', 'skool', 'x', 'github', 'referral']);
+
+function normalizeAcquisitionSource(value) {
+  const source = String(value || '').trim().toLowerCase();
+  return ALLOWED_ACQUISITION_SOURCES.has(source) ? source : null;
+}
 
 function firstHeaderValue(value) {
   return String(value || '').split(',')[0].trim();
@@ -57,6 +66,8 @@ async function startGitHubOAuth(req, res) {
   }
 
   const state = randomToken(24);
+  const url = new URL(req.url, appUrl);
+  const acquisitionSource = normalizeAcquisitionSource(queryValue(req, url, 'src'));
   const redirectUri = new URL('/api/auth/github/callback', appUrl).toString();
   const authorize = new URL('https://github.com/login/oauth/authorize');
   authorize.searchParams.set('client_id', requireEnv('GITHUB_CLIENT_ID'));
@@ -64,7 +75,14 @@ async function startGitHubOAuth(req, res) {
   authorize.searchParams.set('scope', 'read:user public_repo');
   authorize.searchParams.set('state', state);
   res.statusCode = 302;
-  res.setHeader('set-cookie', `mergeearn_oauth_state=${state}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600${appUrl.protocol === 'https:' ? '; Secure' : ''}`);
+  const secure = appUrl.protocol === 'https:' ? '; Secure' : '';
+  const sourceCookie = acquisitionSource
+    ? `mergeearn_acq_source=${encodeURIComponent(acquisitionSource)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600${secure}`
+    : `mergeearn_acq_source=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
+  res.setHeader('set-cookie', [
+    `mergeearn_oauth_state=${state}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600${secure}`,
+    sourceCookie,
+  ]);
   res.setHeader('location', authorize.toString());
   res.end();
 }
@@ -119,6 +137,28 @@ async function completeGitHubOAuth(req, res, url) {
 
   const { data: profile } = await github('/user', tokenPayload.access_token);
   const user = await upsertUser(profile);
+  const acquisitionSource = normalizeAcquisitionSource(parseCookies(req).mergeearn_acq_source) || 'direct';
+  const existingAcquisition = await supabase('audit_events', {
+    query: {
+      select: 'id',
+      actor_type: 'eq.USER',
+      actor_id: `eq.${user.id}`,
+      event_type: `eq.${ACQUISITION_EVENT}`,
+      limit: 1,
+    },
+  });
+  if (!existingAcquisition?.[0]) {
+    await supabase('audit_events', {
+      method: 'POST',
+      body: {
+        bounty_id: null,
+        actor_type: 'USER',
+        actor_id: user.id,
+        event_type: ACQUISITION_EVENT,
+        metadata: { source: acquisitionSource },
+      },
+    });
+  }
   const sessionToken = await createSession(user.id, tokenPayload.access_token);
 
   const secure = appUrl.protocol === 'https:' ? '; Secure' : '';
@@ -126,6 +166,7 @@ async function completeGitHubOAuth(req, res, url) {
   res.setHeader('set-cookie', [
     sessionCookie(sessionToken),
     `mergeearn_oauth_state=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
+    `mergeearn_acq_source=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
   ]);
   res.setHeader('location', new URL('/', appUrl).toString());
   res.end();

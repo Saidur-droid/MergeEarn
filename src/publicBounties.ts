@@ -45,8 +45,11 @@ export function publicLifecycleProgress(status: string) {
   return { label: status.replaceAll('_', ' ').toLowerCase(), step: 1, total: 5 };
 }
 
-export function publicBountyShareUrl(id: string, origin: string) {
-  return `${origin.replace(/\/$/, '')}/?bounty=${encodeURIComponent(id)}#live-bounties`;
+export function publicBountyShareUrl(id: string, origin: string, source?: string) {
+  const base = origin.replace(/\/$/, '');
+  const params = new URLSearchParams({ bounty: id });
+  if (source) params.set('src', source);
+  return `${base}/?${params.toString()}#live-bounties`;
 }
 
 export function nimiqExplorerUrl(hash: string) {

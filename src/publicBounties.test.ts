@@ -45,7 +45,9 @@ describe('public bounty helpers', () => {
 
   it('creates a canonical share URL', () => {
     expect(publicBountyShareUrl('abc 123', 'https://mergeearn.vercel.app/'))
-      .toBe('https://mergeearn.vercel.app/?bounty=abc%20123#live-bounties');
+      .toBe('https://mergeearn.vercel.app/?bounty=abc+123#live-bounties');
+    expect(publicBountyShareUrl('abc 123', 'https://mergeearn.vercel.app/', 'referral'))
+      .toBe('https://mergeearn.vercel.app/?bounty=abc+123&src=referral#live-bounties');
   });
 
   it('creates a canonical Nimiq explorer URL for confirmed proof actions', () => {

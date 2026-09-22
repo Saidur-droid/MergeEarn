@@ -6,6 +6,8 @@
 
 When continuing MergeEarn:
 
+**Owner handoff protocol:** if the owner supplies only the repository URL in a future chat, treat that as sufficient context. Inspect this handoff, current main, open issues/PRs, CI, production, and current growth state first. Do not ask the owner to repeat prior requirements. Perform safe repository work autonomously, then ask for only the exact human-only action needed (wallet signature, login, external approval, or private credential rotation) and give that action one step at a time.
+
 1. Read `README.md`, `docs/RELEASE_CHECKLIST.md`, `docs/SECURITY_RELEASE_CHECKLIST.md`, `docs/SUBMISSION_FORM.md`, and this file.
 2. Inspect latest `main` CI and the current Vercel production deployment.
 3. Continue the highest-priority unchecked release/security/submission item.
@@ -168,13 +170,21 @@ Prepared files:
 
 `docs/SUBMISSION_FORM.md` already contains the verified live app and public GitHub URLs. Remaining placeholders are for demo/promotion URLs.
 
+## Current acquisition state — 2026-09-22
+
+- Nimiq Space MergeEarn advertising campaign exists but is visibly **Pending Payment**.
+- The competition 1500 NIM advertising top-up has not yet been visibly confirmed on the campaign.
+- Do not spend the owner's NIM on that campaign while the free competition top-up is pending.
+- GitHub source-aware acquisition work is tracked in #66–#69.
+- Organic growth only: never fabricate, buy, script, or impersonate users/wallets.
+
 ## Next-session priority order
 
 1. Keep the no-login judge path reliable: public bounty evidence, GitHub links, Nimiq transaction links, live metrics, and production smoke checks.
 2. Grow genuine usage and distribution organically; never simulate or purchase users, wallets, traffic, transactions, stars, or PRs.
 3. Keep the first-time path under 60 seconds: Earn NIM / Sponsor work / Join contributor pool.
 4. Complete 2–3 fresh real sponsor → contributor → PR → merge → payout lifecycles using real independent users where available.
-5. Use the fresh contributor-friendly issues (#26–#28 and #31) for genuine community-sponsored lifecycles through the product whenever genuine contributors participate.
+5. Use the current contributor-friendly growth issues (#66–#69) for genuine community-sponsored lifecycles through the product whenever genuine contributors participate.
 6. Rotate `SESSION_ENCRYPTION_KEY`; redeploy; verify GitHub login still works.
 7. For any mainnet/real-value use, create a fresh Nimiq wallet and update public address config.
 8. Inspect production runtime errors/logs when Vercel project log access is available and keep latest `main` CI green throughout judging.
