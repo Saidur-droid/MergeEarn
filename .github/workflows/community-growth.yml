@@ -39,7 +39,7 @@ jobs:
           gh label create bounty-verified --color 5319E7 --description 'GitHub merge verified or payout approval stage' --force
           gh label create bounty-paid --color 0052CC --description 'Verified NIM payout completed' --force
 
-          issues=(55 56 57 58)
+          issues=(66 67 68 69)
           rows=""
 
           for issue in "${issues[@]}"; do
