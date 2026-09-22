@@ -1139,3 +1139,19 @@ textarea:focus-visible {
     transition-duration: .01ms !important;
   }
 }
+
+.acquisition-proof{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin:0 0 16px;
+  padding:13px 15px;
+  border:1px solid rgba(126,151,255,.16);
+  border-radius:14px;
+  background:rgba(88,106,255,.045);
+}
+.acquisition-proof>strong{color:#dfe5ed;font-size:.74rem}
+.acquisition-proof>div{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px 13px;color:#717d8d;font-size:.66rem}
+.acquisition-proof b{color:#aeb8ff;text-transform:capitalize}
+@media(max-width:680px){.acquisition-proof{flex-direction:column}.acquisition-proof>div{justify-content:flex-start}}
