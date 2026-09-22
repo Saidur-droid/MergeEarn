@@ -43,7 +43,7 @@ export default function App() {
   const [copiedTxHash, setCopiedTxHash] = useState<string | null>(null);
   const [communityJoined, setCommunityJoined] = useState(false);
   const sponsorTarget = Number(new URLSearchParams(window.location.search).get('sponsor') || '0');
-  const sponsorIssues = [26, 27, 28, 31];
+  const sponsorIssues = [55, 56, 57, 58];
 
   const selectedRepository = repositories.find((repo) => repo.id === selectedRepo) || null;
   const selectedIssueData = issues.find((issue) => issue.id === selectedIssue) || null;
@@ -686,7 +686,7 @@ export default function App() {
             {sponsorIssues.map((issueNumber) => (
               <article className={`sponsor-card ${sponsorTarget === issueNumber ? 'featured' : ''}`} id={`sponsor-${issueNumber}`} key={issueNumber}>
                 <span className="sponsor-number">Issue #{issueNumber}</span>
-                <h3>{issueNumber === 26 ? 'Add contributor onboarding' : issueNumber === 27 ? 'Copy confirmed proof links' : issueNumber === 28 ? 'Improve accessibility labels' : 'Add proof glossary'}</h3>
+                <h3>{issueNumber === 55 ? 'Show GitHub CI/check status' : issueNumber === 56 ? 'Add verified transaction history' : issueNumber === 57 ? 'Add contributor reliability signals' : 'Accessibility & performance pass'}</h3>
                 <p>Small, contributor-friendly MergeEarn task. Server-created bounty, fixed 5 NIM reward, chain-verified funding.</p>
                 <div className="sponsor-actions">
                   <a href={`https://github.com/Saidur-droid/MergeEarn/issues/${issueNumber}`} target="_blank" rel="noreferrer">View issue ↗</a>
