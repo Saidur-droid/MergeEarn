@@ -25,7 +25,11 @@ jobs:
           grep -q '"bounties":' /tmp/bounties.json
           curl --fail --silent --show-error --retry 2 --max-time 20 https://mergeearn.vercel.app/ | tee /tmp/landing.html
           grep -q 'MergeEarn' /tmp/landing.html
-          grep -q 'Browse real bounty state before you connect anything.' /tmp/landing.html
+          grep -q '<div id="root"></div>' /tmp/landing.html
+          asset="$(grep -oE 'src="/assets/[^"]+\.js"' /tmp/landing.html | head -n 1 | cut -d'"' -f2)"
+          test -n "$asset"
+          curl --fail --silent --show-error --retry 2 --max-time 20 "https://mergeearn.vercel.app$asset" --output /tmp/app.js
+          test -s /tmp/app.js
 
       - name: Open or update incident issue
         if: steps.smoke.outcome == 'failure'
