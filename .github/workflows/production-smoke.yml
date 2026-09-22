@@ -31,6 +31,7 @@ jobs:
         if: steps.smoke.outcome == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
           set -euo pipefail
@@ -47,6 +48,7 @@ jobs:
         if: steps.smoke.outcome == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
           issue="$(gh issue list --label production-health --state open --json number --jq '.[0].number // empty' 2>/dev/null || true)"
