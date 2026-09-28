@@ -41,7 +41,20 @@ MergeEarn is in the Cycle 2 public judging phase. Keep `main` CI green, keep pro
 
 ## Judge / first-time user path
 
-A judge does **not** need to sign in first. Open the [60-second proof dossier](docs/JUDGE_PROOF.md) or the live public bounty board and inspect the real GitHub/Nimiq evidence. Authentication is only needed when taking a maintainer/contributor action.
+A judge does **not** need to sign in first. Open the [60-second proof dossier](docs/JUDGE_PROOF.md), the [live app](https://mergeearn.vercel.app), or the [live public bounty board](https://github.com/Saidur-droid/MergeEarn/issues/33) and inspect the real GitHub/Nimiq evidence. Authentication is only needed when taking a maintainer/contributor action.
+
+### Current judge-flow visual overview
+
+1. **Public proof board (no login required):**
+   ![MergeEarn public proof board](docs/screenshots/public-proof-board.svg)
+   - Live app: <https://mergeearn.vercel.app> · Featured verified bounty: [live proof card](https://mergeearn.vercel.app/?bounty=2786293f-4036-4b72-ad19-852a42c04892#live-bounties) · Public metrics: [`/api/metrics`](https://mergeearn.vercel.app/api/metrics)
+
+2. **Verified funding, GitHub merge, and Nimiq payout evidence:**
+   ![MergeEarn verified funding, merge, and payout evidence](docs/screenshots/verified-lifecycle-evidence.svg)
+   - Source issue ([#1](https://github.com/Saidur-droid/MergeEarn/issues/1)) → Merged PR ([#5](https://github.com/Saidur-droid/MergeEarn/pull/5)) → Funding tx ([`e0aecb2d...4a596345`](https://nimiq.watch/#e0aecb2d9afeaa219171b5bebb9e53b438fd4031f34c6dbb91d9bd954a596345)) → Payout tx ([`7dd3034d...113437f86`](https://nimiq.watch/#7dd3034da59c8d28a3ecb14fed4d88325cd20d2795ca218cae4aa6b113437f86))
+
+3. **Sponsor & contributor entry points:**
+   ![MergeEarn sponsor and contributor entry points](docs/screenshots/sponsor-contributor-entrypoints.svg)
 
 **Contributor signup is GitHub-first:** a new developer can sign in and join the contributor pool without connecting Nimiq Pay. A Nimiq address is required later when they actually claim a funded bounty or take a payment/funding action. Public metrics separately track registered GitHub users, new users in the last 48 hours, contributor-pool members, and currently claimable `FUNDED` bounties.
 
