@@ -43,6 +43,27 @@ MergeEarn is in the Cycle 2 public judging phase. Keep `main` CI green, keep pro
 
 A judge does **not** need to sign in first. Open the [60-second proof dossier](docs/JUDGE_PROOF.md) or the live public bounty board and inspect the real GitHub/Nimiq evidence. Authentication is only needed when taking a maintainer/contributor action.
 
+<details>
+<summary>Current judge-flow screenshots — 2026-10-22</summary>
+
+Captured from the signed-out [live app](https://mergeearn.vercel.app). These are dated views of the existing TESTNET demo described above, not payment receipts or a guarantee of currently funded work. Follow the [proof dossier](docs/JUDGE_PROOF.md) to inspect the linked evidence.
+
+**Public proof board:** current availability, lifecycle state, and links to the issue, merged PR, funding and payout proofs.
+
+![Public bounty board showing no available funded work and the existing paid demo with GitHub and Nimiq proof links](docs/screenshots/public-proof-board.png)
+
+**Funding and payout evidence:** the public transaction-history section for that demo.
+
+![Public transaction history showing separate funding and payout entries with Nimiq proof links](docs/screenshots/transaction-evidence.png)
+
+**Contributor and sponsor entry points:** choose a role before signing in or connecting a wallet.
+
+![Contributor GitHub signup and sponsor task entry points on the public landing page](docs/screenshots/entry-points.png)
+
+[Capture and refresh notes](docs/screenshots/README.md)
+
+</details>
+
 **Contributor signup is GitHub-first:** a new developer can sign in and join the contributor pool without connecting Nimiq Pay. A Nimiq address is required later when they actually claim a funded bounty or take a payment/funding action. Public metrics separately track registered GitHub users, new users in the last 48 hours, contributor-pool members, and currently claimable `FUNDED` bounties.
 
 For an active maintainer flow:
