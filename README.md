@@ -8,6 +8,22 @@
 
 MergeEarn turns real GitHub issues into funded NIM bounties. Maintainers fund work, contributors solve it through a pull request, and payout is released only after GitHub work state and Nimiq payment state are independently verified.
 
+## See it live — no login required
+
+Screenshots of the currently deployed product at [mergeearn.vercel.app](https://mergeearn.vercel.app), captured 2026-10-27. The full 60-second verification path is in [docs/JUDGE_PROOF.md](docs/JUDGE_PROOF.md).
+
+**Sponsor & contributor entry points** — sign in with GitHub, join the next funded bounty, or sponsor work:
+
+![MergeEarn landing page: "Funded before work. Verified before payout." with the GitHub sign-in and sponsor/contributor entry points](docs/images/landing-entry-points.png)
+
+**Public proof board** — live funded / merged / paid bounty state, readable before connecting anything:
+
+![Public bounty board showing live counters and the PAID 5 NIM bounty card for the first completed lifecycle](docs/images/proof-board.png)
+
+**Verified funding / merge / payout evidence** — the completed lifecycle, each step independently re-checked:
+
+![Verified bounty lifecycle panel: funding confirmed, contributor claimed, pull request merged, maintainer approved, payout confirmed — PAID](docs/images/verified-lifecycle.png)
+
 **Core loop:** `Issue -> Bounty -> Fund -> Claim -> Pull Request -> Merge -> Verify -> Approve -> Pay`
 
 ## Why MergeEarn is different
