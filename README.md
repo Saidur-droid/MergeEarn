@@ -180,3 +180,12 @@ GitHub's contributor discovery page: https://github.com/Saidur-droid/MergeEarn/c
 Open the live app first: https://mergeearn.vercel.app
 
 A task is a real paid bounty only after the live app shows `FUNDED`. Sponsors approve their own Nimiq Pay transaction, MergeEarn independently verifies funding, contributors submit real GitHub pull requests, and payout remains subject to the verified merge + approval + Nimiq confirmation path.
+
+## Judge Flow & Instant Payout Architecture
+
+![MergeEarn Judge Flow Overview](docs/assets/judge-flow-overview.svg)
+
+1. **Issue Funded:** Repository maintainer funds an issue with escrowed USDC on Arc.
+2. **PR Submitted:** Contributor opens a Pull Request referencing `Fixes #<issue>`.
+3. **Automated Judge Review:** MergeEarn evaluates CI checks, diff scope, and issue acceptance criteria.
+4. **Instant On-Merge Payout:** Upon merge approval, escrowed USDC settles directly to the contributor.
